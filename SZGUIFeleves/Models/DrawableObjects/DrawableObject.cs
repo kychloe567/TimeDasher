@@ -7,18 +7,6 @@ using System.Windows.Media.Imaging;
 
 namespace SZGUIFeleves.Models
 {
-    /*
-    
-    dc.DrawRectangle;
-    dc.DrawLine;
-    dc.DrawGeometry;
-    dc.DrawEllipse;
-    dc.DrawText;
-    dc.DrawImage;
-    dc.DrawVideo;
-
-    */
-
     public abstract class DrawableObject
     {
         public Vec2d Position { get; set; }
