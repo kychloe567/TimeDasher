@@ -58,6 +58,7 @@ namespace SZGUIFeleves.Logic
                 ButtonFlags.Add(b, false);
 
             Car = new Car(new Vec2d(100, 100), new Vec2d(40,20));
+            Car.Color = Color.White;
         }
 
         public void Start()
@@ -82,10 +83,16 @@ namespace SZGUIFeleves.Logic
             ElapsedTime = DateTime.Now;
 
             ObjectsToDisplay = new List<DrawableObject>();
-            ObjectsToDisplay.Add(Car.Rect);
+            ObjectsToDisplay.Add(Car);
+
 
             Control();
             Update();
+
+            Line l = new Line(Car.FrontMiddle, Car.FrontMiddleOut, Color.Red,2);
+            ObjectsToDisplay.Add(l);
+
+
             DrawEvent.Invoke();
         }
 
@@ -93,13 +100,13 @@ namespace SZGUIFeleves.Logic
         {
             //Button control checks
             if (ButtonFlags[ButtonKey.W])
-                Car.Move(100.0f * Elapsed);
+                Car.Move(Car.SPEED * Elapsed);
             if (ButtonFlags[ButtonKey.S])
-                Car.Move(-100.0f * Elapsed);
+                Car.Move(-Car.SPEED * Elapsed);
             if (ButtonFlags[ButtonKey.A])
-                Car.RotationAngle -= 100.0f * Elapsed;
+                Car.RotateWheel(-Car.ROTATION_SPEED * Elapsed);
             if (ButtonFlags[ButtonKey.D])
-                Car.RotationAngle += 100.0f * Elapsed;
+                Car.RotateWheel(Car.ROTATION_SPEED * Elapsed);
 
             if (ButtonFlags[ButtonKey.Space])
                 Car.Brake();
