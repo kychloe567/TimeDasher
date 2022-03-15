@@ -36,6 +36,10 @@ namespace SZGUIFeleves.Logic
         private double CycleMilliseconds { get; set; }
         #endregion
 
+        #region Game Variables
+        private Car Car { get; set; }
+        #endregion
+
         public GameLogic(int WindowSizeWidth, int WindowSizeHeight)
         {
             WindowSize = new Vec2d(WindowSizeWidth, WindowSizeHeight);
@@ -52,6 +56,8 @@ namespace SZGUIFeleves.Logic
             ButtonFlags = new Dictionary<ButtonKey, bool>();
             foreach (ButtonKey b in Enum.GetValues(typeof(ButtonKey)))
                 ButtonFlags.Add(b, false);
+
+            Car = new Car(new Vec2d(100, 100), new Vec2d(40,20));
         }
 
         public void Start()
@@ -75,6 +81,9 @@ namespace SZGUIFeleves.Logic
             Elapsed = (DateTime.Now - ElapsedTime).TotalSeconds;
             ElapsedTime = DateTime.Now;
 
+            ObjectsToDisplay = new List<DrawableObject>();
+            ObjectsToDisplay.Add(Car.Rect);
+
             Control();
             Update();
             DrawEvent.Invoke();
@@ -83,12 +92,22 @@ namespace SZGUIFeleves.Logic
         private void Control()
         {
             //Button control checks
-            //if (ButtonFlags[ButtonKey.W])
-            //    ;
+            if (ButtonFlags[ButtonKey.W])
+                Car.Move(100.0f * Elapsed);
+            if (ButtonFlags[ButtonKey.S])
+                Car.Move(-100.0f * Elapsed);
+            if (ButtonFlags[ButtonKey.A])
+                Car.RotationAngle -= 100.0f * Elapsed;
+            if (ButtonFlags[ButtonKey.D])
+                Car.RotationAngle += 100.0f * Elapsed;
+
+            if (ButtonFlags[ButtonKey.Space])
+                Car.Brake();
         }
 
         private void Update()
         {
+            Car.Update();
             //Game Logic Update
         }
     }

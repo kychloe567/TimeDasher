@@ -29,7 +29,7 @@ namespace SZGUIFeleves.Models
 
         public override Vec2d GetMiddle()
         {
-            return new Vec2d((Position.x + Size.x) / 2, (Position.y + Size.y) / 2);
+            return new Vec2d(Position.x + (Size.x/2), Position.y + (Size.y / 2));
         }
     }
 }

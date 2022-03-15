@@ -137,6 +137,12 @@ namespace SZGUIFeleves.Models
                 return MathHelper.ConvertToDegrees(Math.Atan2(y, x)) + 180;
             }
         }
+
+        public void Zero()
+        {
+            x = 0;
+            y = 0;
+        }
         #endregion
 
     }

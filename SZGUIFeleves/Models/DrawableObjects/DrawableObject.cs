@@ -10,6 +10,7 @@ namespace SZGUIFeleves.Models
     public abstract class DrawableObject
     {
         public Vec2d Position { get; set; }
+        public double Rotation { get; set; }
         public double OutLineThickness { get; set; }
         public Color OutLineColor { get; set; }
         public Color Color { get; set; }

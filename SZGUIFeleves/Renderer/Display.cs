@@ -57,9 +57,12 @@ namespace SZGUIFeleves.Renderer
                 outlineBrush.Freeze();
                 pen.Freeze();
 
+                Vec2d objMiddle = obj.GetMiddle();
+                dc.PushTransform(new RotateTransform(obj.Rotation, objMiddle.x, objMiddle.y));
                 if(obj is Rectangle r)
                 {
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
+                    //Rect rect = new Rect(objMiddle.x, objMiddle.y, r.Size.x, r.Size.y);
 
                     if (obj.IsFilled)
                         dc.DrawRectangle(brush, pen, rect);
@@ -102,6 +105,7 @@ namespace SZGUIFeleves.Renderer
                         brush, 10);
                     dc.DrawText(formattedText, new Point(t.Position.x, t.Position.y));
                 }
+                dc.Pop();
             }
         }
     }
