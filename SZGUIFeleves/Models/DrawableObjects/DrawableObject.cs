@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 
 namespace SZGUIFeleves.Models
 {
-    public abstract class DrawableObject
+    public abstract class DrawableObject : IComparable
     {
         public Vec2d Position { get; set; }
         public double Rotation { get; set; }
@@ -16,6 +16,7 @@ namespace SZGUIFeleves.Models
         public Color Color { get; set; }
         public bool IsFilled { get; set; }
         public BitmapImage Texture { get; set; }
+        public DrawPriority DrawPriority { get; set; }
 
         public DrawableObject()
         {
@@ -24,6 +25,7 @@ namespace SZGUIFeleves.Models
             OutLineThickness = 1.0f;
             OutLineColor = new Color();
             IsFilled = true;
+            DrawPriority = DrawPriority.Default;
         }
 
         public DrawableObject(Vec2d position)
@@ -33,6 +35,7 @@ namespace SZGUIFeleves.Models
             OutLineThickness = 1.0f;
             OutLineColor = new Color();
             IsFilled = true;
+            DrawPriority = DrawPriority.Default;
         }
 
         public DrawableObject(Vec2d position, Color color)
@@ -42,8 +45,19 @@ namespace SZGUIFeleves.Models
             OutLineThickness = 1.0f;
             OutLineColor = color;
             IsFilled = true;
+            DrawPriority = DrawPriority.Default;
         }
 
         public abstract Vec2d GetMiddle();
+
+        public int CompareTo(object obj)
+        {
+            if (obj is null || !(obj is DrawableObject))
+                return 1;
+            else if (this is null || !(this is DrawableObject))
+                return -1;
+
+            return DrawPriority.CompareTo((obj as DrawableObject).DrawPriority);
+        }
     }
 }
