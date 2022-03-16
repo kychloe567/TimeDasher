@@ -10,7 +10,7 @@ namespace SZGUIFeleves.Logic
 {
     public delegate void DrawDelegate();
 
-    public enum ButtonKey
+    public enum ButtonKey // TODO: More buttons to add if needed
     {
         W, A, S, D,
         Up, Down, Left, Right,
@@ -77,6 +77,8 @@ namespace SZGUIFeleves.Logic
 
             Control();
             Update();
+
+            ObjectsToDisplay.Sort();
             DrawEvent.Invoke();
         }
 
