@@ -19,6 +19,10 @@ namespace SZGUIFeleves.Logic
 
     public class GameLogic : IGameModel, IGameControl
     {
+        #region App Constants
+        private const int FPSTarget = 60;
+        #endregion
+
         #region Draw Variables
         public List<DrawableObject> ObjectsToDisplay { get; set; }
         #endregion
@@ -27,12 +31,10 @@ namespace SZGUIFeleves.Logic
         public Vec2d WindowSize { get; set; }
 
         public event DrawDelegate DrawEvent;
-        private DispatcherTimer MainLoopTimer;
+        private DispatcherTimer MainLoopTimer { get; set; }
         private DateTime ElapsedTime { get; set; }
         private double Elapsed { get; set; }
         private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
-
-        private const int FPSTarget = 60;
         private double CycleMilliseconds { get; set; }
         #endregion
 
@@ -40,58 +42,87 @@ namespace SZGUIFeleves.Logic
         {
             WindowSize = new Vec2d(WindowSizeWidth, WindowSizeHeight);
 
+            // Calculating frame interval with the given FPS target
             CycleMilliseconds = 1.0f / FPSTarget * 1000.0f;
 
             ObjectsToDisplay = new List<DrawableObject>();
 
+            // Creating main loop timer
             MainLoopTimer = new DispatcherTimer();
             MainLoopTimer.Interval = new TimeSpan(0, 0, 0, 0, (int)CycleMilliseconds);
             MainLoopTimer.Tick += MainLoopTimer_Tick;
             ElapsedTime = DateTime.Now;
 
+            // Creating the button flags dictionary
             ButtonFlags = new Dictionary<ButtonKey, bool>();
             foreach (ButtonKey b in Enum.GetValues(typeof(ButtonKey)))
                 ButtonFlags.Add(b, false);
         }
 
+        /// <summary>
+        /// Game logic main enter
+        /// </summary>
         public void Start()
         {
             MainLoopTimer.Start();
         }
 
+        /// <summary>
+        /// Called by the Main Window through IGameControl
+        /// <para>Sets the given button flag in the button dictionary</para>
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="isDown"></param>
         public void SetButtonFlag(ButtonKey key, bool isDown)
         {
             ButtonFlags[key] = isDown;
         }
 
+        /// <summary>
+        /// Called by the Main Window through IGameControl
+        /// </summary>
+        /// <param name="WindowSizeWidth"></param>
+        /// <param name="WindowSizeHeight"></param>
         public void WindowSizeChanged(int WindowSizeWidth, int WindowSizeHeight)
         {
             WindowSize.x = WindowSizeWidth;
             WindowSize.y = WindowSizeHeight;
         }
 
+        /// <summary>
+        /// Main game logic loop
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainLoopTimer_Tick(object sender, EventArgs e)
         {
+            // Calculating delta time for physics calculations
             Elapsed = (DateTime.Now - ElapsedTime).TotalSeconds;
-            ElapsedTime = DateTime.Now;
+            ElapsedTime = DateTime.Now;         
 
-            Control();
-            Update();
+            Control();  // Keyboard/Mouse input
+            Update();   // Game logic update
 
-            ObjectsToDisplay.Sort();
-            DrawEvent.Invoke();
+            ObjectsToDisplay.Sort();    // Sorting drawable objects by DrawPriority (not necessary if items added in order)
+            DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
 
+        /// <summary>
+        /// Input checking
+        /// </summary>
         private void Control()
         {
-            //Button control checks
+            // Button control checks
             //if (ButtonFlags[ButtonKey.W])
             //    ;
         }
 
+        /// <summary>
+        /// Logic Update
+        /// </summary>
         private void Update()
         {
-            //Game Logic Update
+            // Game Logic Update
         }
     }
 }

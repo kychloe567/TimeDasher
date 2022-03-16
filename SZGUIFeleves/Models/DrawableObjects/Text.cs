@@ -73,7 +73,7 @@ namespace SZGUIFeleves.Models
         }
         #endregion
 
-        public override Vec2d GetMiddle()
+        public override Vec2d GetMiddle() // TODO: Implementing text middle with FontFamily/Style/Weight and FontSize
         {
             throw new NotImplementedException();
         }

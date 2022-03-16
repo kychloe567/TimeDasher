@@ -32,6 +32,10 @@ namespace SZGUIFeleves.Models
             Points.Add(point);
         }
 
+        /// <summary>
+        /// Returns the centroid of the polygon
+        /// </summary>
+        /// <returns></returns>
         public override Vec2d GetMiddle()
         {
             Vec2d middle = new Vec2d(Position);

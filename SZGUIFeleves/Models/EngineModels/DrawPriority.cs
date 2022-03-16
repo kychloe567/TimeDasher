@@ -41,14 +41,11 @@ namespace SZGUIFeleves.Models
             get { return new DrawPriority(); }
         }
 
-        public override string ToString()
-        {
-            if (Type == PriorityType.Custom)
-                return "Custom " + CustomPriority.ToString();
-            else
-                return Type.ToString();
-        }
-
+        /// <summary>
+        /// Bottom < Default < Custom < Top
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public int CompareTo(object obj)
         {
             if (obj != null && obj is DrawPriority dp)

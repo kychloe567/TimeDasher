@@ -17,7 +17,7 @@ namespace SZGUIFeleves.Renderer
         public void SetupModel(IGameModel model)
         {
             this.model = model;
-            model.DrawEvent += InvalidateVisual;
+            model.DrawEvent += InvalidateVisual;    // Subscribing to the logic's Draw event. Called after logic update
         }
 
         protected override void OnRender(DrawingContext dc)
@@ -26,10 +26,12 @@ namespace SZGUIFeleves.Renderer
             if (model is null)
                 return;
 
+            // Clearing the screen
             dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, model.WindowSize.x, model.WindowSize.y));
 
             foreach (DrawableObject obj in model.ObjectsToDisplay)
             {
+                // Creating the brush with the set Color or Texture
                 Brush brush = new SolidColorBrush();
                 if(obj.Texture is null)
                 {
@@ -41,6 +43,7 @@ namespace SZGUIFeleves.Renderer
                     brush = new ImageBrush(obj.Texture);
                 }
 
+                // Creating the pen with the set OutlineColor and OutlineThickness/Width
                 System.Windows.Media.Color outlineColor = System.Windows.Media.Color.FromArgb
                                                     ((byte)obj.OutLineColor.A, (byte)obj.OutLineColor.R, (byte)obj.OutLineColor.G, (byte)obj.OutLineColor.B);
                 Brush outlineBrush = new SolidColorBrush(outlineColor);

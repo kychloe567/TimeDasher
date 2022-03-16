@@ -18,6 +18,11 @@ namespace SZGUIFeleves.Helpers
             return angle * 180 / Math.PI;
         }
 
+        /// <summary>
+        /// Converts the given angle to [0,360]
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <returns></returns>
         public static double NormalizeAngle(double angle)
         {
             double newAngle = angle;

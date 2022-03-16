@@ -9,12 +9,29 @@ namespace SZGUIFeleves.Models
 {
     public abstract class DrawableObject : IComparable
     {
+        /// <summary>
+        /// Position in screen space
+        /// </summary>
         public Vec2d Position { get; set; }
+
         public double OutLineThickness { get; set; }
         public Color OutLineColor { get; set; }
         public Color Color { get; set; }
+
+        /// <summary>
+        /// If true, the object is filled with the set Color or set Texture
+        /// </summary>
         public bool IsFilled { get; set; }
+
+        /// <summary>
+        /// If not null, Color is ignored
+        /// </summary>
         public BitmapImage Texture { get; set; }
+
+        /// <summary>
+        /// Drawing priorty on the screen
+        /// <para>Bottom < Default < Custom < Top</para>
+        /// </summary>
         public DrawPriority DrawPriority { get; set; }
 
         public DrawableObject()
@@ -47,6 +64,10 @@ namespace SZGUIFeleves.Models
             DrawPriority = DrawPriority.Default;
         }
 
+        /// <summary>
+        /// Returns middle of the object
+        /// </summary>
+        /// <returns></returns>
         public abstract Vec2d GetMiddle();
 
         public int CompareTo(object obj)
