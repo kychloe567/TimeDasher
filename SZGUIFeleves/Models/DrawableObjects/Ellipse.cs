@@ -25,6 +25,16 @@ namespace SZGUIFeleves.Models
         {
             Radius = radius;
         }
+
+        public Ellipse(Vec2d position, double radius) : base(position)
+        {
+            Radius = new Vec2d(radius,radius);
+        }
+
+        public Ellipse(Vec2d position, double radius, Color color) : base(position, color)
+        {
+            Radius = new Vec2d(radius, radius);
+        }
         #endregion
 
         public override Vec2d GetMiddle()

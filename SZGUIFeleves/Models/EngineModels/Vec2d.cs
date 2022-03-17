@@ -134,8 +134,18 @@ namespace SZGUIFeleves.Models
         {
             get
             {
-                return MathHelper.ConvertToDegrees(Math.Atan2(y, x)) + 180;
+                return MathHelper.NormalizeAngle(MathHelper.ConvertToDegrees(Math.Atan2(y, x)));// + 180;
             }
+        }
+
+        public static double DotProduct(Vec2d a, Vec2d b)
+        {
+            return a.x * b.x + a.y * b.y;
+        }
+
+        public static double CrossProduct(Vec2d a, Vec2d b)
+        {
+            return (a.x * b.y) - (a.y * b.x);
         }
         #endregion
 

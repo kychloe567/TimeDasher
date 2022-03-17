@@ -27,7 +27,7 @@ namespace SZGUIFeleves.Renderer
                 return;
 
             // Clearing the screen
-            dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, model.WindowSize.x, model.WindowSize.y));
+            dc.DrawRectangle(Brushes.White, new Pen(Brushes.White, 1), new Rect(0, 0, model.WindowSize.x, model.WindowSize.y));
 
             foreach (DrawableObject obj in model.ObjectsToDisplay)
             {

@@ -34,6 +34,21 @@ namespace SZGUIFeleves.Models
         /// </summary>
         public DrawPriority DrawPriority { get; set; }
 
+        /// <summary>
+        /// Necessary for lighting and shadow casting
+        /// <para>True if polygon (todo) and text</para>
+        /// </summary>
+        public bool IsTransparent
+        {
+            get
+            {
+                if (this is Ellipse || this is Line || this is Rectangle)   // TODO: Polygon shadow casting
+                    return false;
+                else
+                    return true;
+            }
+        }
+
         public DrawableObject()
         {
             Position = new Vec2d();

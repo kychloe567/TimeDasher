@@ -25,6 +25,8 @@ namespace SZGUIFeleves.Logic
 
         #region Draw Variables
         public List<DrawableObject> ObjectsToDisplay { get; set; }
+        public byte[] BackgroundByteArray { get; set; }
+        private byte[] StarterBackgroundByteArray { get; set; }
         #endregion
 
         #region App Variables
@@ -36,6 +38,11 @@ namespace SZGUIFeleves.Logic
         private double Elapsed { get; set; }
         private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
         private double CycleMilliseconds { get; set; }
+        #endregion
+
+        #region Temporary Variables
+        private List<DrawableObject> Objects { get; set; }
+        private List<DynamicPointLight> PointLights { get; set; }
         #endregion
 
         public GameLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -57,6 +64,24 @@ namespace SZGUIFeleves.Logic
             ButtonFlags = new Dictionary<ButtonKey, bool>();
             foreach (ButtonKey b in Enum.GetValues(typeof(ButtonKey)))
                 ButtonFlags.Add(b, false);
+
+            Objects = new List<DrawableObject>();
+            PointLights = new List<DynamicPointLight>();
+
+            Vec2d middle = new Vec2d(WindowSizeWidth / 2, WindowSizeHeight / 2);
+            PointLights.Add(new DynamicPointLight(middle, 1.0f, 10.0f));
+
+            Rectangle r1 = new Rectangle(middle + new Vec2d(-100, -100), new Vec2d(200, 20), new Color(255, 0, 0));
+            Rectangle r2 = new Rectangle(middle + new Vec2d(100, -100), new Vec2d(50, 50), new Color(255, 0, 0));
+            Rectangle r3 = new Rectangle(middle + new Vec2d(-100, 100), new Vec2d(50, 50), new Color(255, 0, 0));
+            Rectangle r4 = new Rectangle(middle + new Vec2d(100, 100), new Vec2d(100, 50), new Color(255, 0, 0));
+            Objects.Add(r1);
+            Objects.Add(r2);
+            Objects.Add(r3);
+            Objects.Add(r4);
+            //Line l = new Line(middle + new Vec2d(-100, -100), middle + new Vec2d(100, -100), new Color(255, 255, 255), 2);
+            //Objects.Add(l);
+            StarterBackgroundByteArray = CreateScreenArray();
         }
 
         /// <summary>
@@ -98,13 +123,38 @@ namespace SZGUIFeleves.Logic
         {
             // Calculating delta time for physics calculations
             Elapsed = (DateTime.Now - ElapsedTime).TotalSeconds;
-            ElapsedTime = DateTime.Now;         
+            ElapsedTime = DateTime.Now;
+
+            foreach (var o in Objects)
+                ObjectsToDisplay.Add(o);
 
             Control();  // Keyboard/Mouse input
             Update();   // Game logic update
 
             ObjectsToDisplay.Sort();    // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
+        }
+
+        /// <summary>
+        /// Creates the default byte array for the background (for lighting)
+        /// at the start of the game
+        /// </summary>
+        /// <returns></returns>
+        public byte[] CreateScreenArray()
+        {
+            byte[] array = new byte[(int)WindowSize.x * (int)WindowSize.y * 4];
+            for (int i = 0; i < array.Count(); i+=4)
+            {
+                array[i] = 255;
+                array[i+1] = 255;
+                array[i+2] = 255;
+                array[i+3] = 255;
+                //if ((i + 1) % 4 == 0)
+                //{
+                //    array[i] = 255;
+                //}
+            }
+            return array;
         }
 
         /// <summary>
@@ -123,6 +173,20 @@ namespace SZGUIFeleves.Logic
         private void Update()
         {
             // Game Logic Update
+
+            // Background
+            BackgroundByteArray = StarterBackgroundByteArray.ToArray();
+
+            // Lighting
+            foreach(DynamicPointLight dpl in PointLights)
+            {
+                var shadows = dpl.GetShadows(ObjectsToDisplay, WindowSize);
+
+                foreach(var shadow in shadows)
+                {
+                    ObjectsToDisplay.Add(shadow);
+                }
+            }
         }
     }
 }
