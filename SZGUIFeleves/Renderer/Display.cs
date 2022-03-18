@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,10 +65,20 @@ namespace SZGUIFeleves.Renderer
                 {
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
 
-                    if (obj.IsFilled)
-                        dc.DrawRectangle(brush, pen, rect);
+                    if (r.IsRounded)
+                    {
+                        if (obj.IsFilled)
+                            dc.DrawRoundedRectangle(brush, pen, rect, r.CornerRadius.x, r.CornerRadius.y);
+                        else
+                            dc.DrawRoundedRectangle(null, pen, rect, r.CornerRadius.x, r.CornerRadius.y);
+                    }
                     else
-                        dc.DrawRectangle(null, pen, rect);
+                    {
+                        if (obj.IsFilled)
+                            dc.DrawRectangle(brush, pen, rect);
+                        else
+                            dc.DrawRectangle(null, pen, rect);
+                    }
                 }
                 else if(obj is Ellipse e)
                 {
@@ -106,6 +117,8 @@ namespace SZGUIFeleves.Renderer
                     dc.DrawText(formattedText, new Point(t.Position.x, t.Position.y));
                 }
             }
+
+            model.ObjectsToDisplay.Clear();
         }
     }
 }

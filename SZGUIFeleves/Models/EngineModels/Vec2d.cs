@@ -57,6 +57,11 @@ namespace SZGUIFeleves.Models
             return new Vec2d(a.x * x, a.y * x);
         }
 
+        public static Vec2d operator *(Vec2d a, Vec2d b)
+        {
+            return new Vec2d(a.x * b.x, a.y * b.y);
+        }
+
         public static Vec2d operator /(Vec2d a, int x)
         {
             if (x == 0)

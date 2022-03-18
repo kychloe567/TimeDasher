@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,17 +69,53 @@ namespace SZGUIFeleves.Logic
             Objects = new List<DrawableObject>();
             PointLights = new List<DynamicPointLight>();
 
+            // TEMP------------------------------------------------------------------------------------------------
             Vec2d middle = new Vec2d(WindowSizeWidth / 2, WindowSizeHeight / 2);
             PointLights.Add(new DynamicPointLight(middle, 1.0f, 10.0f));
 
-            Rectangle r1 = new Rectangle(middle + new Vec2d(-100, -100), new Vec2d(200, 20), new Color(255, 0, 0));
-            Rectangle r2 = new Rectangle(middle + new Vec2d(100, -100), new Vec2d(50, 50), new Color(255, 0, 0));
-            Rectangle r3 = new Rectangle(middle + new Vec2d(-100, 100), new Vec2d(50, 50), new Color(255, 0, 0));
-            Rectangle r4 = new Rectangle(middle + new Vec2d(100, 100), new Vec2d(100, 50), new Color(255, 0, 0));
+            Rectangle r1 = new Rectangle(middle + new Vec2d(-100, -100), new Vec2d(200, 20), new Color(100, 100, 100))
+            {
+                OutLineColor = new Color(0, 0, 0),
+                OutLineThickness = 1,
+                IsRounded = true,
+                CornerRadius = new Vec2d(5, 5)
+            };
+            Rectangle r2 = new Rectangle(middle + new Vec2d(100, -100), new Vec2d(50, 50), new Color(100, 100, 100))
+            {
+                OutLineColor = new Color(0, 0, 0),
+                OutLineThickness = 1,
+                IsRounded = true,
+                CornerRadius = new Vec2d(5, 5)
+            };
+            Rectangle r3 = new Rectangle(middle + new Vec2d(-100, 100), new Vec2d(50, 50), new Color(100, 100, 100))
+            {
+                OutLineColor = new Color(0, 0, 0),
+                OutLineThickness = 1,
+                IsRounded = true,
+                CornerRadius = new Vec2d(5, 5)
+            };
+            Rectangle r4 = new Rectangle(middle + new Vec2d(100, 100), new Vec2d(100, 50), new Color(100, 100, 100))
+            {
+                OutLineColor = new Color(0, 0, 0),
+                OutLineThickness = 1,
+                IsRounded = true,
+                CornerRadius = new Vec2d(5, 5)
+            };
             Objects.Add(r1);
             Objects.Add(r2);
-            Objects.Add(r3);
-            Objects.Add(r4);
+            //Objects.Add(r3);
+            //Objects.Add(r4);
+
+            Line l = new Line(new Vec2d(middle + new Vec2d(-300,100)), new Vec2d(middle + new Vec2d(-100,100)), new Color(100,100,100), 2);
+            Objects.Add(l);
+
+            Ellipse e = new Ellipse(middle + new Vec2d(100, 100), 25, new Color(100, 100, 100))
+            {
+                OutLineColor = new Color(0, 0, 0),
+                OutLineThickness = 1
+            };
+            Objects.Add(e);
+
             //Line l = new Line(middle + new Vec2d(-100, -100), middle + new Vec2d(100, -100), new Color(255, 255, 255), 2);
             //Objects.Add(l);
             StarterBackgroundByteArray = CreateScreenArray();
@@ -129,7 +166,12 @@ namespace SZGUIFeleves.Logic
                 ObjectsToDisplay.Add(o);
 
             Control();  // Keyboard/Mouse input
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
             Update();   // Game logic update
+            //sw.Stop();
+            //;
+            ObjectsToDisplay.Add(new Ellipse(PointLights.First().Position, 5, new Color(0, 255, 0)) { DrawPriority = DrawPriority.Top });
 
             ObjectsToDisplay.Sort();    // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
@@ -163,8 +205,14 @@ namespace SZGUIFeleves.Logic
         private void Control()
         {
             // Button control checks
-            //if (ButtonFlags[ButtonKey.W])
-            //    ;
+            if (ButtonFlags[ButtonKey.W])
+                PointLights.First().Position.y -= 100.0 * Elapsed;
+            if (ButtonFlags[ButtonKey.S])
+                PointLights.First().Position.y += 100.0 * Elapsed;
+            if (ButtonFlags[ButtonKey.A])
+                PointLights.First().Position.x -= 100.0 * Elapsed;
+            if (ButtonFlags[ButtonKey.D])
+                PointLights.First().Position.x += 100.0 * Elapsed;
         }
 
         /// <summary>
@@ -180,7 +228,7 @@ namespace SZGUIFeleves.Logic
             // Lighting
             foreach(DynamicPointLight dpl in PointLights)
             {
-                var shadows = dpl.GetShadows(ObjectsToDisplay, WindowSize);
+                var shadows = dpl.GetShadows(ObjectsToDisplay, WindowSize, 50);
 
                 foreach(var shadow in shadows)
                 {
