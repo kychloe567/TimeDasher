@@ -11,6 +11,7 @@ namespace SZGUIFeleves.Models
     {
         public double x { get; set; }
         public double y { get; set; }
+        public object Temp { get; set; }
 
         public Vec2d()
         {

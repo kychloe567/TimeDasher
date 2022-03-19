@@ -20,94 +20,78 @@ namespace SZGUIFeleves.Models
 
         public DynamicPointLight(Vec2d position)
         {
-            this.Position = position;
-            this.Intensity = 1;
-            this.Radius = 1;
+            Position = position;
+            Intensity = 1;
+            Radius = 1;
         }
 
         public DynamicPointLight(Vec2d position, double radius)
         {
-            this.Position = position;
-            this.Intensity = 1;
-            this.Radius = radius;
+            Position = position;
+            Intensity = 1;
+            Radius = radius;
         }
 
         public DynamicPointLight(Vec2d position, double intensity, double radius)
         {
-            this.Position = position;
-            this.Intensity = intensity;
-            this.Radius = radius;
+            Position = position;
+            Intensity = intensity;
+            Radius = radius;
         }
 
-        public List<Polygon> GetShadows(List<DrawableObject> objects, Vec2d WindowSize, int alpha)
+        public Shadow GetShadows(List<DrawableObject> objects, Vec2d WindowSize)
         {
-            List<Polygon> shadows = new List<Polygon>();
-
-            foreach (var obj in objects)
+            // Get all unique points and all segments
+            List<Vec2d> uniquePoints = new List<Vec2d>()
             {
-                if (obj is Polygon)
-                    continue;
-
-                Vec2d leftCorner = null;
-                Vec2d rightCorner = null;
-                double minAngle = 9999;
-                double maxAngle = -1;
-
-                if (obj is Rectangle rect)
+                 new Vec2d(0,0),
+                 new Vec2d(0, WindowSize.y),
+                 new Vec2d(WindowSize.x, WindowSize.y),
+                 new Vec2d(WindowSize.x, 0)
+            };
+            List<Line> lineSegments = new List<Line>()
+            {
+                new Line(new Vec2d(0, 0), new Vec2d(WindowSize.x, 0)),
+                new Line(new Vec2d(WindowSize.x, 0), new Vec2d(WindowSize.x, WindowSize.y)),
+                new Line(new Vec2d(WindowSize.x, WindowSize.y), new Vec2d(0, WindowSize.y)),
+                new Line(new Vec2d(0, WindowSize.y), new Vec2d(0, 0))
+            };
+            foreach (DrawableObject obj in objects)
+            {
+                if(obj is Rectangle r)
                 {
-                    if (Position.x > rect.Position.x && Position.y > rect.Position.y &&
-                       Position.x < rect.Position.x + rect.Size.x && Position.y < rect.Position.y + rect.Size.y)
-                        continue;
+                    if (IsInside(r))
+                        return null;
 
-                    List<Vec2d> corners = new List<Vec2d>();
-                    corners.Add(new Vec2d(rect.Position.x, rect.Position.y));
-                    corners.Add(new Vec2d(rect.Position.x + rect.Size.x, rect.Position.y));
-                    corners.Add(new Vec2d(rect.Position.x + rect.Size.x, rect.Position.y + rect.Size.y));
-                    corners.Add(new Vec2d(rect.Position.x, rect.Position.y + rect.Size.y));
+                    if(!uniquePoints.Contains(r.Position))
+                        uniquePoints.Add(r.Position);
+                    if (!uniquePoints.Contains(r.Position + new Vec2d(0, r.Size.y)))
+                        uniquePoints.Add(r.Position + new Vec2d(0,r.Size.y));
+                    if (!uniquePoints.Contains(r.Position + r.Size))
+                        uniquePoints.Add(r.Position + r.Size);
+                    if (!uniquePoints.Contains(r.Position + new Vec2d(r.Size.x, 0)))
+                        uniquePoints.Add(r.Position + new Vec2d(r.Size.x, 0));
 
-                    // We are on left side so angles won't work properly
-                    // The most left corner is at [270-360] and the right corners are [0-90],
-                    // because of that minAngle at the right corners are smaller, and that's wrong.
-                    // TODO: Better idea xd
-                    if (Position.x < rect.Position.x &&
-                       Position.y > rect.Position.y &&
-                       Position.y < rect.Position.y + rect.Size.y)
-                    {
-                        minAngle = (corners[0] - Position).Angle;
-                        leftCorner = corners[0];
-                        maxAngle = (corners[3] - Position).Angle;
-                        rightCorner = corners[3];
-                    }
-                    else
-                    {
-                        // All other sides are fine
-                        foreach (Vec2d corner in corners)
-                        {
-                            double angle = (corner - Position).Angle;
-                            if (angle < minAngle)
-                            {
-                                minAngle = angle;
-                                leftCorner = corner;
-                            }
-                            if (angle > maxAngle)
-                            {
-                                maxAngle = angle;
-                                rightCorner = corner;
-                            }
-                        }
-                    }
+                    lineSegments.Add(new Line(r.Position, new Vec2d(r.Position.x + r.Size.x, r.Position.y)));
+                    lineSegments.Add(new Line(new Vec2d(r.Position.x + r.Size.x, r.Position.y), new Vec2d(r.Position.x + r.Size.x, r.Position.y + r.Size.y)));
+                    lineSegments.Add(new Line(new Vec2d(r.Position.x + r.Size.x, r.Position.y + r.Size.y), new Vec2d(r.Position.x, r.Position.y + r.Size.y)));
+                    lineSegments.Add(new Line(new Vec2d(r.Position.x, r.Position.y + r.Size.y), new Vec2d(r.Position)));
                 }
                 else if(obj is Line l)
                 {
-                    leftCorner = l.Position;
-                    minAngle = (leftCorner - Position).Angle;
-                    rightCorner = l.Position2;
-                    maxAngle = (rightCorner - Position).Angle;
+                    if (!uniquePoints.Contains(l.Position))
+                        uniquePoints.Add(l.Position);
+                    if (!uniquePoints.Contains(l.Position2))
+                        uniquePoints.Add(l.Position2);
+
+                    lineSegments.Add(l);
                 }
-                else if(obj is Ellipse e)
+                else if (obj is Circle e)
                 {
-                    // TODO: Ellipse shadow
-                    if (e.Radius.x != e.Radius.y)
+                    if (IsInside(e))
+                        return null;
+
+                    if (e.Radius != e.Radius)
                         continue;
 
                     Vec2d thalesPoint = Position + (e.Position - Position) / 2;
@@ -115,116 +99,94 @@ namespace SZGUIFeleves.Models
 
                     double distBetweenCircles = (thalesPoint - e.Position).Length;
 
-                    double a = (e.Radius.x * e.Radius.x - thalesRadius * thalesRadius + distBetweenCircles * distBetweenCircles) / (2 * distBetweenCircles);
-                    double h = Math.Sqrt(e.Radius.x * e.Radius.x - a * a);
+                    double a = (e.Radius * e.Radius - thalesRadius * thalesRadius + distBetweenCircles * distBetweenCircles) / (2 * distBetweenCircles);
+                    double h = Math.Sqrt(e.Radius * e.Radius - a * a);
 
                     double cx2 = e.Position.x + a * (thalesPoint.x - e.Position.x) / distBetweenCircles;
                     double cy2 = e.Position.y + a * (thalesPoint.y - e.Position.y) / distBetweenCircles;
 
-                    leftCorner = new Vec2d(cx2 - h * (thalesPoint.y - e.Position.y) / distBetweenCircles, (cy2 + h * (thalesPoint.x - e.Position.x) / distBetweenCircles));
-                    minAngle = (leftCorner - Position).Angle;
-                    rightCorner = new Vec2d(cx2 + h * (thalesPoint.y - e.Position.y) / distBetweenCircles, (cy2 - h * (thalesPoint.x - e.Position.x) / distBetweenCircles));
-                    maxAngle = (rightCorner - Position).Angle;
-                }
+                    List<Vec2d> circlePoints = new List<Vec2d>();
 
-                if (leftCorner is null || rightCorner is null || leftCorner.x is double.NaN || rightCorner.x is double.NaN)
-                    continue;
-
-                int leftPointEdgeIndex = -1;
-                int rightPointEdgeIndex = -1;
-
-                Vec2d leftPoint = null;
-                Vec2d rightPoint = null;
-
-                List<Line> lines = new List<Line>();
-                lines.Add(new Line(new Vec2d(0, 0), new Vec2d(WindowSize.x, 0)));
-                lines.Add(new Line(new Vec2d(WindowSize.x, 0), new Vec2d(WindowSize.x, WindowSize.y)));
-                lines.Add(new Line(new Vec2d(WindowSize.x, WindowSize.y), new Vec2d(0, WindowSize.y)));
-                lines.Add(new Line(new Vec2d(0, WindowSize.y), new Vec2d(0, 0)));
-
-                for(int lineI = 0; lineI < lines.Count; lineI++)
-                {
-                    Vec2d intersectionLeft = new Ray(leftCorner, minAngle).Cast(lines[lineI]);
-                    if (!(intersectionLeft is null))
+                    for (int ang = 0; ang < 360; ang+=30)
                     {
-                        leftPoint = intersectionLeft;
-                        leftPointEdgeIndex = lineI;
+                        double dx = Math.Cos(MathHelper.ConvertToRadians(ang)) * e.Radius * 0.99;
+                        double dy = Math.Sin(MathHelper.ConvertToRadians(ang)) * e.Radius * 0.99;
+
+                        circlePoints.Add(e.Position + new Vec2d(dx, dy));
                     }
 
-                    Vec2d intersectionRight = new Ray(rightCorner, maxAngle).Cast(lines[lineI]);
-                    if (!(intersectionRight is null))
+                    for (int i = 0; i < circlePoints.Count()-1; i++)
                     {
-                        rightPoint = intersectionRight;
-                        rightPointEdgeIndex = lineI;
+                        uniquePoints.Add(circlePoints[i]);
+                        lineSegments.Add(new Line(circlePoints[i], circlePoints[i + 1]));
                     }
-                }
-
-                leftPoint = new Vec2d(Math.Round(leftPoint.x, 3), Math.Round(leftPoint.y, 3));
-                rightPoint = new Vec2d(Math.Round(rightPoint.x, 3), Math.Round(rightPoint.y, 3));
-
-                List<Vec2d> windowCorners = new List<Vec2d>()
-                {
-                    new Vec2d(0,0),
-                    new Vec2d(0, WindowSize.y),
-                    new Vec2d(WindowSize.x, WindowSize.y),
-                    new Vec2d(WindowSize.x, 0)
-                };
-
-                if (leftPointEdgeIndex == rightPointEdgeIndex)
-                {
-                    List<Vec2d> points = GetCornersInOrder(lines[rightPointEdgeIndex].Position, windowCorners);
-                    points.Insert(0, leftPoint);
-
-                    points.Add(rightPoint);
-                    points.Add(rightCorner);
-
-                    Polygon p = new Polygon(leftCorner, points, new Color(255, 255, 255, alpha));
-                    p.DrawPriority = DrawPriority.Bottom;
-                    shadows.Add(p);
-                }
-                else
-                {
-                    List<Vec2d> points = new List<Vec2d>() { leftPoint };
-                    List<Vec2d> correctCorners = GetCornersInOrder(lines[rightPointEdgeIndex].Position, windowCorners);
-
-                    foreach (Vec2d wCorner in correctCorners)
-                    {
-                        if (Math.Abs(leftPointEdgeIndex - rightPointEdgeIndex) == 1 ||
-                           (leftPointEdgeIndex == 0 && rightPointEdgeIndex == 3) ||
-                           (leftPointEdgeIndex == 3 && rightPointEdgeIndex == 0))
-                        {
-                            if (wCorner != lines[rightPointEdgeIndex].Position)
-                                points.Add(wCorner);
-                        }
-                        else
-                        {
-                            if (wCorner != lines[leftPointEdgeIndex].Position2 && wCorner != lines[rightPointEdgeIndex].Position)
-                                points.Add(wCorner);
-                        }
-                    }
-
-                    points.Add(rightPoint);
-                    points.Add(rightCorner);
-
-                    Polygon p = new Polygon(leftCorner, points, new Color(255, 255, 255, alpha));
-                    p.DrawPriority = DrawPriority.Bottom;
-                    shadows.Add(p);
+                    lineSegments.Add(new Line(circlePoints.Last(), circlePoints.First()));
+                    uniquePoints.Add(circlePoints.Last());
                 }
             }
 
-            return shadows;
+            // Get all angles
+            List<double> uniqueAngles = new List<double>();
+            foreach(Vec2d p in uniquePoints)
+            {
+                var angle = Math.Atan2(p.y - Position.y, p.x - Position.x);
+                uniqueAngles.Add(angle - 0.00001);
+                uniqueAngles.Add(angle);
+                uniqueAngles.Add(angle + 0.00001);
+                p.Temp = angle;
+            }
+
+            List<Vec2d> intersects = new List<Vec2d>();
+            foreach(double angle in uniqueAngles)
+            {
+                double dx = Math.Cos(angle);
+                double dy = Math.Sin(angle);
+
+                Ray r = new Ray(Position, new Vec2d(dx, dy));
+
+                double minDist = 99999;
+                Vec2d closestIntersect = null;
+                foreach(Line l in lineSegments)
+                {
+                    Vec2d p = r.Cast(l);
+                    if (p is null)
+                        continue;
+
+                    if((double)p.Temp < minDist)
+                    {
+                        minDist = (double)p.Temp;
+                        closestIntersect = p;
+                    }
+                }
+
+                if (closestIntersect is null)
+                    continue;
+                closestIntersect.Temp = angle;
+
+                intersects.Add(closestIntersect);
+            }
+
+            intersects.Sort((a, b) => ((double)b.Temp).CompareTo((double)a.Temp));
+            Vec2d pos = intersects[0];
+            intersects.RemoveAt(0);
+
+
+            Shadow shadow = new Shadow(pos, intersects);
+            return shadow;
         }
 
-        private List<Vec2d> GetCornersInOrder(Vec2d leftPoint, List<Vec2d> corners)
+        private bool IsInside(Rectangle r)
         {
-            if (leftPoint == corners[0])
-                return new List<Vec2d>() { corners[0], corners[1], corners[2], corners[3] };
-            else if (leftPoint == corners[1])
-                return new List<Vec2d>() { corners[1], corners[2], corners[3], corners[0] };
-            else if (leftPoint == corners[2])
-                return new List<Vec2d>() { corners[2], corners[3], corners[0], corners[1] };
-            else
-                return new List<Vec2d>() { corners[3], corners[0], corners[1], corners[2] };
+            if (Position.x > r.Position.x && Position.x < r.Position.x + r.Size.x && Position.y > r.Position.y && Position.y < r.Position.y + r.Size.y)
+                return true;
+            else return false;
+        }
+
+        private bool IsInside(Circle e)
+        {
+            if ((Position - e.Position).Length <= e.Radius)
+                return true;
+            else return false;
         }
     }
 }

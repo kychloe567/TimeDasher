@@ -42,12 +42,14 @@ namespace SZGUIFeleves.Models
         {
             get
             {
-                if (this is Ellipse || this is Line || this is Rectangle)   // TODO: Polygon shadow casting
+                if (this is Circle || this is Line || this is Rectangle)   // TODO: Polygon shadow casting
                     return false;
                 else
                     return true;
             }
         }
+
+        public Vec2d Middle { get; set; }
 
         public DrawableObject()
         {

@@ -10,7 +10,7 @@
         KeyDown="Window_KeyDown"
         KeyUp="Window_KeyUp"
         Loaded="Window_Loaded"
-        Title="MainWindow" Width="800" Height="450">
+        Title="MainWindow" Width="1280" Height="768">
     <Grid x:Name="MainGrid">
         <renderer:Display x:Name="display"/>
     </Grid>

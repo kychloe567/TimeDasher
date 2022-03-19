@@ -6,34 +6,21 @@ using System.Threading.Tasks;
 
 namespace SZGUIFeleves.Models
 {
-    public class Ellipse : DrawableObject
+    public class Circle : DrawableObject
     {
-        public Vec2d Radius { get; set; }
+        public double Radius { get; set; }
 
         #region Constructors
-        public Ellipse() : base()
-        {
-            Radius = new Vec2d();
-        }
+        public Circle() : base() { }
 
-        public Ellipse(Vec2d position, Vec2d radius) : base(position)
+        public Circle(Vec2d position, double radius) : base(position)
         {
             Radius = radius;
         }
 
-        public Ellipse(Vec2d position, Vec2d radius, Color color) : base(position, color)
+        public Circle(Vec2d position, double radius, Color color) : base(position, color)
         {
             Radius = radius;
-        }
-
-        public Ellipse(Vec2d position, double radius) : base(position)
-        {
-            Radius = new Vec2d(radius,radius);
-        }
-
-        public Ellipse(Vec2d position, double radius, Color color) : base(position, color)
-        {
-            Radius = new Vec2d(radius, radius);
         }
         #endregion
 

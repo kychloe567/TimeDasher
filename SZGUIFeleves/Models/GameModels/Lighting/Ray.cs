@@ -41,7 +41,6 @@ namespace SZGUIFeleves.Models
             var v2 = line.Position2 - line.Position;
             var v3 = new Vec2d(-Direction.y, Direction.x);
 
-
             var dot = Vec2d.DotProduct(v2,v3);
             if (Math.Abs(dot) < 0.000001)
                 return null;
@@ -50,24 +49,9 @@ namespace SZGUIFeleves.Models
             var t2 = Vec2d.DotProduct(v1, v3) / dot;
 
             if (t1 >= 0.0 && (t2 >= 0.0 && t2 <= 1.0))
-                return new Vec2d(Position + (Direction * t1));
+                return new Vec2d(Position + (Direction * t1)) { Temp = t1 };
 
             return null;
-        }
-
-        public static List<Ray> GetRays(Vec2d position, int angle)
-        {
-            List<Ray> rays = new List<Ray>();
-
-            int currentAngle = 0;
-            while(currentAngle < 360)
-            {
-                rays.Add(new Ray(position, currentAngle));
-
-                currentAngle += angle;
-            }
-
-            return rays;
         }
     }
 }
