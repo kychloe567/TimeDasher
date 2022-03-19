@@ -135,13 +135,8 @@ namespace SZGUIFeleves.Logic
             //    RecentFPS.Remove(RecentFPS.First());
             //ObjectsToDisplay.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
 
-            foreach (var o in Objects)
-                ObjectsToDisplay.Add(o);
-
             Control();  // Keyboard/Mouse input
             Update();   // Game logic update
-
-            ObjectsToDisplay.Add(new Circle(PointLights[0].Position, 5, new Color(0, 255, 0)) { DrawPriority = DrawPriority.Top });
 
             ObjectsToDisplay.Sort();    // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
@@ -153,14 +148,6 @@ namespace SZGUIFeleves.Logic
         private void Control()
         {
             // Button control checks
-            if (ButtonFlags[ButtonKey.W])
-                PointLights[0].Position.y -= 100.0 * Elapsed;
-            if (ButtonFlags[ButtonKey.S])
-                PointLights[0].Position.y += 100.0 * Elapsed;
-            if (ButtonFlags[ButtonKey.A])
-                PointLights[0].Position.x -= 100.0 * Elapsed;
-            if (ButtonFlags[ButtonKey.D])
-                PointLights[0].Position.x += 100.0 * Elapsed;
         }
 
         /// <summary>
