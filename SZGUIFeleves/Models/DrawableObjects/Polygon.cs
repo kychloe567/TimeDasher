@@ -38,6 +38,9 @@ namespace SZGUIFeleves.Models
         /// <returns></returns>
         public override Vec2d GetMiddle()
         {
+            if (!(Middle is null))
+                return Middle;
+
             Vec2d middle = new Vec2d(Position);
             foreach(Vec2d point in Points)
                 middle += point;

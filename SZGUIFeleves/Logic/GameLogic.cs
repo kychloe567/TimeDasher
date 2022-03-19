@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using SZGUIFeleves.Models;
 
@@ -34,8 +36,29 @@ namespace SZGUIFeleves.Logic
         private DispatcherTimer MainLoopTimer { get; set; }
         private DateTime ElapsedTime { get; set; }
         private double Elapsed { get; set; }
-        private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
         private double CycleMilliseconds { get; set; }
+        private List<double> RecentFPS { get; set; }
+        public int FPS
+        {
+            get
+            {
+                if (RecentFPS is null || RecentFPS.Count() == 0)
+                    return 0;
+                else
+                {
+                    return (int)Math.Floor(RecentFPS.Average());
+                }
+            }
+        }
+        private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
+        #endregion
+
+        #region Lighting Variables
+        private List<DynamicPointLight> PointLights { get; set; }
+        private const int shadowPasses = 5;
+        private const int shadowIntensity = 4;
+        private const int lightBlendingAlpha = 150;
+        private Color LightColor { get; set; }
         #endregion
 
         public GameLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -44,6 +67,7 @@ namespace SZGUIFeleves.Logic
 
             // Calculating frame interval with the given FPS target
             CycleMilliseconds = 1.0f / FPSTarget * 1000.0f;
+            RecentFPS = new List<double>();
 
             ObjectsToDisplay = new List<DrawableObject>();
 
@@ -57,6 +81,10 @@ namespace SZGUIFeleves.Logic
             ButtonFlags = new Dictionary<ButtonKey, bool>();
             foreach (ButtonKey b in Enum.GetValues(typeof(ButtonKey)))
                 ButtonFlags.Add(b, false);
+
+            PointLights = new List<DynamicPointLight>();
+
+            LightColor = new Color(255, 234, 176, lightBlendingAlpha);
         }
 
         /// <summary>
@@ -98,10 +126,22 @@ namespace SZGUIFeleves.Logic
         {
             // Calculating delta time for physics calculations
             Elapsed = (DateTime.Now - ElapsedTime).TotalSeconds;
-            ElapsedTime = DateTime.Now;         
+            ElapsedTime = DateTime.Now;
+
+            // Uncomment to get FPS property -> To display averaged FPS
+            //double currentFps = 1.0f / Elapsed;
+            //RecentFPS.Add(currentFps);
+            //if (RecentFPS.Count > 20)
+            //    RecentFPS.Remove(RecentFPS.First());
+            //ObjectsToDisplay.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+
+            foreach (var o in Objects)
+                ObjectsToDisplay.Add(o);
 
             Control();  // Keyboard/Mouse input
             Update();   // Game logic update
+
+            ObjectsToDisplay.Add(new Circle(PointLights[0].Position, 5, new Color(0, 255, 0)) { DrawPriority = DrawPriority.Top });
 
             ObjectsToDisplay.Sort();    // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
@@ -113,8 +153,14 @@ namespace SZGUIFeleves.Logic
         private void Control()
         {
             // Button control checks
-            //if (ButtonFlags[ButtonKey.W])
-            //    ;
+            if (ButtonFlags[ButtonKey.W])
+                PointLights[0].Position.y -= 100.0 * Elapsed;
+            if (ButtonFlags[ButtonKey.S])
+                PointLights[0].Position.y += 100.0 * Elapsed;
+            if (ButtonFlags[ButtonKey.A])
+                PointLights[0].Position.x -= 100.0 * Elapsed;
+            if (ButtonFlags[ButtonKey.D])
+                PointLights[0].Position.x += 100.0 * Elapsed;
         }
 
         /// <summary>
@@ -123,6 +169,23 @@ namespace SZGUIFeleves.Logic
         private void Update()
         {
             // Game Logic Update
+
+            // Lighting
+            foreach (DynamicPointLight dpl in PointLights)
+            {
+                Vec2d originalPos = new Vec2d(dpl.Position);
+                for (int i = 0; i < shadowPasses; i++)
+                {
+                    dpl.Position = originalPos + new Vec2d(i*shadowIntensity, i*shadowIntensity);
+                    var shadow = dpl.GetShadows(ObjectsToDisplay, WindowSize);
+                    if (shadow is null)
+                        continue;
+
+                    shadow.Color = LightColor;
+                    ObjectsToDisplay.Add(shadow);
+                }
+                dpl.Position = originalPos;
+            }
         }
     }
 }

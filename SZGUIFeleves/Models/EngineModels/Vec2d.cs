@@ -11,6 +11,7 @@ namespace SZGUIFeleves.Models
     {
         public double x { get; set; }
         public double y { get; set; }
+        public object Temp { get; set; }
 
         public Vec2d()
         {
@@ -57,6 +58,11 @@ namespace SZGUIFeleves.Models
             return new Vec2d(a.x * x, a.y * x);
         }
 
+        public static Vec2d operator *(Vec2d a, Vec2d b)
+        {
+            return new Vec2d(a.x * b.x, a.y * b.y);
+        }
+
         public static Vec2d operator /(Vec2d a, int x)
         {
             if (x == 0)
@@ -78,7 +84,7 @@ namespace SZGUIFeleves.Models
 
         public static bool operator ==(Vec2d a, Vec2d b)
         {
-            if (a == null || b == null)
+            if (a is null || b is null)
                 return false;
 
             if (a.x == b.x && a.y == b.y)
@@ -88,7 +94,7 @@ namespace SZGUIFeleves.Models
 
         public static bool operator !=(Vec2d a, Vec2d b)
         {
-            if (a == null || b == null)
+            if (a is null || b is null)
                 return false;
 
             if (a.x != b.x || a.y != b.y)
@@ -134,8 +140,18 @@ namespace SZGUIFeleves.Models
         {
             get
             {
-                return MathHelper.ConvertToDegrees(Math.Atan2(y, x)) + 180;
+                return MathHelper.NormalizeAngle(MathHelper.ConvertToDegrees(Math.Atan2(y, x)));// + 180;
             }
+        }
+
+        public static double DotProduct(Vec2d a, Vec2d b)
+        {
+            return a.x * b.x + a.y * b.y;
+        }
+
+        public static double CrossProduct(Vec2d a, Vec2d b)
+        {
+            return (a.x * b.y) - (a.y * b.x);
         }
         #endregion
 

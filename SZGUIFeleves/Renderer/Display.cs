@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,11 +14,13 @@ namespace SZGUIFeleves.Renderer
     public class Display : FrameworkElement
     {
         private IGameModel model;
+        private Vec2d WindowSize { get; set; }
 
-        public void SetupModel(IGameModel model)
+        public void SetupModel(IGameModel model, int windowWidth, int windowHeight)
         {
             this.model = model;
             model.DrawEvent += InvalidateVisual;    // Subscribing to the logic's Draw event. Called after logic update
+            WindowSize = new Vec2d(windowWidth, windowHeight);
         }
 
         protected override void OnRender(DrawingContext dc)
@@ -64,17 +67,27 @@ namespace SZGUIFeleves.Renderer
                 {
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
 
-                    if (obj.IsFilled)
-                        dc.DrawRectangle(brush, pen, rect);
+                    if (r.IsRounded)
+                    {
+                        if (obj.IsFilled)
+                            dc.DrawRoundedRectangle(brush, pen, rect, r.CornerRadius.x, r.CornerRadius.y);
+                        else
+                            dc.DrawRoundedRectangle(null, pen, rect, r.CornerRadius.x, r.CornerRadius.y);
+                    }
                     else
-                        dc.DrawRectangle(null, pen, rect);
+                    {
+                        if (obj.IsFilled)
+                            dc.DrawRectangle(brush, pen, rect);
+                        else
+                            dc.DrawRectangle(null, pen, rect);
+                    }
                 }
-                else if(obj is Ellipse e)
+                else if(obj is Circle e)
                 {
                     if (obj.IsFilled)
-                        dc.DrawEllipse(brush, pen, new Point(e.Position.x, e.Position.y), e.Radius.x, e.Radius.y);
+                        dc.DrawEllipse(brush, pen, new Point(e.Position.x, e.Position.y), e.Radius, e.Radius);
                     else
-                        dc.DrawEllipse(null, pen, new Point(e.Position.x, e.Position.y), e.Radius.x, e.Radius.y);
+                        dc.DrawEllipse(null, pen, new Point(e.Position.x, e.Position.y), e.Radius, e.Radius);
                 }
                 else if(obj is Line line)
                 {
