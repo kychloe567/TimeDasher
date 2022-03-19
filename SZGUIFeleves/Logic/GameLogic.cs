@@ -98,7 +98,10 @@ namespace SZGUIFeleves.Logic
         {
             // Calculating delta time for physics calculations
             Elapsed = (DateTime.Now - ElapsedTime).TotalSeconds;
-            ElapsedTime = DateTime.Now;         
+            ElapsedTime = DateTime.Now;
+
+            ObjectsToDisplay.Add(new Ellipse(new Vec2d((int)WindowSize.x / 2, (int)WindowSize.y / 2), new Vec2d(35,35), Color.White));
+            ObjectsToDisplay.Add(new Rectangle(new Vec2d(), new Vec2d(1, 1), Color.White));
 
             Control();  // Keyboard/Mouse input
             Update();   // Game logic update

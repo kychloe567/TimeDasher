@@ -31,7 +31,7 @@ namespace SZGUIFeleves
         {
             RenderOptions.SetBitmapScalingMode(MainGrid, BitmapScalingMode.NearestNeighbor);
             GameLogic logic = new GameLogic((int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
-            display.SetupModel(logic);
+            display.SetupModel(logic, (int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
             controller = new GameController(logic);
             logic.Start();
         }

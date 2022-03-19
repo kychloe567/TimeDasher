@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using SZGUIFeleves.Logic;
 using SZGUIFeleves.Models;
 
@@ -13,11 +14,19 @@ namespace SZGUIFeleves.Renderer
     public class Display : FrameworkElement
     {
         private IGameModel model;
+        private Vec2d WindowSize { get; set; }
+        private byte[] EffectToApply;
+        private bool CurrentlyApplyingEffect { get; set; }
 
-        public void SetupModel(IGameModel model)
+        public void SetupModel(IGameModel model, int windowWidth, int windowHeight)
         {
             this.model = model;
             model.DrawEvent += InvalidateVisual;    // Subscribing to the logic's Draw event. Called after logic update
+            LayoutUpdated += RenderCompleted;
+            WindowSize = new Vec2d(windowWidth, windowHeight);
+
+            EffectToApply = null;
+            CurrentlyApplyingEffect = false;
         }
 
         protected override void OnRender(DrawingContext dc)
@@ -25,6 +34,22 @@ namespace SZGUIFeleves.Renderer
             base.OnRender(dc);
             if (model is null)
                 return;
+
+            if(CurrentlyApplyingEffect)
+            {
+                WriteableBitmap target = new WriteableBitmap((int)WindowSize.x, (int)WindowSize.y, 1, 1, PixelFormats.Bgra32, null);
+
+                target.WritePixels(
+                  new Int32Rect(0, 0, (int)WindowSize.x, (int)WindowSize.y),
+                  EffectToApply, (int)WindowSize.x * 4, 0);
+
+
+                dc.DrawRectangle(new ImageBrush(target),
+                                             new Pen(Brushes.Black, 0),
+                                             new Rect(0, 0, (int)WindowSize.x, (int)WindowSize.y));
+
+                return;
+            }
 
             // Clearing the screen
             dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, model.WindowSize.x, model.WindowSize.y));
@@ -105,6 +130,30 @@ namespace SZGUIFeleves.Renderer
                         brush, 10);
                     dc.DrawText(formattedText, new Point(t.Position.x, t.Position.y));
                 }
+            }
+
+            model.ObjectsToDisplay.Clear();
+
+            //EffectToApply = new byte[0];
+            //PostEffect.GetScreenArray(this, ref EffectToApply, WindowSize);
+            //PostEffect.ApplyBloom(ref EffectToApply, WindowSize, 1);
+            //CurrentlyApplyingEffect = true;
+        }
+
+        private void RenderCompleted(object sender, EventArgs e)
+        {
+            ;
+            if (!CurrentlyApplyingEffect)
+            {
+                EffectToApply = new byte[0];
+                PostEffect.GetScreenArray(this, ref EffectToApply, WindowSize);
+                PostEffect.ApplyBloom(ref EffectToApply, WindowSize, 1);
+                CurrentlyApplyingEffect = true;
+            }
+            else
+            {
+                CurrentlyApplyingEffect = false;
+                EffectToApply = null;
             }
         }
     }
