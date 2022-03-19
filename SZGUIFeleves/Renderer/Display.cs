@@ -106,6 +106,8 @@ namespace SZGUIFeleves.Renderer
                     dc.DrawText(formattedText, new Point(t.Position.x, t.Position.y));
                 }
             }
+
+            model.ObjectsToDisplay.Clear();
         }
     }
 }
