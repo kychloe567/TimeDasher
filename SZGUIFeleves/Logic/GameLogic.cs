@@ -106,18 +106,16 @@ namespace SZGUIFeleves.Logic
             //Objects.Add(r3);
             //Objects.Add(r4);
 
-            Line l = new Line(new Vec2d(middle + new Vec2d(-300,100)), new Vec2d(middle + new Vec2d(-100,100)), new Color(100,100,100), 2);
-            Objects.Add(l);
+            Line l = new Line(new Vec2d(middle + new Vec2d(-300, 100)), new Vec2d(middle + new Vec2d(-100, 100)), new Color(100, 100, 100), 2);
+            //Objects.Add(l);
 
             Ellipse e = new Ellipse(middle + new Vec2d(100, 100), 25, new Color(100, 100, 100))
             {
                 OutLineColor = new Color(0, 0, 0),
                 OutLineThickness = 1
             };
-            Objects.Add(e);
+            //Objects.Add(e);
 
-            //Line l = new Line(middle + new Vec2d(-100, -100), middle + new Vec2d(100, -100), new Color(255, 255, 255), 2);
-            //Objects.Add(l);
             StarterBackgroundByteArray = CreateScreenArray();
         }
 

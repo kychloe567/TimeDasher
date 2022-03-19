@@ -34,36 +34,6 @@ namespace SZGUIFeleves.Models
             this.Angle = angle;
         }
 
-        public Vec2d Cast(Rectangle rect)
-        {
-            double x1 = rect.Position.x;
-            double y1 = rect.Position.y;
-            double x2 = rect.Position.x + rect.Size.x;
-            double y2 = rect.Position.y + rect.Size.y;
-
-            double x3 = Position.x;
-            double y3 = Position.y;
-            double x4 = Position.x + Direction.x;
-            double y4 = Position.y + Direction.y;
-
-            double den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-            if (den == 0)
-            {
-                return null;
-            }
-
-            double t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
-            double u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
-            if (t > 0 && t < 1 && u > 0)
-            {
-                Vec2d pt = new Vec2d();
-                pt.x = x1 + t * (x2 - x1);
-                pt.y = y1 + t * (y2 - y1);
-                return pt;
-            }
-            else
-                return null;
-        }
 
         public Vec2d Cast(Line line)
         {

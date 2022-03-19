@@ -162,39 +162,69 @@ namespace SZGUIFeleves.Models
                 leftPoint = new Vec2d(Math.Round(leftPoint.x, 3), Math.Round(leftPoint.y, 3));
                 rightPoint = new Vec2d(Math.Round(rightPoint.x, 3), Math.Round(rightPoint.y, 3));
 
+                List<Vec2d> windowCorners = new List<Vec2d>()
+                {
+                    new Vec2d(0,0),
+                    new Vec2d(0, WindowSize.y),
+                    new Vec2d(WindowSize.x, WindowSize.y),
+                    new Vec2d(WindowSize.x, 0)
+                };
+
                 if (leftPointEdgeIndex == rightPointEdgeIndex)
                 {
-                    Polygon p = new Polygon(leftCorner, new List<Vec2d> 
-                        { leftPoint, rightPoint, rightCorner }, 
-                        new Color(0, 0, 0, alpha));
-                    p.DrawPriority = DrawPriority.Bottom;
-                    shadows.Add(p);
-                }
-                else if(Math.Abs(leftPointEdgeIndex-rightPointEdgeIndex) == 1 || 
-                    (leftPointEdgeIndex == 0 && rightPointEdgeIndex == 3) || 
-                    (leftPointEdgeIndex == 3 && rightPointEdgeIndex == 0))
-                {
-                    if (leftPointEdgeIndex > rightPointEdgeIndex &&
-                      !(leftPointEdgeIndex == 3 && rightPointEdgeIndex == 0))
-                        rightPointEdgeIndex = leftPointEdgeIndex;
+                    List<Vec2d> points = GetCornersInOrder(lines[rightPointEdgeIndex].Position, windowCorners);
+                    points.Insert(0, leftPoint);
 
-                    Polygon p = new Polygon(leftCorner, new List<Vec2d> 
-                        { leftPoint, lines[rightPointEdgeIndex].Position, rightPoint, rightCorner }, 
-                        new Color(0, 0, 0, alpha));
+                    points.Add(rightPoint);
+                    points.Add(rightCorner);
+
+                    Polygon p = new Polygon(leftCorner, points, new Color(255, 255, 255, alpha));
                     p.DrawPriority = DrawPriority.Bottom;
                     shadows.Add(p);
                 }
                 else
                 {
-                    Polygon p = new Polygon(leftCorner, new List<Vec2d> 
-                        { leftPoint, lines[leftPointEdgeIndex].Position2, lines[rightPointEdgeIndex].Position, rightPoint, rightCorner }, 
-                        new Color(0, 0, 0, alpha));
+                    List<Vec2d> points = new List<Vec2d>() { leftPoint };
+                    List<Vec2d> correctCorners = GetCornersInOrder(lines[rightPointEdgeIndex].Position, windowCorners);
+
+                    foreach (Vec2d wCorner in correctCorners)
+                    {
+                        if (Math.Abs(leftPointEdgeIndex - rightPointEdgeIndex) == 1 ||
+                           (leftPointEdgeIndex == 0 && rightPointEdgeIndex == 3) ||
+                           (leftPointEdgeIndex == 3 && rightPointEdgeIndex == 0))
+                        {
+                            if (wCorner != lines[rightPointEdgeIndex].Position)
+                                points.Add(wCorner);
+                        }
+                        else
+                        {
+                            if (wCorner != lines[leftPointEdgeIndex].Position2 && wCorner != lines[rightPointEdgeIndex].Position)
+                                points.Add(wCorner);
+                        }
+                    }
+
+                    points.Add(rightPoint);
+                    points.Add(rightCorner);
+
+                    Polygon p = new Polygon(leftCorner, points, new Color(255, 255, 255, alpha));
                     p.DrawPriority = DrawPriority.Bottom;
                     shadows.Add(p);
                 }
             }
 
             return shadows;
+        }
+
+        private List<Vec2d> GetCornersInOrder(Vec2d leftPoint, List<Vec2d> corners)
+        {
+            if (leftPoint == corners[0])
+                return new List<Vec2d>() { corners[0], corners[1], corners[2], corners[3] };
+            else if (leftPoint == corners[1])
+                return new List<Vec2d>() { corners[1], corners[2], corners[3], corners[0] };
+            else if (leftPoint == corners[2])
+                return new List<Vec2d>() { corners[2], corners[3], corners[0], corners[1] };
+            else
+                return new List<Vec2d>() { corners[3], corners[0], corners[1], corners[2] };
         }
     }
 }

@@ -83,7 +83,7 @@ namespace SZGUIFeleves.Models
 
         public static bool operator ==(Vec2d a, Vec2d b)
         {
-            if (a == null || b == null)
+            if (a is null || b is null)
                 return false;
 
             if (a.x == b.x && a.y == b.y)
@@ -93,7 +93,7 @@ namespace SZGUIFeleves.Models
 
         public static bool operator !=(Vec2d a, Vec2d b)
         {
-            if (a == null || b == null)
+            if (a is null || b is null)
                 return false;
 
             if (a.x != b.x || a.y != b.y)
