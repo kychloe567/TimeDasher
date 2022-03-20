@@ -168,6 +168,9 @@ namespace SZGUIFeleves.Logic
             Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             foreach (var obj in Objects)
             {
+                if (!(obj.StateMachine is null))
+                    obj.StateMachine.Update();
+
                 if (obj.IsAffectedByCamera)
                     ObjectsToDisplayWorldSpace.Add(obj);
                 else

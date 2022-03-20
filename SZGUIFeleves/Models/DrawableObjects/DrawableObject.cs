@@ -26,7 +26,26 @@ namespace SZGUIFeleves.Models
         /// <summary>
         /// If not null, Color is ignored
         /// </summary>
-        public BitmapImage Texture { get; set; }
+        private BitmapImage texture;
+        public BitmapImage Texture
+        {
+            get
+            {
+                if (!(StateMachine is null))
+                    return StateMachine.CurrentTexture;
+
+                return texture;
+            }
+            set
+            {
+                texture = value;
+            }
+        }
+
+        /// <summary>
+        /// This state machine manages animations
+        /// </summary>
+        public StateMachine StateMachine { get; set; }
 
         /// <summary>
         /// Drawing priorty on the screen
@@ -58,7 +77,7 @@ namespace SZGUIFeleves.Models
         {
             Position = new Vec2d();
             Color = new Color();
-            OutLineThickness = 1.0f;
+            OutLineThickness = 0.0f;
             OutLineColor = new Color();
             IsFilled = true;
             DrawPriority = DrawPriority.Default;
@@ -69,7 +88,7 @@ namespace SZGUIFeleves.Models
         {
             Position = position;
             Color = new Color();
-            OutLineThickness = 1.0f;
+            OutLineThickness = 0.0f;
             OutLineColor = new Color();
             IsFilled = true;
             DrawPriority = DrawPriority.Default;
@@ -80,7 +99,7 @@ namespace SZGUIFeleves.Models
         {
             Position = position;
             Color = color;
-            OutLineThickness = 1.0f;
+            OutLineThickness = 0.0f;
             OutLineColor = color;
             IsFilled = true;
             DrawPriority = DrawPriority.Default;
