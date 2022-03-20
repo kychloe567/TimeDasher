@@ -124,16 +124,13 @@ namespace SZGUIFeleves.Models
             }
         }
 
-        public Vec2d Normalised
+        public Vec2d Normalised()
         {
-            get
-            {
-                double l = Length;
-                if (l == 0)
-                    return new Vec2d(x, y);
+            double l = Length;
+            if (l == 0)
+                return new Vec2d(x, y);
 
-                return new Vec2d(x / l, y / l);
-            }
+            return new Vec2d(x / l, y / l);
         }
 
         public double Angle

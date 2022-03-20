@@ -28,15 +28,6 @@ namespace SZGUIFeleves.Logic
 
         #region Draw Variables
         /// <summary>
-        /// List of containing all the world objects
-        /// <para>i.e:</para>
-        /// Objects.Add(Player)
-        /// <para></para>
-        /// int player = Objects.Count() - 1;
-        /// </summary>
-        public List<DrawableObject> Objects { get; set; }
-
-        /// <summary>
         /// At the end of the main loop, add all Objects to these lists
         /// to pass the objects to the renderer
         /// <para>WorldSpace - IsAffectedByCamera is true</para>
@@ -69,10 +60,10 @@ namespace SZGUIFeleves.Logic
         }
         private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
         public Camera Camera { get; set; }
+        public Scene CurrentScene { get; set; }
         #endregion
 
         #region Lighting Variables
-        private List<DynamicPointLight> PointLights { get; set; }
         private const int shadowPasses = 5;
         private const int shadowIntensity = 4;
         private const int lightBlendingAlpha = 150;
@@ -89,7 +80,6 @@ namespace SZGUIFeleves.Logic
 
             ObjectsToDisplayWorldSpace = new List<DrawableObject>();
             ObjectsToDisplayScreenSpace = new List<DrawableObject>();
-            Objects = new List<DrawableObject>();
 
             // Creating main loop timer
             MainLoopTimer = new DispatcherTimer();
@@ -102,13 +92,21 @@ namespace SZGUIFeleves.Logic
             foreach (ButtonKey b in Enum.GetValues(typeof(ButtonKey)))
                 ButtonFlags.Add(b, false);
 
-            PointLights = new List<DynamicPointLight>();
 
             LightColor = new Color(255, 234, 176, lightBlendingAlpha);
             Camera = new Camera(WindowSize)
             {
                 DeadZone = new Vec2d(75, 20),
             };
+
+            // This is an example for creating a scene/level
+            //List<DrawableObject> Objects = new List<DrawableObject>();
+            //Objects.Add(new Circle(new Vec2d(500, 200), 25, Color.Green) { IsPlayer = true });
+            //Objects.Add(new Rectangle(new Vec2d(100, 100), new Vec2d(50, 50), Color.Red));
+            //Scene s = new Scene("try1", new List<DrawableObject>(Objects), 0, new List<DynamicPointLight>());
+            //SceneManager.SaveScene(s);
+
+            CurrentScene = SceneManager.GetScene("try1");
         }
 
         /// <summary>
@@ -162,11 +160,10 @@ namespace SZGUIFeleves.Logic
             Control();  // Keyboard/Mouse input
             Update();   // Game logic update
 
-            // Uncomment to update camera position relative to the "player"
-            //Camera.UpdatePosition(Objects[player].Position, Elapsed);
+            Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
 
-            Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
-            foreach (var obj in Objects)
+            CurrentScene.Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
+            foreach (var obj in CurrentScene.Objects)
             {
                 if (!(obj.StateMachine is null))
                     obj.StateMachine.Update();
@@ -185,8 +182,14 @@ namespace SZGUIFeleves.Logic
         private void Control()
         {
             // Button control checks
-            //if (ButtonFlags[ButtonKey.W])
-            //    ;
+            if (ButtonFlags[ButtonKey.W])
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y -= 100.0f * Elapsed;
+            if (ButtonFlags[ButtonKey.S])
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y += 100.0f * Elapsed;
+            if (ButtonFlags[ButtonKey.A])
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 100.0f * Elapsed;
+            if (ButtonFlags[ButtonKey.D])
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 100.0f * Elapsed;
         }
 
         /// <summary>
@@ -197,18 +200,18 @@ namespace SZGUIFeleves.Logic
             // Game Logic Update
 
             // Lighting
-            foreach (DynamicPointLight dpl in PointLights)
+            foreach (DynamicPointLight dpl in CurrentScene.PointLights)
             {
                 Vec2d originalPos = new Vec2d(dpl.Position);
                 for (int i = 0; i < shadowPasses; i++)
                 {
                     dpl.Position = originalPos + new Vec2d(i*shadowIntensity, i*shadowIntensity);
-                    var shadow = dpl.GetShadows(Objects, WindowSize);
+                    var shadow = dpl.GetShadows(CurrentScene.Objects, WindowSize);
                     if (shadow is null)
                         continue;
 
                     shadow.Color = LightColor;
-                    Objects.Add(shadow);
+                    CurrentScene.Objects.Add(shadow);
                 }
                 dpl.Position = originalPos;
             }

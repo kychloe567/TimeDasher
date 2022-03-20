@@ -73,6 +73,8 @@ namespace SZGUIFeleves.Models
         /// </summary>
         public bool IsAffectedByCamera { get; set; }
 
+        public bool IsPlayer { get; set; }
+
         public DrawableObject()
         {
             Position = new Vec2d();
@@ -82,6 +84,7 @@ namespace SZGUIFeleves.Models
             IsFilled = true;
             DrawPriority = DrawPriority.Default;
             IsAffectedByCamera = true;
+            IsPlayer = false;
         }
 
         public DrawableObject(Vec2d position)
@@ -93,6 +96,7 @@ namespace SZGUIFeleves.Models
             IsFilled = true;
             DrawPriority = DrawPriority.Default;
             IsAffectedByCamera = true;
+            IsPlayer = false;
         }
 
         public DrawableObject(Vec2d position, Color color)
@@ -104,6 +108,7 @@ namespace SZGUIFeleves.Models
             IsFilled = true;
             DrawPriority = DrawPriority.Default;
             IsAffectedByCamera = true;
+            IsPlayer = false;
         }
 
         /// <summary>
