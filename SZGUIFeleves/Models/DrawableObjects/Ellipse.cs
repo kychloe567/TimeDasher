@@ -28,5 +28,13 @@ namespace SZGUIFeleves.Models
         {
             return new Vec2d(Position.x, Position.y);
         }
+
+        public override bool IsVisible(Camera camera)
+        {
+            if (Position.x + Radius >= camera.Position.x && Position.x - Radius < camera.Position.x + camera.WindowSize.x &&
+               Position.y + Radius >= camera.Position.y && Position.y - Radius < camera.Position.y + camera.WindowSize.y)
+                return true;
+            else return false;
+        }
     }
 }

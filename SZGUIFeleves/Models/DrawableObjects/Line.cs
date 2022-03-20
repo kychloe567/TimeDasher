@@ -47,5 +47,16 @@ namespace SZGUIFeleves.Models
         {
             return new Vec2d((Position.x + Position2.x) / 2, (Position.y + Position2.y) / 2);
         }
+
+        public override bool IsVisible(Camera camera)
+        {
+            if (Position.x >= camera.Position.x && Position.x < camera.Position.x + camera.WindowSize.x &&
+               Position.y >= camera.Position.y && Position.y < camera.Position.y + camera.WindowSize.y)
+                return true;
+            else if (Position2.x >= camera.Position.x && Position2.x < camera.Position.x + camera.WindowSize.x &&
+               Position2.y >= camera.Position.y && Position2.y < camera.Position.y + camera.WindowSize.y)
+                return true;
+            else return false;
+        }
     }
 }

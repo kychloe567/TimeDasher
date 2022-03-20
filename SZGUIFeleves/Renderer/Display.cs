@@ -30,13 +30,31 @@ namespace SZGUIFeleves.Renderer
                 return;
 
             // Clearing the screen
-            dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, model.WindowSize.x, model.WindowSize.y));
+            dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, WindowSize.x, WindowSize.y));
 
-            foreach (DrawableObject obj in model.ObjectsToDisplay)
+            // Transforming objects by the camera
+            dc.PushTransform(new TranslateTransform(-model.Camera.CenteredPosition.x, -model.Camera.CenteredPosition.y));
+
+            // Zoom not working yet
+            //dc.PushTransform(new ScaleTransform(model.Camera.Zoom, model.Camera.Zoom));
+
+            DrawObjects(ref dc, model.ObjectsToDisplayWorldSpace);
+            dc.Pop();
+
+            // Drawing the UI (or screen fixed objects)
+            DrawObjects(ref dc, model.ObjectsToDisplayScreenSpace);
+
+            model.ObjectsToDisplayWorldSpace.Clear();
+            model.ObjectsToDisplayScreenSpace.Clear();
+        }
+
+        private void DrawObjects(ref DrawingContext dc, List<DrawableObject> objects)
+        {
+            foreach (DrawableObject obj in objects)
             {
                 // Creating the brush with the set Color or Texture
                 Brush brush = new SolidColorBrush();
-                if(obj.Texture is null)
+                if (obj.Texture is null)
                 {
                     System.Windows.Media.Color color = System.Windows.Media.Color.FromArgb((byte)obj.Color.A, (byte)obj.Color.R, (byte)obj.Color.G, (byte)obj.Color.B);
                     brush = new SolidColorBrush(color);
@@ -63,8 +81,11 @@ namespace SZGUIFeleves.Renderer
                 outlineBrush.Freeze();
                 pen.Freeze();
 
-                if(obj is Rectangle r)
+                if (obj is Rectangle r)
                 {
+                    //if (!r.IsVisible(model.Camera))
+                    //    continue;
+
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
 
                     if (r.IsRounded)
@@ -82,26 +103,35 @@ namespace SZGUIFeleves.Renderer
                             dc.DrawRectangle(null, pen, rect);
                     }
                 }
-                else if(obj is Circle e)
+                else if (obj is Circle e)
                 {
+                    //if (!e.IsVisible(model.Camera))
+                    //    continue;
+
                     if (obj.IsFilled)
                         dc.DrawEllipse(brush, pen, new Point(e.Position.x, e.Position.y), e.Radius, e.Radius);
                     else
                         dc.DrawEllipse(null, pen, new Point(e.Position.x, e.Position.y), e.Radius, e.Radius);
                 }
-                else if(obj is Line line)
+                else if (obj is Line line)
                 {
+                    if (!line.IsVisible(model.Camera))
+                        continue;
+
                     dc.DrawLine(pen, new Point(line.Position.x, line.Position.y), new Point(line.Position2.x, line.Position2.y));
                 }
-                else if(obj is Polygon p)
+                else if (obj is Polygon p)
                 {
+                    if (!p.IsVisible(model.Camera))
+                        continue;
+
                     var geometry = new StreamGeometry();
                     geometry.FillRule = FillRule.EvenOdd;
                     using (StreamGeometryContext ctx = geometry.Open())
                     {
                         ctx.BeginFigure(new Point(p.Position.x, p.Position.y), obj.IsFilled, true);
 
-                        foreach(Vec2d point in p.Points)
+                        foreach (Vec2d point in p.Points)
                             ctx.LineTo(new Point(point.x, point.y), true, true);
                     }
                     geometry.Freeze();
@@ -111,7 +141,7 @@ namespace SZGUIFeleves.Renderer
                     else
                         dc.DrawGeometry(null, pen, geometry);
                 }
-                else if(obj is Text t)
+                else if (obj is Text t)
                 {
                     FormattedText formattedText = new FormattedText(t.Content, System.Globalization.CultureInfo.CurrentCulture,
                         FlowDirection.LeftToRight, new Typeface(t.FontFamily, t.FontStyle, t.FontWeight, FontStretches.Normal), t.FontSize,
@@ -119,8 +149,6 @@ namespace SZGUIFeleves.Renderer
                     dc.DrawText(formattedText, new Point(t.Position.x, t.Position.y));
                 }
             }
-
-            model.ObjectsToDisplay.Clear();
         }
     }
 }

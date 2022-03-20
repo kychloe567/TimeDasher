@@ -77,5 +77,10 @@ namespace SZGUIFeleves.Models
         {
             throw new NotImplementedException();
         }
+
+        public override bool IsVisible(Camera camera)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

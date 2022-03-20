@@ -16,7 +16,8 @@ namespace SZGUIFeleves.Logic
     {
         W, A, S, D,
         Up, Down, Left, Right,
-        Space, C, LeftCtrl
+        Space, C, LeftCtrl,
+        Q, E
     }
 
     public class GameLogic : IGameModel, IGameControl
@@ -26,7 +27,23 @@ namespace SZGUIFeleves.Logic
         #endregion
 
         #region Draw Variables
-        public List<DrawableObject> ObjectsToDisplay { get; set; }
+        /// <summary>
+        /// List of containing all the world objects
+        /// <para>i.e:</para>
+        /// Objects.Add(Player)
+        /// <para></para>
+        /// int player = Objects.Count() - 1;
+        /// </summary>
+        public List<DrawableObject> Objects { get; set; }
+
+        /// <summary>
+        /// At the end of the main loop, add all Objects to these lists
+        /// to pass the objects to the renderer
+        /// <para>WorldSpace - IsAffectedByCamera is true</para>
+        /// <para>ScreenSpace - IsAffectedByCamera is false</para>
+        /// </summary>
+        public List<DrawableObject> ObjectsToDisplayWorldSpace { get; set; }
+        public List<DrawableObject> ObjectsToDisplayScreenSpace { get; set; }
         #endregion
 
         #region App Variables
@@ -51,6 +68,7 @@ namespace SZGUIFeleves.Logic
             }
         }
         private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
+        public Camera Camera { get; set; }
         #endregion
 
         #region Lighting Variables
@@ -69,7 +87,9 @@ namespace SZGUIFeleves.Logic
             CycleMilliseconds = 1.0f / FPSTarget * 1000.0f;
             RecentFPS = new List<double>();
 
-            ObjectsToDisplay = new List<DrawableObject>();
+            ObjectsToDisplayWorldSpace = new List<DrawableObject>();
+            ObjectsToDisplayScreenSpace = new List<DrawableObject>();
+            Objects = new List<DrawableObject>();
 
             // Creating main loop timer
             MainLoopTimer = new DispatcherTimer();
@@ -85,6 +105,10 @@ namespace SZGUIFeleves.Logic
             PointLights = new List<DynamicPointLight>();
 
             LightColor = new Color(255, 234, 176, lightBlendingAlpha);
+            Camera = new Camera(WindowSize)
+            {
+                DeadZone = new Vec2d(75, 20),
+            };
         }
 
         /// <summary>
@@ -138,7 +162,17 @@ namespace SZGUIFeleves.Logic
             Control();  // Keyboard/Mouse input
             Update();   // Game logic update
 
-            ObjectsToDisplay.Sort();    // Sorting drawable objects by DrawPriority (not necessary if items added in order)
+            // Uncomment to update camera position relative to the "player"
+            //Camera.UpdatePosition(Objects[player].Position, Elapsed);
+
+            Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
+            foreach (var obj in Objects)
+            {
+                if (obj.IsAffectedByCamera)
+                    ObjectsToDisplayWorldSpace.Add(obj);
+                else
+                    ObjectsToDisplayScreenSpace.Add(obj);
+            }
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
 
@@ -148,6 +182,8 @@ namespace SZGUIFeleves.Logic
         private void Control()
         {
             // Button control checks
+            //if (ButtonFlags[ButtonKey.W])
+            //    ;
         }
 
         /// <summary>
@@ -164,12 +200,12 @@ namespace SZGUIFeleves.Logic
                 for (int i = 0; i < shadowPasses; i++)
                 {
                     dpl.Position = originalPos + new Vec2d(i*shadowIntensity, i*shadowIntensity);
-                    var shadow = dpl.GetShadows(ObjectsToDisplay, WindowSize);
+                    var shadow = dpl.GetShadows(Objects, WindowSize);
                     if (shadow is null)
                         continue;
 
                     shadow.Color = LightColor;
-                    ObjectsToDisplay.Add(shadow);
+                    Objects.Add(shadow);
                 }
                 dpl.Position = originalPos;
             }

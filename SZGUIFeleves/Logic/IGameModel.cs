@@ -10,7 +10,8 @@ namespace SZGUIFeleves.Logic
     public interface IGameModel
     {
         event DrawDelegate DrawEvent;
-        List<DrawableObject> ObjectsToDisplay { get; set; }
-        Vec2d WindowSize { get; set; }
+        List<DrawableObject> ObjectsToDisplayScreenSpace { get; set; }
+        List<DrawableObject> ObjectsToDisplayWorldSpace { get; set; }
+        Camera Camera { get; set; }
     }
 }

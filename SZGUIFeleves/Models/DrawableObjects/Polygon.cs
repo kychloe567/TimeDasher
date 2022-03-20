@@ -38,15 +38,35 @@ namespace SZGUIFeleves.Models
         /// <returns></returns>
         public override Vec2d GetMiddle()
         {
-            if (!(Middle is null))
-                return Middle;
-
             Vec2d middle = new Vec2d(Position);
             foreach(Vec2d point in Points)
                 middle += point;
 
             middle /= Points.Count() + 1;
             return middle;
+        }
+
+        public override bool IsVisible(Camera camera)
+        {
+            bool any = false;
+            if (Position.x >= camera.Position.x && Position.x < camera.Position.x + camera.WindowSize.x &&
+               Position.y >= camera.Position.y && Position.y < camera.Position.y + camera.WindowSize.y)
+                any = true;
+
+            if (!any)
+            {
+                foreach (Vec2d p in Points)
+                {
+                    if (p.x >= camera.Position.x && p.x < camera.Position.x + camera.WindowSize.x &&
+                        p.y >= camera.Position.y && p.y < camera.Position.y + camera.WindowSize.y)
+                    {
+                        any = true;
+                        break;
+                    }
+                }
+            }
+
+            return any;
         }
     }
 }

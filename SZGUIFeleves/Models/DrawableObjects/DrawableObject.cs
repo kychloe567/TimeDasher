@@ -49,7 +49,10 @@ namespace SZGUIFeleves.Models
             }
         }
 
-        public Vec2d Middle { get; set; }
+        /// <summary>
+        /// If true, object is translated by the camera vector in render
+        /// </summary>
+        public bool IsAffectedByCamera { get; set; }
 
         public DrawableObject()
         {
@@ -59,6 +62,7 @@ namespace SZGUIFeleves.Models
             OutLineColor = new Color();
             IsFilled = true;
             DrawPriority = DrawPriority.Default;
+            IsAffectedByCamera = true;
         }
 
         public DrawableObject(Vec2d position)
@@ -69,6 +73,7 @@ namespace SZGUIFeleves.Models
             OutLineColor = new Color();
             IsFilled = true;
             DrawPriority = DrawPriority.Default;
+            IsAffectedByCamera = true;
         }
 
         public DrawableObject(Vec2d position, Color color)
@@ -79,6 +84,7 @@ namespace SZGUIFeleves.Models
             OutLineColor = color;
             IsFilled = true;
             DrawPriority = DrawPriority.Default;
+            IsAffectedByCamera = true;
         }
 
         /// <summary>
@@ -86,6 +92,13 @@ namespace SZGUIFeleves.Models
         /// </summary>
         /// <returns></returns>
         public abstract Vec2d GetMiddle();
+
+        /// <summary>
+        /// Returns true if objects is visible on the screen
+        /// </summary>
+        /// <param name="windowSize"></param>
+        /// <returns></returns>
+        public abstract bool IsVisible(Camera camera);
 
         public int CompareTo(object obj)
         {
@@ -96,5 +109,6 @@ namespace SZGUIFeleves.Models
 
             return DrawPriority.CompareTo((obj as DrawableObject).DrawPriority);
         }
+
     }
 }
