@@ -107,7 +107,27 @@ namespace SZGUIFeleves.Logic
             //SceneManager.SaveScene(s);
 
             CurrentScene = SceneManager.GetScene("try1");
+
+            //Temp
+            ParticleProperty particleProperty = new ParticleProperty()
+            {
+                Position = WindowSize / 2,
+                SpeedStart = 500,
+                SpeedEnd = 20,
+                ColorStart = new Color(255,0,0),
+                ColorEnd = new Color(0,255,0),
+                RotationStart = 0,
+                RotationEnd = 0,
+                LifeTime = 1,
+                EmittingDelay = 0.02,
+                EmittingAngle = 270,
+                EmittingAngleVariation = 10
+            };
+
+            emitter = new Emitter(particleProperty);
         }
+        //Temp
+        private Emitter emitter { get; set; }
 
         /// <summary>
         /// Game logic main enter
@@ -198,6 +218,9 @@ namespace SZGUIFeleves.Logic
         private void Update()
         {
             // Game Logic Update
+            emitter.Update(Elapsed);
+            foreach (var p in emitter.Particles)
+                ObjectsToDisplayWorldSpace.Add(p);
 
             // Lighting
             foreach (DynamicPointLight dpl in CurrentScene.PointLights)

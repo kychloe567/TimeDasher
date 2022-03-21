@@ -37,6 +37,14 @@ namespace SZGUIFeleves.Models
             A = a;
         }
 
+        public Color(Color c)
+        {
+            R = c.R;
+            G = c.G;
+            B = c.B;
+            A = c.A;
+        }
+
         #region Static colors
         public static Color Black{ get { return new Color(0, 0, 0); } }
         public static Color White{ get { return new Color(255, 255, 255); } }

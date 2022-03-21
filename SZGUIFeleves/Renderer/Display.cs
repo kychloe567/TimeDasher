@@ -33,13 +33,13 @@ namespace SZGUIFeleves.Renderer
             dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, WindowSize.x, WindowSize.y));
 
             // Transforming objects by the camera
-            dc.PushTransform(new TranslateTransform(-model.Camera.CenteredPosition.x, -model.Camera.CenteredPosition.y));
+            //dc.PushTransform(new TranslateTransform(-model.Camera.CenteredPosition.x, -model.Camera.CenteredPosition.y));
 
             // Zoom not working yet
             //dc.PushTransform(new ScaleTransform(model.Camera.Zoom, model.Camera.Zoom));
 
             DrawObjects(ref dc, model.ObjectsToDisplayWorldSpace);
-            dc.Pop();
+            //dc.Pop();
 
             // Drawing the UI (or screen fixed objects)
             DrawObjects(ref dc, model.ObjectsToDisplayScreenSpace);
