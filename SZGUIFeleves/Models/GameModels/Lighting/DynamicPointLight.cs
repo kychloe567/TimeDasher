@@ -10,7 +10,6 @@ namespace SZGUIFeleves.Models
     public class DynamicPointLight
     {
         public Vec2d Position { get; set; }
-        public double Intensity { get; set; }
         public double Radius { get; set; }
 
         public DynamicPointLight()
@@ -21,21 +20,12 @@ namespace SZGUIFeleves.Models
         public DynamicPointLight(Vec2d position)
         {
             Position = position;
-            Intensity = 1;
             Radius = 1;
         }
 
         public DynamicPointLight(Vec2d position, double radius)
         {
             Position = position;
-            Intensity = 1;
-            Radius = radius;
-        }
-
-        public DynamicPointLight(Vec2d position, double intensity, double radius)
-        {
-            Position = position;
-            Intensity = intensity;
             Radius = radius;
         }
 
@@ -137,6 +127,7 @@ namespace SZGUIFeleves.Models
             }
 
             List<Vec2d> intersects = new List<Vec2d>();
+
             foreach(double angle in uniqueAngles)
             {
                 double dx = Math.Cos(angle);
@@ -161,6 +152,7 @@ namespace SZGUIFeleves.Models
 
                 if (closestIntersect is null)
                     continue;
+
                 closestIntersect.Temp = angle;
 
                 intersects.Add(closestIntersect);

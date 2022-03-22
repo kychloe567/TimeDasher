@@ -48,5 +48,16 @@ namespace SZGUIFeleves.Models
             if (States.ContainsKey(CurrentState))
                 States[CurrentState].UpdateAnimation();
         }
+
+        public StateMachine GetCopy()
+        {
+            Dictionary<string, Animation> states = new Dictionary<string, Animation>();
+            foreach(KeyValuePair<string, Animation> pair in states)
+                states.Add(pair.Key, pair.Value.GetCopy());
+            return new StateMachine(states)
+            {
+                CurrentState = CurrentState
+            };
+        }
     }
 }

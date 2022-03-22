@@ -34,15 +34,38 @@ namespace SZGUIFeleves.Models
 
         public override Vec2d GetMiddle()
         {
-            return new Vec2d((Position.x + Size.x) / 2, (Position.y + Size.y) / 2);
+            return new Vec2d((Position.x + Size.x / 2), (Position.y + Size.y / 2));
         }
 
         public override bool IsVisible(Camera camera)
         {
-            if (Position.x + Size.x >= camera.Position.x && Position.x < camera.Position.x + camera.WindowSize.x &&
-               Position.y + Size.y >= camera.Position.y && Position.y < camera.Position.y + camera.WindowSize.y)
+            Vec2d centeredPos = camera.CenteredPosition;
+            if (Position.x + Size.x >= centeredPos.x && Position.x < centeredPos.x + camera.WindowSize.x &&
+               Position.y + Size.y >= centeredPos.y && Position.y < centeredPos.y + camera.WindowSize.y)
                 return true;
             else return false;
+        }
+
+        public override Rectangle GetCopy()
+        {
+            Rectangle r = new Rectangle(new Vec2d(Position), new Vec2d(Size), new Color(Color))
+            {
+                Rotation = Rotation,
+                OutLineThickness = OutLineThickness,
+                OutLineColor = new Color(OutLineColor),
+                IsFilled = IsFilled,
+                DrawPriority = DrawPriority,
+                IsAffectedByCamera = IsAffectedByCamera,
+                IsPlayer = IsPlayer
+            };
+
+            if (Texture != null)
+                r.Texture = Texture.Clone();
+
+            if (StateMachine != null)
+                r.StateMachine = StateMachine.GetCopy();
+
+            return r;
         }
     }
 }

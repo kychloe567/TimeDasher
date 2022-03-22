@@ -108,26 +108,26 @@ namespace SZGUIFeleves.Logic
 
             CurrentScene = SceneManager.GetScene("try1");
 
-            //Temp
-            ParticleProperty particleProperty = new ParticleProperty()
-            {
-                Position = WindowSize / 2,
-                SpeedStart = 500,
-                SpeedEnd = 20,
-                ColorStart = new Color(255,0,0),
-                ColorEnd = new Color(0,255,0),
-                RotationStart = 0,
-                RotationEnd = 0,
-                LifeTime = 1,
-                EmittingDelay = 0.02,
-                EmittingAngle = 270,
-                EmittingAngleVariation = 10
-            };
-
-            emitter = new Emitter(particleProperty);
+            // Emitter example settings
+            //ParticleProperty particleProperty = new ParticleProperty()
+            //{
+            //    Shape = new Circle(new Vec2d(), 50),
+            //    Position = WindowSize / 2,
+            //    SpeedStart = 100,
+            //    SpeedEnd = 100,
+            //    ColorStart = new Color(255, 0, 0, 100),
+            //    ColorEnd = new Color(255, 180, 0, 0),
+            //    RotationStart = 0,
+            //    RotationEnd = 0,
+            //    LifeTime = 4,
+            //    EmittingDelay = 0.07,
+            //    EmittingMultiplier = 1,
+            //    EmittingAngle = 270,
+            //    EmittingAngleVariation = 30,
+            //    EmittingPositionVariation = new Vec2d(75,0)
+            //};
+            //particleProperty.Shape.Texture = new BitmapImage(new Uri("asd/smoke.png", UriKind.RelativeOrAbsolute));
         }
-        //Temp
-        private Emitter emitter { get; set; }
 
         /// <summary>
         /// Game logic main enter
@@ -175,12 +175,16 @@ namespace SZGUIFeleves.Logic
             //RecentFPS.Add(currentFps);
             //if (RecentFPS.Count > 20)
             //    RecentFPS.Remove(RecentFPS.First());
-            //ObjectsToDisplay.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+            //ObjectsToDisplayWorldSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
 
             Control();  // Keyboard/Mouse input
             Update();   // Game logic update
 
-            Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
+
+            // Remove after player has been created 
+            Camera.UpdatePosition(WindowSize / 2, Elapsed);
+            // Then uncomment this
+            //Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
 
             CurrentScene.Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             foreach (var obj in CurrentScene.Objects)
@@ -201,7 +205,7 @@ namespace SZGUIFeleves.Logic
         /// </summary>
         private void Control()
         {
-            // Button control checks
+            //Button control checks
             if (ButtonFlags[ButtonKey.W])
                 CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y -= 100.0f * Elapsed;
             if (ButtonFlags[ButtonKey.S])
@@ -218,9 +222,7 @@ namespace SZGUIFeleves.Logic
         private void Update()
         {
             // Game Logic Update
-            emitter.Update(Elapsed);
-            foreach (var p in emitter.Particles)
-                ObjectsToDisplayWorldSpace.Add(p);
+
 
             // Lighting
             foreach (DynamicPointLight dpl in CurrentScene.PointLights)
@@ -234,7 +236,7 @@ namespace SZGUIFeleves.Logic
                         continue;
 
                     shadow.Color = LightColor;
-                    CurrentScene.Objects.Add(shadow);
+                    ObjectsToDisplayWorldSpace.Add(shadow);
                 }
                 dpl.Position = originalPos;
             }

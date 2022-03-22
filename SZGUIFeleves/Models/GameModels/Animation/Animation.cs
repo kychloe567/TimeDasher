@@ -26,6 +26,7 @@ namespace SZGUIFeleves.Models
             Title = title;
             Textures = new List<BitmapImage>();
             Times = new List<double>();
+            Start = DateTime.Now;
         }
 
         public Animation(string title, List<BitmapImage> textures, double time)
@@ -34,12 +35,14 @@ namespace SZGUIFeleves.Models
             Textures = textures;
             for (int i = 0; i < Textures.Count; i++)
                 Times.Add(time);
+            Start = DateTime.Now;
         }
         public Animation(string title, List<BitmapImage> textures, List<double> times)
         {
             Title = title;
             Textures = textures;
             Times = times;
+            Start = DateTime.Now;
         }
 
         public void AddTexture(BitmapImage bi, double time)
@@ -63,6 +66,18 @@ namespace SZGUIFeleves.Models
                     currentTexture = 0;
                 Start = DateTime.Now;
             }
+        }
+
+        public Animation GetCopy()
+        {
+            List<BitmapImage> textures = new List<BitmapImage>();
+            foreach (BitmapImage bi in Textures)
+                textures.Add(bi.Clone());
+
+            return new Animation(Title, textures, new List<double>(Times))
+            {
+                currentTexture = currentTexture,
+            };
         }
     }
 }

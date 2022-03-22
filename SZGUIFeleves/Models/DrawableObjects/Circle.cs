@@ -31,10 +31,33 @@ namespace SZGUIFeleves.Models
 
         public override bool IsVisible(Camera camera)
         {
-            if (Position.x + Radius >= camera.Position.x && Position.x - Radius < camera.Position.x + camera.WindowSize.x &&
-               Position.y + Radius >= camera.Position.y && Position.y - Radius < camera.Position.y + camera.WindowSize.y)
+            Vec2d centeredPos = camera.CenteredPosition;
+            if (Position.x + Radius >= centeredPos.x && Position.x - Radius < centeredPos.x + camera.WindowSize.x &&
+               Position.y + Radius >= centeredPos.y && Position.y - Radius < centeredPos.y + camera.WindowSize.y)
                 return true;
             else return false;
+        }
+
+        public override Circle GetCopy()
+        {
+            Circle c = new Circle(new Vec2d(Position), Radius, new Color(Color))
+            {
+                Rotation = Rotation,
+                OutLineThickness = OutLineThickness,
+                OutLineColor = new Color(OutLineColor),
+                IsFilled = IsFilled,
+                DrawPriority = DrawPriority,
+                IsAffectedByCamera = IsAffectedByCamera,
+                IsPlayer = IsPlayer
+            };
+
+            if (Texture != null)
+                c.Texture = Texture.Clone();
+
+            if (StateMachine != null)
+                c.StateMachine = StateMachine.GetCopy();
+
+            return c;
         }
     }
 }

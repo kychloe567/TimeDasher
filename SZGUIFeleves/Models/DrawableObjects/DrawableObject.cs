@@ -31,21 +31,8 @@ namespace SZGUIFeleves.Models
         /// <summary>
         /// If not null, Color is ignored
         /// </summary>
-        private BitmapImage texture;
-        public BitmapImage Texture
-        {
-            get
-            {
-                if (!(StateMachine is null))
-                    return StateMachine.CurrentTexture;
-
-                return texture;
-            }
-            set
-            {
-                texture = value;
-            }
-        }
+        public BitmapImage Texture { get; set; }
+        public double TextureOpacity { get; set; }
 
         /// <summary>
         /// This state machine manages animations
@@ -90,6 +77,7 @@ namespace SZGUIFeleves.Models
             DrawPriority = DrawPriority.Default;
             IsAffectedByCamera = true;
             IsPlayer = false;
+            TextureOpacity = 1.0f;
         }
 
         public DrawableObject(Vec2d position)
@@ -102,6 +90,7 @@ namespace SZGUIFeleves.Models
             DrawPriority = DrawPriority.Default;
             IsAffectedByCamera = true;
             IsPlayer = false;
+            TextureOpacity = 1.0f;
         }
 
         public DrawableObject(Vec2d position, Color color)
@@ -114,6 +103,7 @@ namespace SZGUIFeleves.Models
             DrawPriority = DrawPriority.Default;
             IsAffectedByCamera = true;
             IsPlayer = false;
+            TextureOpacity = 1.0f;
         }
 
         /// <summary>
@@ -128,6 +118,8 @@ namespace SZGUIFeleves.Models
         /// <param name="windowSize"></param>
         /// <returns></returns>
         public abstract bool IsVisible(Camera camera);
+
+        public abstract DrawableObject GetCopy();
 
         public int CompareTo(object obj)
         {

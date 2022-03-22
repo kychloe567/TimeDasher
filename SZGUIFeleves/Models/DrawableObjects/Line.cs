@@ -50,13 +50,37 @@ namespace SZGUIFeleves.Models
 
         public override bool IsVisible(Camera camera)
         {
-            if (Position.x >= camera.Position.x && Position.x < camera.Position.x + camera.WindowSize.x &&
-               Position.y >= camera.Position.y && Position.y < camera.Position.y + camera.WindowSize.y)
+            Vec2d centeredPos = camera.CenteredPosition;
+
+            if (Position.x >= centeredPos.x && Position.x < centeredPos.x + camera.WindowSize.x &&
+               Position.y >= centeredPos.y && Position.y < centeredPos.y + camera.WindowSize.y)
                 return true;
-            else if (Position2.x >= camera.Position.x && Position2.x < camera.Position.x + camera.WindowSize.x &&
-               Position2.y >= camera.Position.y && Position2.y < camera.Position.y + camera.WindowSize.y)
+            else if (Position2.x >= centeredPos.x && Position2.x < centeredPos.x + camera.WindowSize.x &&
+               Position2.y >= centeredPos.y && Position2.y < centeredPos.y + camera.WindowSize.y)
                 return true;
             else return false;
+        }
+
+        public override Line GetCopy()
+        {
+            Line l = new Line(new Vec2d(Position),new Vec2d(Position2), new Color(Color), Width)
+            {
+                Rotation = Rotation,
+                OutLineThickness = OutLineThickness,
+                OutLineColor = new Color(OutLineColor),
+                IsFilled = IsFilled,
+                DrawPriority = DrawPriority,
+                IsAffectedByCamera = IsAffectedByCamera,
+                IsPlayer = IsPlayer
+            };
+
+            if (Texture != null)
+                l.Texture = Texture.Clone();
+
+            if (StateMachine != null)
+                l.StateMachine = StateMachine.GetCopy();
+
+            return l;
         }
     }
 }

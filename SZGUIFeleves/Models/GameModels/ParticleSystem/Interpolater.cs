@@ -14,6 +14,9 @@ namespace SZGUIFeleves.Models
             if (End is null)
                 return Start;
 
+            if (value < 0.0f || value > 1.0f)
+                return End;
+
             if (Start is Vec2d sv2 && End is Vec2d ev2) // Velocity and Size
             {
                 double x = MathHelper.MapFunction(value, 0, 1, sv2.x, ev2.x);

@@ -48,17 +48,19 @@ namespace SZGUIFeleves.Models
 
         public override bool IsVisible(Camera camera)
         {
+            Vec2d centeredPos = camera.CenteredPosition;
+
             bool any = false;
-            if (Position.x >= camera.Position.x && Position.x < camera.Position.x + camera.WindowSize.x &&
-               Position.y >= camera.Position.y && Position.y < camera.Position.y + camera.WindowSize.y)
+            if (Position.x >= centeredPos.x && Position.x < centeredPos.x + camera.WindowSize.x &&
+               Position.y >= centeredPos.y && Position.y < centeredPos.y + camera.WindowSize.y)
                 any = true;
 
             if (!any)
             {
                 foreach (Vec2d p in Points)
                 {
-                    if (p.x >= camera.Position.x && p.x < camera.Position.x + camera.WindowSize.x &&
-                        p.y >= camera.Position.y && p.y < camera.Position.y + camera.WindowSize.y)
+                    if (p.x >= centeredPos.x && p.x < centeredPos.x + camera.WindowSize.x &&
+                        p.y >= centeredPos.y && p.y < centeredPos.y + camera.WindowSize.y)
                     {
                         any = true;
                         break;
@@ -67,6 +69,32 @@ namespace SZGUIFeleves.Models
             }
 
             return any;
+        }
+
+        public override Polygon GetCopy()
+        {
+            List<Vec2d> points = new List<Vec2d>();
+            foreach (Vec2d pt in Points)
+                points.Add(new Vec2d(pt));
+
+            Polygon p = new Polygon(new Vec2d(Position), points, new Color(Color))
+            {
+                Rotation = Rotation,
+                OutLineThickness = OutLineThickness,
+                OutLineColor = new Color(OutLineColor),
+                IsFilled = IsFilled,
+                DrawPriority = DrawPriority,
+                IsAffectedByCamera = IsAffectedByCamera,
+                IsPlayer = IsPlayer
+            };
+
+            if (Texture != null)
+                p.Texture = Texture.Clone();
+
+            if (StateMachine != null)
+                p.StateMachine = StateMachine.GetCopy();
+
+            return p;
         }
     }
 }

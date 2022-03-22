@@ -33,13 +33,13 @@ namespace SZGUIFeleves.Renderer
             dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, WindowSize.x, WindowSize.y));
 
             // Transforming objects by the camera
-            //dc.PushTransform(new TranslateTransform(-model.Camera.CenteredPosition.x, -model.Camera.CenteredPosition.y));
+            dc.PushTransform(new TranslateTransform(-model.Camera.CenteredPosition.x, -model.Camera.CenteredPosition.y));
 
             // Zoom not working yet
             //dc.PushTransform(new ScaleTransform(model.Camera.Zoom, model.Camera.Zoom));
 
             DrawObjects(ref dc, model.ObjectsToDisplayWorldSpace);
-            //dc.Pop();
+            dc.Pop();
 
             // Drawing the UI (or screen fixed objects)
             DrawObjects(ref dc, model.ObjectsToDisplayScreenSpace);
@@ -54,14 +54,20 @@ namespace SZGUIFeleves.Renderer
             {
                 // Creating the brush with the set Color or Texture
                 Brush brush = new SolidColorBrush();
-                if (obj.Texture is null)
+                if (obj.StateMachine != null)
                 {
-                    System.Windows.Media.Color color = System.Windows.Media.Color.FromArgb((byte)obj.Color.A, (byte)obj.Color.R, (byte)obj.Color.G, (byte)obj.Color.B);
-                    brush = new SolidColorBrush(color);
+                    brush = new ImageBrush(obj.StateMachine.CurrentTexture);
+                    (brush as ImageBrush).Opacity = obj.TextureOpacity;
+                }
+                else if (obj.Texture != null)
+                {
+                    brush = new ImageBrush(obj.Texture);
+                    (brush as ImageBrush).Opacity = obj.TextureOpacity;
                 }
                 else
                 {
-                    brush = new ImageBrush(obj.Texture);
+                    System.Windows.Media.Color color = System.Windows.Media.Color.FromArgb((byte)obj.Color.A, (byte)obj.Color.R, (byte)obj.Color.G, (byte)obj.Color.B);
+                    brush = new SolidColorBrush(color);
                 }
 
                 // Creating the pen with the set OutlineColor and OutlineThickness/Width
@@ -81,10 +87,18 @@ namespace SZGUIFeleves.Renderer
                 outlineBrush.Freeze();
                 pen.Freeze();
 
+
+                // TODO: Code refactoring to get Text boundaries to get middle
+                if (obj.Rotation != 0 && !(obj is Text))
+                {
+                    Vec2d middle = obj.GetMiddle();
+                    dc.PushTransform(new RotateTransform(obj.Rotation, middle.x, middle.y));
+                }
+
                 if (obj is Rectangle r)
                 {
-                    //if (!r.IsVisible(model.Camera))
-                    //    continue;
+                    if (!r.IsVisible(model.Camera))
+                        continue;
 
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
 
@@ -105,8 +119,8 @@ namespace SZGUIFeleves.Renderer
                 }
                 else if (obj is Circle e)
                 {
-                    //if (!e.IsVisible(model.Camera))
-                    //    continue;
+                    if (!e.IsVisible(model.Camera))
+                        continue;
 
                     if (obj.IsFilled)
                         dc.DrawEllipse(brush, pen, new Point(e.Position.x, e.Position.y), e.Radius, e.Radius);
@@ -148,6 +162,9 @@ namespace SZGUIFeleves.Renderer
                         brush, 10);
                     dc.DrawText(formattedText, new Point(t.Position.x, t.Position.y));
                 }
+
+                if (obj.Rotation != 0 && !(obj is Text))
+                    dc.Pop();
             }
         }
     }

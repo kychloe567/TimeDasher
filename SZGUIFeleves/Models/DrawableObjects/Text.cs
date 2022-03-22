@@ -82,5 +82,27 @@ namespace SZGUIFeleves.Models
         {
             throw new NotImplementedException();
         }
+
+        public override Text GetCopy()
+        {
+            Text t = new Text(new Vec2d(Position), Content, FontSize, FontFamily, FontStyle, FontWeight, new Color(Color))
+            {
+                Rotation = Rotation,
+                OutLineThickness = OutLineThickness,
+                OutLineColor = new Color(OutLineColor),
+                IsFilled = IsFilled,
+                DrawPriority = DrawPriority,
+                IsAffectedByCamera = IsAffectedByCamera,
+                IsPlayer = IsPlayer
+            };
+
+            if (Texture != null)
+                t.Texture = Texture.Clone();
+
+            if (StateMachine != null)
+                t.StateMachine = StateMachine.GetCopy();
+
+            return t;
+        }
     }
 }
