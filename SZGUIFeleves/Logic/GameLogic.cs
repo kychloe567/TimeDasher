@@ -17,7 +17,8 @@ namespace SZGUIFeleves.Logic
         W, A, S, D,
         Up, Down, Left, Right,
         Space, C, LeftCtrl,
-        Q, E
+        Q, E,
+        MouseLeft, MouseRight
     }
 
     public class GameLogic : IGameModel, IGameControl
@@ -61,6 +62,7 @@ namespace SZGUIFeleves.Logic
         private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
         public Camera Camera { get; set; }
         public Scene CurrentScene { get; set; }
+        public Vec2d MousePosition { get; set; }
         #endregion
 
         #region Lighting Variables
@@ -99,6 +101,8 @@ namespace SZGUIFeleves.Logic
                 DeadZone = new Vec2d(75, 20),
             };
 
+            MousePosition = new Vec2d();
+
             // This is an example for creating a scene/level
             //List<DrawableObject> Objects = new List<DrawableObject>();
             //Objects.Add(new Circle(new Vec2d(500, 200), 25, Color.Green) { IsPlayer = true });
@@ -111,22 +115,27 @@ namespace SZGUIFeleves.Logic
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
             //{
-            //    Shape = new Circle(new Vec2d(), 50),
+            //    Shape = new Circle(new Vec2d(), 2),
             //    Position = WindowSize / 2,
-            //    SpeedStart = 100,
+            //    SpeedStart = 150,
             //    SpeedEnd = 100,
+            //    SpeedLimit = 250,
             //    ColorStart = new Color(255, 0, 0, 100),
             //    ColorEnd = new Color(255, 180, 0, 0),
             //    RotationStart = 0,
             //    RotationEnd = 0,
-            //    LifeTime = 4,
-            //    EmittingDelay = 0.07,
-            //    EmittingMultiplier = 1,
-            //    EmittingAngle = 270,
-            //    EmittingAngleVariation = 30,
-            //    EmittingPositionVariation = new Vec2d(75,0)
+            //    LifeTime = 1,
+            //    EmittingDelay = 0.2,
+            //    EmittingMultiplier = 50,
+            //    EmittingAngle = 180,
+            //    EmittingAngleVariation = 90,
+            //    EmittingPositionVariation = new Vec2d(0, 0),
+            //    EmittingSpeedVariation = 40,
+            //    Gravity = 15,
+            //    EmittingOnlyByUser = true
             //};
-            //particleProperty.Shape.Texture = new BitmapImage(new Uri("asd/smoke.png", UriKind.RelativeOrAbsolute));
+
+            //emitter = new Emitter(particleProperty);
         }
 
         /// <summary>
@@ -146,6 +155,12 @@ namespace SZGUIFeleves.Logic
         public void SetButtonFlag(ButtonKey key, bool isDown)
         {
             ButtonFlags[key] = isDown;
+        }
+
+        public void SetMousePosition(double x, double y)
+        {
+            MousePosition.x = x;
+            MousePosition.y = y;
         }
 
         /// <summary>
@@ -222,7 +237,6 @@ namespace SZGUIFeleves.Logic
         private void Update()
         {
             // Game Logic Update
-
 
             // Lighting
             foreach (DynamicPointLight dpl in CurrentScene.PointLights)

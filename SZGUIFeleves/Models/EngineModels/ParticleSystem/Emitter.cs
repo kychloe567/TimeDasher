@@ -25,26 +25,47 @@ namespace SZGUIFeleves.Models
 
         public void Update(double Elapsed)
         {
-            LastEmitted += Elapsed;
-            if(LastEmitted >= ParticleProperty.EmittingDelay)
+            if (!ParticleProperty.EmittingOnlyByUser)
             {
-                for (int i = 0; i < ParticleProperty.EmittingMultiplier; i++)
+                LastEmitted += Elapsed;
+                if (LastEmitted >= ParticleProperty.EmittingDelay)
                 {
-                    double angle = ParticleProperty.EmittingAngle + rnd.Next(-ParticleProperty.EmittingAngleVariation, ParticleProperty.EmittingAngleVariation + 1);
-                    Vec2d position = ParticleProperty.Position + new Vec2d(rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.x, (int)ParticleProperty.EmittingPositionVariation.x),
-                                                                           rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.y, (int)ParticleProperty.EmittingPositionVariation.y));
+                    for (int i = 0; i < ParticleProperty.EmittingMultiplier; i++)
+                    {
+                        double angle = ParticleProperty.EmittingAngle + rnd.Next(-ParticleProperty.EmittingAngleVariation, ParticleProperty.EmittingAngleVariation + 1);
+                        Vec2d position = ParticleProperty.Position + new Vec2d(rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.x, (int)ParticleProperty.EmittingPositionVariation.x),
+                                                                               rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.y, (int)ParticleProperty.EmittingPositionVariation.y));
+                        double speed = ParticleProperty.SpeedStart + rnd.Next((int)-ParticleProperty.EmittingSpeedVariation, (int)ParticleProperty.EmittingSpeedVariation);
 
-                    Particle p = new Particle(ParticleProperty, angle, position);
-                    Particles.Add(p);
+                        Particle p = new Particle(ParticleProperty, angle, position, speed);
+                        Particles.Add(p);
+                    }
+
+                    LastEmitted = 0;
                 }
-
-                LastEmitted = 0;
             }
 
             Particles.RemoveAll(x => x.RemainingLifeTime <= 0);
             foreach(Particle p in Particles)
             {
-                p.Update(Elapsed);
+                if (ParticleProperty.Gravity != -1)
+                    p.Update(Elapsed, ParticleProperty.Gravity);
+                else
+                    p.Update(Elapsed);
+            }
+        }
+
+        public void Emit(Vec2d Position)
+        {
+            for (int i = 0; i < ParticleProperty.EmittingMultiplier; i++)
+            {
+                double angle = ParticleProperty.EmittingAngle + rnd.Next(-ParticleProperty.EmittingAngleVariation, ParticleProperty.EmittingAngleVariation + 1);
+                Vec2d position = Position + new Vec2d(rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.x, (int)ParticleProperty.EmittingPositionVariation.x),
+                                                                       rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.y, (int)ParticleProperty.EmittingPositionVariation.y));
+                double speed = ParticleProperty.SpeedStart + rnd.Next((int)-ParticleProperty.EmittingSpeedVariation, (int)ParticleProperty.EmittingSpeedVariation);
+
+                Particle p = new Particle(ParticleProperty, angle, position, speed);
+                Particles.Add(p);
             }
         }
     }

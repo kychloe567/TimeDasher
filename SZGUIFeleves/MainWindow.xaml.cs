@@ -53,5 +53,29 @@ namespace SZGUIFeleves
             if (controller != null)
                 controller.KeyReleased(e.Key);
         }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if(controller != null)
+            {
+                Point p = e.GetPosition(MainGrid);
+                if (e.ChangedButton == MouseButton.Left)
+                    controller.MouseLeft(true, p.X, p.Y);
+                else if (e.ChangedButton == MouseButton.Right)
+                    controller.MouseRight(true, p.X, p.Y);
+            }
+        }
+
+        private void Window_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (controller != null)
+            {
+                Point p = e.GetPosition(MainGrid);
+                if (e.ChangedButton == MouseButton.Left)
+                    controller.MouseLeft(false, p.X, p.Y);
+                else if (e.ChangedButton == MouseButton.Right)
+                    controller.MouseRight(false, p.X, p.Y);
+            }
+        }
     }
 }

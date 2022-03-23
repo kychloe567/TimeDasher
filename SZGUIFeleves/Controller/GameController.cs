@@ -35,6 +35,18 @@ namespace SZGUIFeleves.Controller
             catch (Exception) { }
         }
 
+        public void MouseLeft(bool isDown, double x, double y)
+        {
+            controller.SetMousePosition(x, y);
+            controller.SetButtonFlag(ButtonKey.MouseLeft, isDown);
+        }
+
+        public void MouseRight(bool isDown, double x, double y)
+        {
+            controller.SetMousePosition(x, y);
+            controller.SetButtonFlag(ButtonKey.MouseRight, isDown);
+        }
+
         public void WindowSizeChanged(int WindowWidth, int WindowHeight)
         {
             controller.WindowSizeChanged(WindowWidth, WindowHeight);

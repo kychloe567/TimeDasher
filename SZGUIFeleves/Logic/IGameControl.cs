@@ -9,6 +9,7 @@ namespace SZGUIFeleves.Logic
     public interface IGameControl
     {
         void SetButtonFlag(ButtonKey key, bool isDown);
+        void SetMousePosition(double x, double y);
         void WindowSizeChanged(int WindowWidth, int WindowHeight);
     }
 }
