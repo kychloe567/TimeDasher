@@ -55,5 +55,25 @@ namespace SZGUIFeleves.Models
         public static Color Turqoise{ get { return new Color(0, 255, 255); } }
         public static Color Purple { get { return new Color(255, 0, 255); } }
         #endregion
+
+        public static bool operator ==(Color a, Color b)
+        {
+            if (a is null || b is null)
+                return false;
+
+            if (a.R == b.R && a.G == b.G && a.B == b.B && a.A == b.A)
+                return true;
+            else return false;
+        }
+
+        public static bool operator !=(Color a, Color b)
+        {
+            if (a is null || b is null)
+                return false;
+
+            if (a.R != b.R || a.G != b.G || a.B != b.B || a.A != b.A)
+                return true;
+            else return false;
+        }
     }
 }

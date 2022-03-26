@@ -96,5 +96,29 @@ namespace SZGUIFeleves.Models
 
             return p;
         }
+
+        public override bool Intersects(DrawableObject d)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Polygon))
+                return false;
+
+            Polygon p = obj as Polygon;
+
+            if (Position != p.Position || Color != p.Color || Points.Count != p.Points.Count)
+                return false;
+
+            for (int i = 0; i < Points.Count; i++)
+            {
+                if (Points[i] != p.Points[i])
+                    return false;
+            }
+
+            return true;
+        }
     }
 }
