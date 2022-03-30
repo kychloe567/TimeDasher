@@ -64,13 +64,11 @@ namespace LevelEditor
         {
             if (controller != null)
             {
-                if (e.LeftButton == MouseButtonState.Pressed)
+                if (e.ChangedButton == MouseButton.Left)
                     controller.SetMouseLeftButton(true);
-
-                if (e.RightButton == MouseButtonState.Pressed)
+                else if (e.ChangedButton == MouseButton.Right)
                     controller.SetMouseRightButton(true);
-
-                if (e.MiddleButton == MouseButtonState.Pressed)
+                else if (e.ChangedButton == MouseButton.Middle)
                     controller.SetMouseMiddleButton(true);
             }
         }
@@ -79,13 +77,11 @@ namespace LevelEditor
         {
             if (controller != null)
             {
-                if (e.LeftButton == MouseButtonState.Released)
+                if (e.ChangedButton == MouseButton.Left)
                     controller.SetMouseLeftButton(false);
-
-                if (e.RightButton == MouseButtonState.Released)
+                else if (e.ChangedButton == MouseButton.Right)
                     controller.SetMouseRightButton(false);
-
-                if (e.MiddleButton == MouseButtonState.Released)
+                else if (e.ChangedButton == MouseButton.Middle)
                     controller.SetMouseMiddleButton(false);
             }
         }
