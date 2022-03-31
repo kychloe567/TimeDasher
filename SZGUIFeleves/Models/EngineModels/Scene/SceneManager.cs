@@ -15,6 +15,11 @@ namespace SZGUIFeleves.Models
         // Get MainMenu
         // Get HubArea
 
+        public static Scene GetDefaultScene()
+        {
+            return new Scene("default", new List<DrawableObject>(), 0, new List<DynamicPointLight>());
+        }
+
         public static Scene GetScene(string scene)
         {
             if (!File.Exists(ScenePath + scene + ".json"))
