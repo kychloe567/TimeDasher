@@ -111,6 +111,8 @@ namespace SZGUIFeleves.Logic
             //SceneManager.SaveScene(s);
 
             CurrentScene = SceneManager.GetScene("try1");
+            if (CurrentScene is null)
+                CurrentScene = SceneManager.GetDefaultScene();
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
@@ -221,14 +223,14 @@ namespace SZGUIFeleves.Logic
         private void Control()
         {
             //Button control checks
-            if (ButtonFlags[ButtonKey.W])
-                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y -= 100.0f * Elapsed;
-            if (ButtonFlags[ButtonKey.S])
-                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y += 100.0f * Elapsed;
-            if (ButtonFlags[ButtonKey.A])
-                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 100.0f * Elapsed;
-            if (ButtonFlags[ButtonKey.D])
-                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 100.0f * Elapsed;
+            //if (ButtonFlags[ButtonKey.W])
+            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y -= 100.0f * Elapsed;
+            //if (ButtonFlags[ButtonKey.S])
+            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y += 100.0f * Elapsed;
+            //if (ButtonFlags[ButtonKey.A])
+            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 100.0f * Elapsed;
+            //if (ButtonFlags[ButtonKey.D])
+            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 100.0f * Elapsed;
         }
 
         /// <summary>
