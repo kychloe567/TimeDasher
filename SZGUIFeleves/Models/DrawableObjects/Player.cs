@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SZGUIFeleves.Models.DrawableObjects
 {
-    public class Player : DrawableObject
+    public class Player : Rectangle
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -14,33 +14,5 @@ namespace SZGUIFeleves.Models.DrawableObjects
         public double SpeedY { get; set; }
         
 
-        public override bool Equals(object obj)
-        {
-            if (obj != null && obj is Player && (obj as Player).Id == this.Id)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public override DrawableObject GetCopy()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Vec2d GetMiddle()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Intersects(DrawableObject d)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool IsVisible(Camera camera)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
