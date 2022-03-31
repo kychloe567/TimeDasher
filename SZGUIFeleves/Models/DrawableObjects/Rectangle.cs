@@ -8,6 +8,7 @@ namespace SZGUIFeleves.Models
 {
     public class Rectangle : DrawableObject
     {
+        public Vec2d OrigSize { get; set; }
         public Vec2d Size { get; set; }
         public Vec2d CornerRadius { get; set; }
         public bool IsRounded { get; set; }
@@ -50,6 +51,7 @@ namespace SZGUIFeleves.Models
         {
             Rectangle r = new Rectangle(new Vec2d(Position), new Vec2d(Size), new Color(Color))
             {
+                OrigSize = OrigSize,
                 Rotation = Rotation,
                 OutLineThickness = OutLineThickness,
                 OutLineColor = new Color(OutLineColor),

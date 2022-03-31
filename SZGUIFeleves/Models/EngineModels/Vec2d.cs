@@ -150,6 +150,11 @@ namespace SZGUIFeleves.Models
         {
             return (a.x * b.y) - (a.y * b.x);
         }
+
+        public static Vec2d Scale(Vec2d a, double zoom)
+        {
+            return a * zoom;
+        }
         #endregion
 
     }

@@ -36,7 +36,6 @@ namespace LevelEditor.Logic
         /// </summary>
         public List<DrawableObject> ObjectsToDisplayWorldSpace { get; set; }
         private List<DrawableObject> Objects { get; set; }
-        private List<Line> GridLines { get; set; }
         #endregion
 
         #region App Variables
@@ -55,7 +54,9 @@ namespace LevelEditor.Logic
         #endregion
 
         #region Editor Variables
-        private const int GridSize = 64;
+        private const double OrigGridSize = 64;
+        private double GridSize = OrigGridSize;
+        private List<Line> GridLines { get; set; }
         #endregion
 
         public GameLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -88,23 +89,24 @@ namespace LevelEditor.Logic
 
             MousePosition = new Vec2d();
 
-            int xGrid = 0;
-            int yGrid = 0;
-            while(xGrid < WindowSize.x + GridSize*2)
-            {
-                Line l = new Line(new Vec2d(xGrid, 0), new Vec2d(xGrid, WindowSize.y), new Color(100, 100, 100));
-                GridLines.Add(l);
-                Line l2 = new Line(new Vec2d(0, yGrid), new Vec2d(WindowSize.x, yGrid), new Color(100, 100, 100));
-                GridLines.Add(l2);
+            //int xGrid = 0;
+            //int yGrid = 0;
+            //while(xGrid < WindowSize.x + GridSize*2)
+            //{
+            //    Line l = new Line(new Vec2d(xGrid, 0), new Vec2d(xGrid, WindowSize.y), new Color(100, 100, 100));
+            //    GridLines.Add(l);
+            //    Line l2 = new Line(new Vec2d(0, yGrid), new Vec2d(WindowSize.x, yGrid), new Color(100, 100, 100));
+            //    GridLines.Add(l2);
 
-                xGrid += GridSize;
-                yGrid += GridSize;
-            }
+            //    xGrid += GridSize;
+            //    yGrid += GridSize;
+            //}
 
             CurrentCameraPosition = WindowSize / 2;
             Camera.UpdatePosition(CurrentCameraPosition, 0);
 
-            Rectangle r = new Rectangle(MousePosition, new Vec2d(GridSize,GridSize), Color.Red);
+            Rectangle r = new Rectangle(MousePosition, new Vec2d(GridSize, GridSize), Color.Red);
+            r.OrigSize = r.Size;
             Objects.Add(r);
         }
 
@@ -134,6 +136,15 @@ namespace LevelEditor.Logic
                 MouseDrag = new Vec2d(MousePosition);
             }
 
+            if(key == ButtonKey.MouseLeft && !isDown)
+            {
+                Objects.Add(Objects[0].GetCopy());
+                ;
+            }
+
+            if (key == ButtonKey.Space)
+                Camera.Zoom = 1;
+
             ButtonFlags[key] = isDown;
         }
 
@@ -162,6 +173,7 @@ namespace LevelEditor.Logic
         public void DeltaMouseWheel(double delta)
         {
             Camera.Zoom += delta;
+            GridSize = OrigGridSize * Camera.Zoom;
         }
 
         /// <summary>
@@ -180,18 +192,25 @@ namespace LevelEditor.Logic
 
 
             if (ButtonFlags[ButtonKey.MouseMiddle])
+            {
                 Camera.UpdatePosition(CurrentCameraPosition + (MouseDrag - MousePosition), Elapsed);
+            }
 
 
             Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             foreach (var obj in Objects)
             {
+                if(obj is Rectangle r)
+                {
+                    r.Size = r.OrigSize * Camera.Zoom;
+                }
+
                 ObjectsToDisplayWorldSpace.Add(obj);
             }
-            foreach (var obj in GridLines)
-            {
-                ObjectsToDisplayWorldSpace.Add(obj);
-            }
+            //foreach (var obj in GridLines)
+            //{
+            //    ObjectsToDisplayWorldSpace.Add(obj);
+            //}
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
 

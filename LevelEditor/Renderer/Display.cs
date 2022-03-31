@@ -32,15 +32,15 @@ namespace LevelEditor.Renderer
             // Clearing the screen
             dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, WindowSize.x, WindowSize.y));
 
-            dc.PushTransform(new ScaleTransform(model.Camera.Zoom, model.Camera.Zoom, model.Camera.Position.x, model.Camera.Position.y));
-            // Transforming objects by the camera
             dc.PushTransform(new TranslateTransform(-model.Camera.CenteredPosition.x, -model.Camera.CenteredPosition.y));
+            //dc.PushTransform(new ScaleTransform(model.Camera.Zoom, model.Camera.Zoom, model.Camera.Position.x, model.Camera.Position.y));
+            // Transforming objects by the camera
 
             // Zoom not working yet
 
             DrawObjects(ref dc, model.ObjectsToDisplayWorldSpace);
             dc.Pop();
-            dc.Pop();
+            //dc.Pop();
 
             // Drawing the UI (or screen fixed objects)
 
@@ -96,8 +96,8 @@ namespace LevelEditor.Renderer
 
                 if (obj is Rectangle r)
                 {
-                    if (!r.IsVisible(model.Camera))
-                        continue;
+                    //if (!r.IsVisible(model.Camera))
+                    //    continue;
 
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
 
@@ -118,8 +118,8 @@ namespace LevelEditor.Renderer
                 }
                 else if (obj is Circle e)
                 {
-                    if (!e.IsVisible(model.Camera))
-                        continue;
+                    //if (!e.IsVisible(model.Camera))
+                    //    continue;
 
                     if (obj.IsFilled)
                         dc.DrawEllipse(brush, pen, new Point(e.Position.x, e.Position.y), e.Radius, e.Radius);
@@ -135,8 +135,8 @@ namespace LevelEditor.Renderer
                 }
                 else if (obj is Polygon p)
                 {
-                    if (!p.IsVisible(model.Camera))
-                        continue;
+                    //if (!p.IsVisible(model.Camera))
+                    //    continue;
 
                     var geometry = new StreamGeometry();
                     geometry.FillRule = FillRule.EvenOdd;
