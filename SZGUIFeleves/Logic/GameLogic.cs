@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using SZGUIFeleves.Models;
+using SZGUIFeleves.Models.DrawableObjects;
 
 namespace SZGUIFeleves.Logic
 {
@@ -114,6 +115,15 @@ namespace SZGUIFeleves.Logic
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
 
+            CurrentScene.Objects.Add(new Player() {
+                IsPlayer = true,
+                Size = new Vec2d(50, 50),
+                Position = new Vec2d(100, 100),
+                DrawPriority = DrawPriority.Top,
+                OutLineColor = Color.Red,
+                OutLineThickness = 2
+            });
+
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
             //{
@@ -213,6 +223,10 @@ namespace SZGUIFeleves.Logic
                     ObjectsToDisplayWorldSpace.Add(obj);
                 else
                     ObjectsToDisplayScreenSpace.Add(obj);
+
+                // Gravity check
+                if (obj.IsGravity)
+                    throw new NotImplementedException();
             }
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
@@ -222,15 +236,15 @@ namespace SZGUIFeleves.Logic
         /// </summary>
         private void Control()
         {
-            //Button control checks
-            //if (ButtonFlags[ButtonKey.W])
-            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y -= 100.0f * Elapsed;
-            //if (ButtonFlags[ButtonKey.S])
-            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y += 100.0f * Elapsed;
-            //if (ButtonFlags[ButtonKey.A])
-            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 100.0f * Elapsed;
-            //if (ButtonFlags[ButtonKey.D])
-            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 100.0f * Elapsed;
+            // Button control checks
+            if (ButtonFlags[ButtonKey.W])
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y -= 100.0f * Elapsed;
+            if (ButtonFlags[ButtonKey.S])
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y += 100.0f * Elapsed;
+            if (ButtonFlags[ButtonKey.A])
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 100.0f * Elapsed;
+            if (ButtonFlags[ButtonKey.D])
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 100.0f * Elapsed;
         }
 
         /// <summary>

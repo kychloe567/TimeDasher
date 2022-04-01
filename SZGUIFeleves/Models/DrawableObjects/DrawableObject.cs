@@ -67,6 +67,11 @@ namespace SZGUIFeleves.Models
 
         public bool IsPlayer { get; set; }
 
+        /// <summary>
+        /// If true, gravity affects on this object.
+        /// </summary>
+        public bool IsGravity { get; set; }
+
         public DrawableObject()
         {
             Position = new Vec2d();
