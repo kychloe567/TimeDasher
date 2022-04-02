@@ -13,10 +13,10 @@ namespace LevelEditor.Renderer
 {
     public class Display : FrameworkElement
     {
-        private IGameModel model;
+        private IEditorModel model;
         private Vec2d WindowSize { get; set; }
 
-        public void SetupModel(IGameModel model, int windowWidth, int windowHeight)
+        public void SetupModel(IEditorModel model, int windowWidth, int windowHeight)
         {
             this.model = model;
             model.DrawEvent += InvalidateVisual;    // Subscribing to the logic's Draw event. Called after logic update

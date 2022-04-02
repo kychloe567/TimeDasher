@@ -9,13 +9,21 @@
         SizeChanged="Window_SizeChanged"
         KeyDown="Window_KeyDown"
         KeyUp="Window_KeyUp"
-        MouseMove="Window_MouseMove"
-        MouseDown="Window_MouseDown"
-        MouseUp="Window_MouseUp"
-        MouseWheel="Window_MouseWheel"
         Loaded="Window_Loaded"
         Title="Level Editor" Width="1280" Height="768">
-    <Grid x:Name="MainGrid">
-        <renderer:Display x:Name="display"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="140"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid x:Name="MainGrid" MouseMove="Window_MouseMove" MouseDown="Window_MouseDown"
+                                MouseUp="Window_MouseUp" MouseWheel="Window_MouseWheel">
+            <renderer:Display x:Name="display"/>
+        </Grid>
+
+        <ListBox Grid.Column="1" Background="#1e1e1e" x:Name="GameObjects" ScrollViewer.VerticalScrollBarVisibility="Hidden" Width="145"
+                 HorizontalAlignment="Center" HorizontalContentAlignment="Center" SelectionChanged="GameObjects_SelectionChanged">
+        </ListBox>
     </Grid>
 </Window>

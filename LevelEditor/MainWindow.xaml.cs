@@ -24,13 +24,40 @@ namespace LevelEditor
         {
             InitializeComponent();
         }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             RenderOptions.SetBitmapScalingMode(MainGrid, BitmapScalingMode.NearestNeighbor);
-            GameLogic logic = new GameLogic((int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
+            EditorLogic logic = new EditorLogic((int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
+
+            logic.ItemsUpdated += Logic_ItemsUpdated;
+
             display.SetupModel(logic, (int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
             controller = new GameController(logic);
             logic.Start();
+        }
+
+        private void Logic_ItemsUpdated(List<BitmapImage> items)
+        {
+            foreach (BitmapImage bi in items)
+            {
+                Image i = new Image()
+                {
+                    Source = bi,
+                    Height = 128,
+                    Tag = bi
+                };
+
+                GameObjects.Items.Add(i);
+            }
+        }
+
+        private void GameObjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if((sender as ListBox).SelectedItem != null)
+            {
+                controller.SetCurrentTexture(((sender as ListBox).SelectedItem as Image).Tag as BitmapImage);
+            }
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)

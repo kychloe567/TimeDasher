@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using LevelEditor.Logic;
 using SZGUIFeleves.Models;
 
@@ -11,11 +12,16 @@ namespace LevelEditor.Controller
 {
     class GameController
     {
-        IGameControl controller;
+        IEditorControl controller;
 
-        public GameController(IGameControl controller)
+        public GameController(IEditorControl controller)
         {
             this.controller = controller;
+        }
+
+        public void SetCurrentTexture(BitmapImage bi)
+        {
+            controller.SetCurrentTexture(bi);
         }
 
         public void KeyPressed(Key key)

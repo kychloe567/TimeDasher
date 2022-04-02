@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using SZGUIFeleves.Models;
 namespace LevelEditor.Logic
 {
     public delegate void DrawDelegate();
+    public delegate void ItemsUpdatedDelegate(List<BitmapImage> e);
 
     public enum ButtonKey // TODO: More buttons to add if needed
     {
@@ -21,7 +23,7 @@ namespace LevelEditor.Logic
         MouseLeft, MouseRight, MouseMiddle
     }
 
-    public class GameLogic : IGameModel, IGameControl
+    public class EditorLogic : IEditorModel, IEditorControl
     {
         #region App Constants
         private const int FPSTarget = 60;
@@ -42,6 +44,7 @@ namespace LevelEditor.Logic
         public Vec2d WindowSize { get; set; }
 
         public event DrawDelegate DrawEvent;
+        public event ItemsUpdatedDelegate ItemsUpdated;
         private DispatcherTimer MainLoopTimer { get; set; }
         private DateTime ElapsedTime { get; set; }
         private double Elapsed { get; set; }
@@ -59,7 +62,7 @@ namespace LevelEditor.Logic
         private List<Line> GridLines { get; set; }
         #endregion
 
-        public GameLogic(int WindowSizeWidth, int WindowSizeHeight)
+        public EditorLogic(int WindowSizeWidth, int WindowSizeHeight)
         {
             WindowSize = new Vec2d(WindowSizeWidth, WindowSizeHeight);
 
@@ -115,7 +118,28 @@ namespace LevelEditor.Logic
         /// </summary>
         public void Start()
         {
+            string objectsPath = "CitySet";
+            List<BitmapImage> items = new List<BitmapImage>();
+
+            foreach(var image in new DirectoryInfo(objectsPath + "\\").GetFiles("*.png"))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                items.Add(bi);
+            }
+
+            //foreach (string image in Directory.GetFiles(objectsPath + "\\", "*.png"))
+            //{
+            //    BitmapImage bi = new BitmapImage(new Uri(image, UriKind.RelativeOrAbsolute));
+            //    items.Add(bi);
+            //}
+            ItemsUpdated.Invoke(items);
+
             MainLoopTimer.Start();
+        }
+
+        public void SetCurrentTexture(BitmapImage bi)
+        {
+            Objects[0].Texture = bi;
         }
 
         /// <summary>
@@ -138,8 +162,14 @@ namespace LevelEditor.Logic
 
             if(key == ButtonKey.MouseLeft && !isDown)
             {
-                Objects.Add(Objects[0].GetCopy());
-                ;
+                var toPlace = Objects[0].GetCopy();
+                bool already = false;
+                for (int i = 1; i < Objects.Count; i++)
+                {
+                    ;
+                }
+
+                //Objects.Add();
             }
 
             if (key == ButtonKey.Space)

@@ -7,7 +7,7 @@ using SZGUIFeleves.Models;
 
 namespace LevelEditor.Logic
 {
-    public interface IGameModel
+    public interface IEditorModel
     {
         event DrawDelegate DrawEvent;
         List<DrawableObject> ObjectsToDisplayWorldSpace { get; set; }
