@@ -121,6 +121,12 @@ namespace SZGUIFeleves.Models
 
         public abstract DrawableObject GetCopy();
 
+        public abstract override bool Equals(object obj);
+
+        // TODO: Does not take rotation into account!!
+        // TODO: Polygon, Text intersections
+        public abstract bool Intersects(DrawableObject d);
+
         public int CompareTo(object obj)
         {
             if (obj is null || !(obj is DrawableObject))

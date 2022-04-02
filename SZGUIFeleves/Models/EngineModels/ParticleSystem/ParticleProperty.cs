@@ -13,6 +13,7 @@ namespace SZGUIFeleves.Models
         public Vec2d Position { get; set; }
         public double SpeedStart { get; set; }
         public double SpeedEnd { get; set; }
+        public double SpeedLimit { get; set; }
         public Color ColorStart { get; set; }
         public Color ColorEnd { get; set; }
 
@@ -47,11 +48,15 @@ namespace SZGUIFeleves.Models
         public int EmittingAngleVariation { get; set; }
 
         public Vec2d EmittingPositionVariation { get; set; }
+        public double EmittingSpeedVariation { get; set; }
+        public bool EmittingOnlyByUser { get; set; }
+        public double Gravity { get; set; }
 
         public ParticleProperty()
         {
             Position = new Vec2d();
             Shape = new Circle(Position, 1, Color.White);
+            SpeedLimit = -1;
             ColorStart = Color.White;
             ColorEnd = Color.White;
             LifeTime = 0;
@@ -59,6 +64,8 @@ namespace SZGUIFeleves.Models
             EmittingDelay = 1;
             EmittingMultiplier = 1;
             EmittingPositionVariation = new Vec2d();
+            EmittingOnlyByUser = false;
+            Gravity = -1;
         }
     }
 }

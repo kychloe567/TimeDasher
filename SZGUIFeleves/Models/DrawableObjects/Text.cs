@@ -104,5 +104,15 @@ namespace SZGUIFeleves.Models
 
             return t;
         }
+
+        public override bool Intersects(DrawableObject d)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Equals(object obj)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

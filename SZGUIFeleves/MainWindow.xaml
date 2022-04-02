@@ -9,6 +9,8 @@
         SizeChanged="Window_SizeChanged"
         KeyDown="Window_KeyDown"
         KeyUp="Window_KeyUp"
+        MouseDown="Window_MouseDown"
+        MouseUp="Window_MouseUp"
         Loaded="Window_Loaded"
         Title="MainWindow" Width="1280" Height="768">
     <Grid x:Name="MainGrid">
