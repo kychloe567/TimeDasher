@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LevelEditor.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -59,7 +60,10 @@ namespace LevelEditor.Logic
         #region Editor Variables
         private const double OrigGridSize = 64;
         private double GridSize = OrigGridSize;
-        private List<Line> GridLines { get; set; }
+        private DrawableObject SelectedItem { get; set; }
+        private BitmapImage SelectedTexture { get; set; }
+        private BitmapImage SelectedTextureRed { get; set; }
+        private BitmapImage SelectedTextureGreen { get; set; }
         #endregion
 
         public EditorLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -71,7 +75,6 @@ namespace LevelEditor.Logic
 
             ObjectsToDisplayWorldSpace = new List<DrawableObject>();
             Objects = new List<DrawableObject>();
-            GridLines = new List<Line>();
 
             // Creating main loop timer
             MainLoopTimer = new DispatcherTimer();
@@ -92,25 +95,15 @@ namespace LevelEditor.Logic
 
             MousePosition = new Vec2d();
 
-            //int xGrid = 0;
-            //int yGrid = 0;
-            //while(xGrid < WindowSize.x + GridSize*2)
-            //{
-            //    Line l = new Line(new Vec2d(xGrid, 0), new Vec2d(xGrid, WindowSize.y), new Color(100, 100, 100));
-            //    GridLines.Add(l);
-            //    Line l2 = new Line(new Vec2d(0, yGrid), new Vec2d(WindowSize.x, yGrid), new Color(100, 100, 100));
-            //    GridLines.Add(l2);
-
-            //    xGrid += GridSize;
-            //    yGrid += GridSize;
-            //}
-
             CurrentCameraPosition = WindowSize / 2;
             Camera.UpdatePosition(CurrentCameraPosition, 0);
 
-            Rectangle r = new Rectangle(MousePosition, new Vec2d(GridSize, GridSize), Color.Red);
+            Rectangle r = new Rectangle(MousePosition, new Vec2d(GridSize, GridSize))
+            {
+                DrawPriority = DrawPriority.Top
+            };
             r.OrigSize = r.Size;
-            Objects.Add(r);
+            SelectedItem = r;
         }
 
         /// <summary>
@@ -127,11 +120,6 @@ namespace LevelEditor.Logic
                 items.Add(bi);
             }
 
-            //foreach (string image in Directory.GetFiles(objectsPath + "\\", "*.png"))
-            //{
-            //    BitmapImage bi = new BitmapImage(new Uri(image, UriKind.RelativeOrAbsolute));
-            //    items.Add(bi);
-            //}
             ItemsUpdated.Invoke(items);
 
             MainLoopTimer.Start();
@@ -139,7 +127,10 @@ namespace LevelEditor.Logic
 
         public void SetCurrentTexture(BitmapImage bi)
         {
-            Objects[0].Texture = bi;
+            SelectedTexture = bi;
+            SelectedTextureRed = ImageColoring.SetColor(bi, ImageColoring.ColorFilters.Red);
+            SelectedTextureGreen = ImageColoring.SetColor(bi, ImageColoring.ColorFilters.Green);
+            SelectedItem.Texture = bi;
         }
 
         /// <summary>
@@ -158,18 +149,6 @@ namespace LevelEditor.Logic
             else if (key == ButtonKey.MouseMiddle && isDown)
             {
                 MouseDrag = new Vec2d(MousePosition);
-            }
-
-            if(key == ButtonKey.MouseLeft && !isDown)
-            {
-                var toPlace = Objects[0].GetCopy();
-                bool already = false;
-                for (int i = 1; i < Objects.Count; i++)
-                {
-                    ;
-                }
-
-                //Objects.Add();
             }
 
             if (key == ButtonKey.Space)
@@ -196,7 +175,27 @@ namespace LevelEditor.Logic
             if(!ButtonFlags[ButtonKey.MouseMiddle])
             {
                 Vec2d pos = CurrentCameraPosition - WindowSize / 2 + MousePosition;
-                Objects[0].Position = new Vec2d(pos.x - (pos.x % GridSize), pos.y - (pos.y % GridSize));
+                SelectedItem.Position = new Vec2d(pos.x - (pos.x % GridSize), pos.y - (pos.y % GridSize));
+            }
+
+            if (SelectedItem != null && SelectedTexture != null)
+            {
+                bool already = false;
+                Vec2d clickPosition = CurrentCameraPosition - WindowSize / 2 + MousePosition;
+                Circle checkCircle = new Circle(clickPosition, 1);
+
+                foreach (var obj in Objects)
+                {
+                    if (obj.Intersects(checkCircle))
+                    {
+                        SelectedItem.Texture = SelectedTextureRed;
+                        already = true;
+                        break;
+                    }
+                }
+
+                if (!already && !SelectedItem.Texture.Equals(SelectedTextureGreen))
+                    SelectedItem.Texture = SelectedTextureGreen;
             }
         }
 
@@ -220,13 +219,6 @@ namespace LevelEditor.Logic
             Control();  // Keyboard/Mouse input
             Update();   // Game logic update
 
-
-            if (ButtonFlags[ButtonKey.MouseMiddle])
-            {
-                Camera.UpdatePosition(CurrentCameraPosition + (MouseDrag - MousePosition), Elapsed);
-            }
-
-
             Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             foreach (var obj in Objects)
             {
@@ -237,10 +229,8 @@ namespace LevelEditor.Logic
 
                 ObjectsToDisplayWorldSpace.Add(obj);
             }
-            //foreach (var obj in GridLines)
-            //{
-            //    ObjectsToDisplayWorldSpace.Add(obj);
-            //}
+            ObjectsToDisplayWorldSpace.Add(SelectedItem);
+
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
 
@@ -250,8 +240,43 @@ namespace LevelEditor.Logic
         private void Control()
         {
             //Button control checks
-            if (ButtonFlags[ButtonKey.Space])
+            if (ButtonFlags[ButtonKey.MouseMiddle])
             {
+                Camera.UpdatePosition(CurrentCameraPosition + (MouseDrag - MousePosition), Elapsed);
+            }
+
+            if (ButtonFlags[ButtonKey.MouseLeft])
+            {
+                var toPlace = SelectedItem.GetCopy();
+                toPlace.Texture = SelectedTexture;
+                toPlace.DrawPriority = DrawPriority.Default;
+
+                bool already = false;
+                for (int i = 0; i < Objects.Count; i++)
+                {
+                    if (toPlace.Intersects(Objects[i]))
+                    {
+                        already = true;
+                        break;
+                    }
+                }
+
+                if (!already)
+                    Objects.Add(toPlace);
+            }
+
+            if (ButtonFlags[ButtonKey.MouseRight])
+            {
+                Vec2d clickPosition = CurrentCameraPosition - WindowSize / 2 + MousePosition;
+                Circle checkCircle = new Circle(clickPosition, 1);
+                for (int i = Objects.Count - 1; i >= 0; i--)
+                {
+                    if (Objects[i].Intersects(checkCircle))
+                    {
+                        Objects.RemoveAt(i);
+                        break;
+                    }
+                }
             }
         }
 
@@ -261,8 +286,6 @@ namespace LevelEditor.Logic
         private void Update()
         {
             // Game Logic Update
-
-
         }
     }
 }
