@@ -40,6 +40,8 @@ namespace SZGUIFeleves.Logic
         #endregion
 
         #region App Variables
+        private IGravityLogic gravityLogic;
+
         public Vec2d WindowSize { get; set; }
 
         public event DrawDelegate DrawEvent;
@@ -48,6 +50,7 @@ namespace SZGUIFeleves.Logic
         private double Elapsed { get; set; }
         private double CycleMilliseconds { get; set; }
         private List<double> RecentFPS { get; set; }
+
         public int FPS
         {
             get
@@ -76,6 +79,7 @@ namespace SZGUIFeleves.Logic
         public GameLogic(int WindowSizeWidth, int WindowSizeHeight)
         {
             WindowSize = new Vec2d(WindowSizeWidth, WindowSizeHeight);
+            gravityLogic = new GravityLogic();
 
             // Calculating frame interval with the given FPS target
             CycleMilliseconds = 1.0f / FPSTarget * 1000.0f;
@@ -117,11 +121,27 @@ namespace SZGUIFeleves.Logic
 
             CurrentScene.Objects.Add(new Player() {
                 IsPlayer = true,
+                IsFilled = true,
+                IsFalling = true,
+                FallingStart = DateTime.Now,
+                TimeElapsed = 0,
                 Size = new Vec2d(50, 50),
                 Position = new Vec2d(100, 100),
-                DrawPriority = DrawPriority.Top,
-                OutLineColor = Color.Red,
+                Color = Color.Purple,
+                TextureOpacity = 50,
+                OutLineColor = Color.White,
                 OutLineThickness = 2
+            });
+            CurrentScene.Objects.Add(new Rectangle()
+            {
+                Position = new Vec2d(120, 550),
+                Size = new Vec2d(250, 55),
+                IsFilled = true,
+                IsFalling = false,
+                OutLineColor = Color.Blue,
+                OutLineThickness = 2,
+                TextureOpacity = 0.5f,
+                Color = Color.Red
             });
 
             // Emitter example settings
@@ -224,9 +244,23 @@ namespace SZGUIFeleves.Logic
                 else
                     ObjectsToDisplayScreenSpace.Add(obj);
 
+                // TODO
+                // Intersect check v1.0
+                foreach (var subItem in CurrentScene.Objects)
+                {
+                    if (!obj.Equals(subItem) && obj.Intersects(subItem))
+                    {
+                        obj.IsFalling = false;
+                        break;
+                    }
+                }
+
+                // Update TimeElapsed
+                obj.TimeElapsed = (ElapsedTime - obj.FallingStart).TotalSeconds;
+
                 // Gravity check
-                if (obj.IsGravity)
-                    throw new NotImplementedException();
+                if (obj.IsFalling)
+                    gravityLogic.Falling(obj);
             }
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }

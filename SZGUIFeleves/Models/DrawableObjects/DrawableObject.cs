@@ -15,6 +15,16 @@ namespace SZGUIFeleves.Models
         public Vec2d Position { get; set; }
 
         /// <summary>
+        /// Exact time, when IsFalling is set to true.
+        /// </summary>
+        public DateTime FallingStart { get; set; }
+
+        /// <summary>
+        /// Seconds elapsed from FallingStart.
+        /// </summary>
+        public double TimeElapsed { get; set; }
+
+        /// <summary>
         /// In degrees
         /// </summary>
         public double Rotation { get; set; }
@@ -70,7 +80,7 @@ namespace SZGUIFeleves.Models
         /// <summary>
         /// If true, gravity affects on this object.
         /// </summary>
-        public bool IsGravity { get; set; }
+        public bool IsFalling { get; set; }
 
         public DrawableObject()
         {
