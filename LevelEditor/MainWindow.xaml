@@ -14,7 +14,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="140"/>
+            <ColumnDefinition Width="250"/>
         </Grid.ColumnDefinitions>
 
         <Grid x:Name="MainGrid" MouseMove="Window_MouseMove" MouseDown="Window_MouseDown"
@@ -22,8 +22,38 @@
             <renderer:Display x:Name="display"/>
         </Grid>
 
-        <ListBox Grid.Column="1" Background="#1e1e1e" x:Name="GameObjects" ScrollViewer.VerticalScrollBarVisibility="Hidden" Width="145"
-                 HorizontalAlignment="Center" HorizontalContentAlignment="Center" SelectionChanged="GameObjects_SelectionChanged">
-        </ListBox>
+
+        <TabControl Grid.Column="1" Width="250">
+            <TabItem Header="Foreground">
+                <ListBox Background="#1e1e1e" x:Name="ForegroundObjects"
+                     SelectionChanged="Objects_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </TabItem>
+            <TabItem Header="Background">
+                <ListBox Background="#1e1e1e" x:Name="BackgroundObjects"
+                     SelectionChanged="Objects_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </TabItem>
+            <TabItem Header="Decoration">
+                <ListBox Background="#1e1e1e" x:Name="DecorationObjects"
+                     SelectionChanged="Objects_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

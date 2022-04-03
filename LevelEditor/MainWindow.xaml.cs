@@ -37,22 +37,49 @@ namespace LevelEditor
             logic.Start();
         }
 
-        private void Logic_ItemsUpdated(List<BitmapImage> items)
+        private void Logic_ItemsUpdated(List<BitmapImage> background, List<BitmapImage> foreground, List<BitmapImage> decoration)
         {
-            foreach (BitmapImage bi in items)
+            foreach (BitmapImage bi in background)
             {
                 Image i = new Image()
                 {
                     Source = bi,
-                    Height = 128,
+                    Height = 64,
+                    Width = 64,
                     Tag = bi
                 };
 
-                GameObjects.Items.Add(i);
+                BackgroundObjects.Items.Add(i);
+            }
+            foreach (BitmapImage bi in foreground)
+            {
+                Image i = new Image()
+                {
+                    Source = bi,
+                    Height = 64,
+                    Width = 64,
+                    Tag = bi
+                };
+
+                ForegroundObjects.Items.Add(i);
+            }
+
+            //TODO: Size management
+            foreach (BitmapImage bi in decoration)
+            {
+                Image i = new Image()
+                {
+                    Source = bi,
+                    Height = 64,
+                    Width = 64,
+                    Tag = bi
+                };
+
+                DecorationObjects.Items.Add(i);
             }
         }
 
-        private void GameObjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void Objects_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if((sender as ListBox).SelectedItem != null)
             {

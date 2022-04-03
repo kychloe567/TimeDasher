@@ -13,7 +13,7 @@ using SZGUIFeleves.Models;
 namespace LevelEditor.Logic
 {
     public delegate void DrawDelegate();
-    public delegate void ItemsUpdatedDelegate(List<BitmapImage> e);
+    public delegate void ItemsUpdatedDelegate(List<BitmapImage> background, List<BitmapImage> foreground, List<BitmapImage> decoration);
 
     public enum ButtonKey // TODO: More buttons to add if needed
     {
@@ -53,6 +53,7 @@ namespace LevelEditor.Logic
         private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
         public Camera Camera { get; set; }
         private Vec2d MousePosition { get; set; }
+        private Vec2d MousePositionWorldSpace { get; set; }
         private Vec2d MouseDrag { get; set; }
         private Vec2d CurrentCameraPosition { get; set; }
         #endregion
@@ -98,6 +99,8 @@ namespace LevelEditor.Logic
             CurrentCameraPosition = WindowSize / 2;
             Camera.UpdatePosition(CurrentCameraPosition, 0);
 
+            MousePositionWorldSpace = CurrentCameraPosition - WindowSize / 2 + MousePosition;
+
             Rectangle r = new Rectangle(MousePosition, new Vec2d(GridSize, GridSize))
             {
                 DrawPriority = DrawPriority.Top
@@ -112,15 +115,27 @@ namespace LevelEditor.Logic
         public void Start()
         {
             string objectsPath = "CitySet";
-            List<BitmapImage> items = new List<BitmapImage>();
+            List<BitmapImage> background = new List<BitmapImage>();
+            List<BitmapImage> foreground = new List<BitmapImage>();
+            List<BitmapImage> decoration = new List<BitmapImage>();
 
-            foreach(var image in new DirectoryInfo(objectsPath + "\\").GetFiles("*.png"))
+            foreach(var image in new DirectoryInfo(objectsPath + "\\Background\\").GetFiles("*.png"))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
-                items.Add(bi);
+                background.Add(bi);
+            }
+            foreach(var image in new DirectoryInfo(objectsPath + "\\Foreground\\").GetFiles("*.png"))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                foreground.Add(bi);
+            }
+            foreach(var image in new DirectoryInfo(objectsPath + "\\Decoration\\").GetFiles("*.png"))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                decoration.Add(bi);
             }
 
-            ItemsUpdated.Invoke(items);
+            ItemsUpdated.Invoke(background, foreground, decoration);
 
             MainLoopTimer.Start();
         }
@@ -171,18 +186,27 @@ namespace LevelEditor.Logic
         public void SetMousePosition(Vec2d position)
         {
             MousePosition = position;
+            MousePositionWorldSpace = CurrentCameraPosition - WindowSize / 2 + MousePosition;
 
-            if(!ButtonFlags[ButtonKey.MouseMiddle])
+            if (!ButtonFlags[ButtonKey.MouseMiddle])
             {
-                Vec2d pos = CurrentCameraPosition - WindowSize / 2 + MousePosition;
-                SelectedItem.Position = new Vec2d(pos.x - (pos.x % GridSize), pos.y - (pos.y % GridSize));
+                SelectedItem.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                                                  MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
+
+                if (MousePositionWorldSpace.x < 0)
+                {
+                    SelectedItem.Position.x -= GridSize;
+                }
+                if (MousePositionWorldSpace.y < 0)
+                {
+                    SelectedItem.Position.y -= GridSize;
+                }
             }
 
             if (SelectedItem != null && SelectedTexture != null)
             {
                 bool already = false;
-                Vec2d clickPosition = CurrentCameraPosition - WindowSize / 2 + MousePosition;
-                Circle checkCircle = new Circle(clickPosition, 1);
+                Circle checkCircle = new Circle(MousePositionWorldSpace, 1);
 
                 foreach (var obj in Objects)
                 {
@@ -245,6 +269,8 @@ namespace LevelEditor.Logic
                 Camera.UpdatePosition(CurrentCameraPosition + (MouseDrag - MousePosition), Elapsed);
             }
 
+            Circle checkCircle = new Circle(MousePositionWorldSpace, 1);
+
             if (ButtonFlags[ButtonKey.MouseLeft])
             {
                 var toPlace = SelectedItem.GetCopy();
@@ -267,13 +293,26 @@ namespace LevelEditor.Logic
 
             if (ButtonFlags[ButtonKey.MouseRight])
             {
-                Vec2d clickPosition = CurrentCameraPosition - WindowSize / 2 + MousePosition;
-                Circle checkCircle = new Circle(clickPosition, 1);
                 for (int i = Objects.Count - 1; i >= 0; i--)
                 {
                     if (Objects[i].Intersects(checkCircle))
                     {
                         Objects.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+
+            if(ButtonFlags[ButtonKey.Q])
+            {
+                for (int i = Objects.Count - 1; i >= 0; i--)
+                {
+                    if (Objects[i].Intersects(checkCircle))
+                    {
+                        SelectedTexture = Objects[i].Texture.Clone();
+                        SelectedTextureRed = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Red);
+                        SelectedTextureGreen = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Green);
+                        SelectedItem.Texture = SelectedTexture;
                         break;
                     }
                 }
