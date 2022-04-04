@@ -122,7 +122,6 @@ namespace SZGUIFeleves.Logic
             CurrentScene.Objects.Add(new Player() {
                 IsPlayer = true,
                 IsFilled = true,
-                IsFalling = true,
                 FallingStart = DateTime.Now,
                 TimeElapsed = 0,
                 Size = new Vec2d(50, 50),
@@ -134,13 +133,12 @@ namespace SZGUIFeleves.Logic
             });
             CurrentScene.Objects.Add(new Rectangle()
             {
-                Position = new Vec2d(120, 550),
+                Position = new Vec2d(120, 170),
                 Size = new Vec2d(250, 55),
                 IsFilled = true,
                 IsFalling = false,
                 OutLineColor = Color.Blue,
                 OutLineThickness = 2,
-                TextureOpacity = 0.5f,
                 Color = Color.Red
             });
 
@@ -244,23 +242,44 @@ namespace SZGUIFeleves.Logic
                 else
                     ObjectsToDisplayScreenSpace.Add(obj);
 
-                // TODO
-                // Intersect check v1.0
-                foreach (var subItem in CurrentScene.Objects)
+                if (obj.IsPlayer)
                 {
-                    if (!obj.Equals(subItem) && obj.Intersects(subItem))
+                    // TODO
+                    // Intersect check v1.0
+                    bool tempIntersect = false;
+                    foreach (var subItem in CurrentScene.Objects)
                     {
-                        obj.IsFalling = false;
-                        break;
+                        if (!obj.Equals(subItem) && obj.Intersects(subItem))
+                         {
+                            // obj.IsFalling = false;
+                            gravityLogic.IsFalling(obj, ElapsedTime, false);
+                            tempIntersect = true;
+                            break;
+                        }
+                    }
+                    if (!tempIntersect && !obj.IsFalling)
+                    {
+                        // obj.IsFalling = true;
+                        gravityLogic.IsFalling(obj, ElapsedTime, true);
+                        // obj.IsJumping = false;
+                        gravityLogic.IsJumping(obj, ElapsedTime, false);
+
+                        // Update TimeElapsed
+                        //obj.FallingStart = DateTime.Now;
+                    }
+
+                    // Gravity check
+                    if (obj.IsFalling)
+                    {
+                        obj.TimeElapsed = (ElapsedTime - obj.FallingStart).TotalSeconds;
+                        gravityLogic.Falling(obj);
+                    }
+                    else if (obj.IsJumping)
+                    {
+                        obj.TimeElapsed = (DateTime.Now - obj.FallingStart).TotalSeconds;
+                        gravityLogic.Jumping(obj);
                     }
                 }
-
-                // Update TimeElapsed
-                obj.TimeElapsed = (ElapsedTime - obj.FallingStart).TotalSeconds;
-
-                // Gravity check
-                if (obj.IsFalling)
-                    gravityLogic.Falling(obj);
             }
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
@@ -279,6 +298,8 @@ namespace SZGUIFeleves.Logic
                 CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 100.0f * Elapsed;
             if (ButtonFlags[ButtonKey.D])
                 CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 100.0f * Elapsed;
+            if (ButtonFlags[ButtonKey.Space])
+                gravityLogic.IsJumping(CurrentScene.Objects[CurrentScene.PlayerIndex], ElapsedTime, true);
         }
 
         /// <summary>

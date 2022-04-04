@@ -30,7 +30,9 @@ namespace SZGUIFeleves.Models
         public double Rotation { get; set; }
 
         public double OutLineThickness { get; set; }
+
         public Color OutLineColor { get; set; }
+
         public Color Color { get; set; }
 
         /// <summary>
@@ -42,6 +44,7 @@ namespace SZGUIFeleves.Models
         /// If not null, Color is ignored
         /// </summary>
         public BitmapImage Texture { get; set; }
+
         public double TextureOpacity { get; set; }
 
         /// <summary>
@@ -81,6 +84,11 @@ namespace SZGUIFeleves.Models
         /// If true, gravity affects on this object.
         /// </summary>
         public bool IsFalling { get; set; }
+
+        /// <summary>
+        /// If true, gravity affects contrary to this object.
+        /// </summary>
+        public bool IsJumping { get; set; }
 
         public DrawableObject()
         {

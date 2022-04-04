@@ -9,19 +9,42 @@ namespace SZGUIFeleves.Logic
 {
     internal class GravityLogic : IGravityLogic
     {
-        private const double GravityCoe = 9.81;
+        private const double GravityCoe = 10;
 
         public void Falling(DrawableObject obj)
         {
             if (obj != null)
             {
-                obj.Position.y += Gravity(obj.TimeElapsed);
+                double tmp = Gravity(0, GravityCoe, obj.TimeElapsed);
+                obj.Position.y += tmp;
             }
         }
 
-        private double Gravity(double timeElapsed)
+        public void Jumping(DrawableObject obj)
         {
-            return GravityCoe * Math.Pow(timeElapsed, 2);
+            if (obj != null)
+            {
+                // While object is rising.
+                if (Gravity(25, GravityCoe, obj.TimeElapsed) > 0)
+                {
+                    double tmp = Gravity(25, GravityCoe, obj.TimeElapsed);
+                    obj.Position.y -= tmp;
+                }
+            }
+        }
+        public void IsFalling(DrawableObject obj, DateTime now, bool value)
+        {
+            obj.IsFalling = value;
+            if (value)
+                obj.FallingStart = now;
+        }
+
+        public void IsJumping(DrawableObject obj, DateTime now, bool value)
+        {
+            obj.IsJumping = value;
+            if (value)
+                obj.FallingStart = now;
+        }
         }
     }
 }
