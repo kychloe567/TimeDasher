@@ -114,7 +114,7 @@ namespace LevelEditor.Logic
         /// </summary>
         public void Start()
         {
-            string objectsPath = "CitySet";
+            string objectsPath = "Textures\\CitySet";
             List<BitmapImage> background = new List<BitmapImage>();
             List<BitmapImage> foreground = new List<BitmapImage>();
             List<BitmapImage> decoration = new List<BitmapImage>();
@@ -129,11 +129,11 @@ namespace LevelEditor.Logic
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 foreground.Add(bi);
             }
-            foreach(var image in new DirectoryInfo(objectsPath + "\\Decoration\\").GetFiles("*.png"))
-            {
-                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
-                decoration.Add(bi);
-            }
+            //foreach(var image in new DirectoryInfo(objectsPath + "\\Decoration\\").GetFiles("*.png"))
+            //{
+            //    BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+            //    decoration.Add(bi);
+            //}
 
             ItemsUpdated.Invoke(background, foreground, decoration);
 
