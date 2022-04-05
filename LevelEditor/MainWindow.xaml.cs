@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LevelEditor.Controller;
 using LevelEditor.Logic;
+using SZGUIFeleves.Models;
 
 namespace LevelEditor
 {
@@ -37,42 +38,42 @@ namespace LevelEditor
             logic.Start();
         }
 
-        private void Logic_ItemsUpdated(List<BitmapImage> background, List<BitmapImage> foreground, List<BitmapImage> decoration)
+        private void Logic_ItemsUpdated(List<DrawableObject> background, List<DrawableObject> foreground, List<DrawableObject> decoration)
         {
-            foreach (BitmapImage bi in background)
+            foreach (var obj in background)
             {
                 Image i = new Image()
                 {
-                    Source = bi,
+                    Source = obj.Texture,
                     Height = 64,
                     Width = 64,
-                    Tag = bi
+                    Tag = obj
                 };
 
                 BackgroundObjects.Items.Add(i);
             }
-            foreach (BitmapImage bi in foreground)
+            foreach (var obj in foreground)
             {
                 Image i = new Image()
                 {
-                    Source = bi,
+                    Source = obj.Texture,
                     Height = 64,
                     Width = 64,
-                    Tag = bi
+                    Tag = obj
                 };
 
                 ForegroundObjects.Items.Add(i);
             }
 
             //TODO: Size management
-            foreach (BitmapImage bi in decoration)
+            foreach (var obj in decoration)
             {
                 Image i = new Image()
                 {
-                    Source = bi,
+                    Source = obj.Texture,
                     Height = 64,
                     Width = 64,
-                    Tag = bi
+                    Tag = obj
                 };
 
                 DecorationObjects.Items.Add(i);
@@ -83,7 +84,7 @@ namespace LevelEditor
         {
             if((sender as ListBox).SelectedItem != null)
             {
-                controller.SetCurrentTexture(((sender as ListBox).SelectedItem as Image).Tag as BitmapImage);
+                controller.SetCurrentTexture(((sender as ListBox).SelectedItem as Image).Tag as DrawableObject);
             }
         }
 

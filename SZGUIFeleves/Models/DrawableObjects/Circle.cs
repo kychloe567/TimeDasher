@@ -49,7 +49,8 @@ namespace SZGUIFeleves.Models
                 IsFilled = IsFilled,
                 DrawPriority = DrawPriority,
                 IsAffectedByCamera = IsAffectedByCamera,
-                IsPlayer = IsPlayer
+                IsPlayer = IsPlayer,
+                ObjectType = ObjectType
             };
 
             if (Texture != null)

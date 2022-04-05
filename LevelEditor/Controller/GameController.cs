@@ -19,9 +19,9 @@ namespace LevelEditor.Controller
             this.controller = controller;
         }
 
-        public void SetCurrentTexture(BitmapImage bi)
+        public void SetCurrentTexture(DrawableObject obj)
         {
-            controller.SetCurrentTexture(bi);
+            controller.SetCurrentTexture(obj);
         }
 
         public void KeyPressed(Key key)

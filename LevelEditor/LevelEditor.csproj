@@ -202,6 +202,27 @@
     <None Update="Textures\CitySet\Background\CitySet_86.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Textures\CitySet\Decoration\decor_01.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Textures\CitySet\Decoration\decor_02.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Textures\CitySet\Decoration\decor_03.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Textures\CitySet\Decoration\decor_04.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Textures\CitySet\Decoration\decor_05.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Textures\CitySet\Decoration\decor_06.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Textures\CitySet\Decoration\decor_07.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Textures\CitySet\Foreground\CitySet_01.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

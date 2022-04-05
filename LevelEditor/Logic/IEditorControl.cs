@@ -10,7 +10,7 @@ namespace LevelEditor.Logic
 {
     public interface IEditorControl
     {
-        void SetCurrentTexture(BitmapImage bi);
+        void SetCurrentTexture(DrawableObject obj);
         void SetButtonFlag(ButtonKey key, bool isDown);
         void SetMousePosition(Vec2d position);
         void DeltaMouseWheel(double delta);
