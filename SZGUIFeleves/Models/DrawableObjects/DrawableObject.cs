@@ -9,6 +9,11 @@ namespace SZGUIFeleves.Models
 {
     public abstract class DrawableObject : IComparable
     {
+        public enum ObjectTypes
+        {
+            Foreground, Background, Decoration
+        }
+
         /// <summary>
         /// Position in screen space
         /// </summary>
@@ -44,6 +49,12 @@ namespace SZGUIFeleves.Models
         /// <para>Bottom < Default < Custom < Top</para>
         /// </summary>
         public DrawPriority DrawPriority { get; set; }
+
+        /// <summary>
+        /// Object type for the lever editor placing rules
+        /// <para>(ie can place background behind everything)</para>
+        /// </summary>
+        public ObjectTypes ObjectType { get; set; }
 
         /// <summary>
         /// Necessary for lighting and shadow casting

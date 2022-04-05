@@ -13,7 +13,7 @@ using SZGUIFeleves.Models;
 namespace LevelEditor.Logic
 {
     public delegate void DrawDelegate();
-    public delegate void ItemsUpdatedDelegate(List<BitmapImage> background, List<BitmapImage> foreground, List<BitmapImage> decoration);
+    public delegate void ItemsUpdatedDelegate(List<DrawableObject> background, List<DrawableObject> foreground, List<DrawableObject> decoration);
 
     public enum ButtonKey // TODO: More buttons to add if needed
     {
@@ -115,37 +115,54 @@ namespace LevelEditor.Logic
         public void Start()
         {
             string objectsPath = "Textures\\CitySet";
-            List<BitmapImage> background = new List<BitmapImage>();
-            List<BitmapImage> foreground = new List<BitmapImage>();
-            List<BitmapImage> decoration = new List<BitmapImage>();
+            List<DrawableObject> background = new List<DrawableObject>();
+            List<DrawableObject> foreground = new List<DrawableObject>();
+            List<DrawableObject> decoration = new List<DrawableObject>();
 
-            foreach(var image in new DirectoryInfo(objectsPath + "\\Background\\").GetFiles("*.png"))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\Background\\").GetFiles("*.png"))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
-                background.Add(bi);
+                Rectangle r = new Rectangle();
+                r.Texture = bi;
+                r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize,0));
+                r.ObjectType = DrawableObject.ObjectTypes.Background;
+                r.DrawPriority = DrawPriority.Custom(-3);
+                background.Add(r);
             }
             foreach(var image in new DirectoryInfo(objectsPath + "\\Foreground\\").GetFiles("*.png"))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
-                foreground.Add(bi);
+                Rectangle r = new Rectangle();
+                r.Texture = bi;
+                r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize,0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
+                r.ObjectType = DrawableObject.ObjectTypes.Foreground;
+                r.DrawPriority = DrawPriority.Custom(-2);
+                foreground.Add(r);
             }
-            //foreach(var image in new DirectoryInfo(objectsPath + "\\Decoration\\").GetFiles("*.png"))
-            //{
-            //    BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
-            //    decoration.Add(bi);
-            //}
+            foreach (var image in new DirectoryInfo(objectsPath + "\\Decoration\\").GetFiles("*.png"))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                Rectangle r = new Rectangle();
+                r.Texture = bi;
+                r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
+                r.ObjectType = DrawableObject.ObjectTypes.Decoration;
+                r.DrawPriority = DrawPriority.Custom(-1);
+                decoration.Add(r);
+            }
 
             ItemsUpdated.Invoke(background, foreground, decoration);
 
             MainLoopTimer.Start();
         }
 
-        public void SetCurrentTexture(BitmapImage bi)
+        public void SetCurrentTexture(DrawableObject obj)
         {
-            SelectedTexture = bi;
-            SelectedTextureRed = ImageColoring.SetColor(bi, ImageColoring.ColorFilters.Red);
-            SelectedTextureGreen = ImageColoring.SetColor(bi, ImageColoring.ColorFilters.Green);
-            SelectedItem.Texture = bi;
+            SelectedTexture = obj.Texture;
+            SelectedTextureRed = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Red);
+            SelectedTextureGreen = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Green);
+            SelectedItem = (obj as Rectangle).GetCopy();
+            (SelectedItem as Rectangle).OrigSize = (obj as Rectangle).OrigSize;
+            SelectedItem.Texture = SelectedTexture;
         }
 
         /// <summary>
@@ -275,15 +292,21 @@ namespace LevelEditor.Logic
             {
                 var toPlace = SelectedItem.GetCopy();
                 toPlace.Texture = SelectedTexture;
-                toPlace.DrawPriority = DrawPriority.Default;
 
                 bool already = false;
                 for (int i = 0; i < Objects.Count; i++)
                 {
                     if (toPlace.Intersects(Objects[i]))
                     {
-                        already = true;
-                        break;
+                        if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background &&
+                           Objects[i].ObjectType == DrawableObject.ObjectTypes.Background)
+                            already = true;
+                        else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Foreground &&
+                                Objects[i].ObjectType == DrawableObject.ObjectTypes.Foreground)
+                            already = true;
+                        else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Decoration &&
+                                Objects[i].ObjectType == DrawableObject.ObjectTypes.Decoration)
+                            already = true;
                     }
                 }
 
