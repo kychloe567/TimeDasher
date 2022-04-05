@@ -161,7 +161,7 @@ namespace LevelEditor.Logic
             SelectedTextureRed = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Red);
             SelectedTextureGreen = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Green);
             SelectedItem = (obj as Rectangle).GetCopy();
-            (SelectedItem as Rectangle).OrigSize = (obj as Rectangle).OrigSize;
+            (SelectedItem as Rectangle).OrigSize = (obj as Rectangle).Size;
             SelectedItem.Texture = SelectedTexture;
         }
 
