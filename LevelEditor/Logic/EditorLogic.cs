@@ -305,7 +305,8 @@ namespace LevelEditor.Logic
                                 Objects[i].ObjectType == DrawableObject.ObjectTypes.Foreground)
                             already = true;
                         else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Decoration &&
-                                Objects[i].ObjectType == DrawableObject.ObjectTypes.Decoration)
+                                Objects[i].ObjectType == DrawableObject.ObjectTypes.Decoration &&
+                                toPlace.Texture.Equals(Objects[i].Texture))
                             already = true;
                     }
                 }
@@ -335,6 +336,8 @@ namespace LevelEditor.Logic
                         SelectedTexture = Objects[i].Texture.Clone();
                         SelectedTextureRed = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Red);
                         SelectedTextureGreen = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Green);
+                        SelectedItem = Objects[i].GetCopy();
+                        (SelectedItem as Rectangle).OrigSize = (Objects[i] as Rectangle).Size;
                         SelectedItem.Texture = SelectedTexture;
                         break;
                     }
