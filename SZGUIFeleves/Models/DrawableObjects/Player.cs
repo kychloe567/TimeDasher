@@ -12,6 +12,11 @@ namespace SZGUIFeleves.Models.DrawableObjects
         public string Name { get; set; }
         public double SpeedX { get; set; }
         public double SpeedY { get; set; }
+
+        public void Dies()
+        {
+            this.TextureOpacity = 0;
+        }
         
 
     }
