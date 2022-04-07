@@ -133,7 +133,14 @@ namespace SZGUIFeleves.Logic
             CurrentScene.Objects.Add(new Rectangle()
             {
                 Position = new Vec2d(120, 170),
-                Size = new Vec2d(250, 55),
+                Size = new Vec2d(250, 25),
+                IsFilled = true,
+                Color = Color.Red
+            });
+            CurrentScene.Objects.Add(new Rectangle()
+            {
+                Position = new Vec2d(220, 270),
+                Size = new Vec2d(250, 25),
                 IsFilled = true,
                 Color = Color.Red
             });
@@ -274,7 +281,7 @@ namespace SZGUIFeleves.Logic
 
 
                     // If player doesn't intersect with another object.
-                    if (obj.IsJumping)
+                    if (obj.IsJumping && obj.IsGravity)
                     {
                         // If code is here, then IsJumping == true. DoesIntersect is unknown yet.
                         // JUMP - v0 > 0
