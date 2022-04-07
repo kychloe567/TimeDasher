@@ -81,6 +81,7 @@ namespace SZGUIFeleves.Models
 
         public override bool Intersects(DrawableObject d)
         {
+            
             if (d is Circle c)
             {
                 double closestX = MathHelper.Clamp(Position.x, Right, c.Position.x);
