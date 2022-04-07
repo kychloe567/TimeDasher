@@ -132,7 +132,7 @@ namespace SZGUIFeleves.Logic
             });
             CurrentScene.Objects.Add(new Rectangle()
             {
-                Position = new Vec2d(120, 170),
+                Position = new Vec2d(320, 170),
                 Size = new Vec2d(250, 25),
                 IsFilled = true,
                 Color = Color.Red
@@ -143,6 +143,15 @@ namespace SZGUIFeleves.Logic
                 Size = new Vec2d(250, 25),
                 IsFilled = true,
                 Color = Color.Red
+
+            });
+          
+            CurrentScene.Objects.Add(new Trap()
+            {
+                Position = new Vec2d(120, 370),
+                Size = new Vec2d(250, 25),
+                IsFilled = true,
+                Color = Color.Green
             });
 
             // Emitter example settings
