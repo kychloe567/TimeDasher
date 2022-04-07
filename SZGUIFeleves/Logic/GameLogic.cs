@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace SZGUIFeleves.Logic
 
     public class GameLogic : IGameModel, IGameControl
     {
+        int iterationCountTEST = 0;
         #region App Constants
         private const int FPSTarget = 60;
         #endregion
@@ -122,8 +124,9 @@ namespace SZGUIFeleves.Logic
             CurrentScene.Objects.Add(new Player() {
                 IsPlayer = true,
                 IsFilled = true,
-                FallingStart = DateTime.Now,
-                TimeElapsed = 0,
+                //FallingStart = DateTime.Now,
+                //TimeElapsed = 0,
+                GravityStart = DateTime.Now,
                 Size = new Vec2d(50, 50),
                 Position = new Vec2d(100, 100),
                 Color = Color.Purple,
@@ -136,7 +139,6 @@ namespace SZGUIFeleves.Logic
                 Position = new Vec2d(120, 170),
                 Size = new Vec2d(250, 55),
                 IsFilled = true,
-                IsFalling = false,
                 OutLineColor = Color.Blue,
                 OutLineThickness = 2,
                 Color = Color.Red
@@ -246,39 +248,78 @@ namespace SZGUIFeleves.Logic
                 {
                     // TODO
                     // Intersect check v1.0
-                    bool tempIntersect = false;
+                    bool doesIntersect = false;
                     foreach (var subItem in CurrentScene.Objects)
                     {
+                        // If player intersects with another object, gravity should be disabled.
                         if (!obj.Equals(subItem) && obj.Intersects(subItem))
-                         {
-                            // obj.IsFalling = false;
-                            gravityLogic.IsFalling(obj, ElapsedTime, false);
-                            tempIntersect = true;
+                        {
+                            //// obj.IsFalling = false;
+                            //gravityLogic.IsFalling(obj, ElapsedTime, false);
+                            doesIntersect = true;
+
+                            if (!obj.IsJumping)
+                                obj.IsGravitySet(false);
                             break;
                         }
                     }
-                    if (!tempIntersect && !obj.IsFalling)
-                    {
-                        // obj.IsFalling = true;
-                        gravityLogic.IsFalling(obj, ElapsedTime, true);
-                        // obj.IsJumping = false;
-                        gravityLogic.IsJumping(obj, ElapsedTime, false);
 
-                        // Update TimeElapsed
-                        //obj.FallingStart = DateTime.Now;
+                    if (!doesIntersect && !obj.IsGravity)
+                    {
+                        obj.IsGravitySet(true);
                     }
 
-                    // Gravity check
-                    if (obj.IsFalling)
+                    // iterationCountTEST++;
+                    // string output = iterationCountTEST + ":\nBEFORE:\t" + obj.GravityStart.ToString() + "\t" + obj.GravityTimeElapsed.ToString();
+
+                    // Time elapsed update
+                    obj.GravityTimeElapsed = (DateTime.Now - obj.GravityStart).TotalSeconds;
+
+                    // output += "\nAFTER:\t" + obj.GravityStart.ToString() + "\t" + obj.GravityTimeElapsed.ToString() + "\n\n";
+
+
+
+                    // If player doesn't intersect with another object.
+                    if (obj.IsJumping)
                     {
-                        obj.TimeElapsed = (ElapsedTime - obj.FallingStart).TotalSeconds;
-                        gravityLogic.Falling(obj);
+                        // If code is here, then IsJumping == true. DoesIntersect is unknown yet.
+                        // JUMP - v0 > 0
+                        gravityLogic.Jumping(obj, 2);
                     }
-                    else if (obj.IsJumping)
+                    else if (doesIntersect)
                     {
-                        obj.TimeElapsed = (DateTime.Now - obj.FallingStart).TotalSeconds;
-                        gravityLogic.Jumping(obj);
+                        // If code is here, then IsJumping == false.
+                        // STOP
+
                     }
+                    else //if (!doesIntersect && !obj.IsJumping)
+                    {
+                        // If code is here, then doesIntersect == false && IsJumping == false.
+                        // FALL - v0 = 0
+                        gravityLogic.Jumping(obj, 0);
+                    }
+                    //if (doesIntersect && obj.IsJumping)
+                    //{
+                    //    // obj.IsFalling = true;
+                    //    gravityLogic.IsFalling(obj, ElapsedTime, true);
+                    //    // obj.IsJumping = false;
+                    //    gravityLogic.IsJumping(obj, ElapsedTime, false);
+
+                    //    // Update TimeElapsed
+                    //    //obj.FallingStart = DateTime.Now;
+                    //}
+
+                    //// Gravity check
+                    //if (obj.IsFalling)
+                    //{
+                    //    obj.TimeElapsed = (ElapsedTime - obj.FallingStart).TotalSeconds;
+                    //    gravityLogic.Falling(obj);
+                    //}
+                    //else if (obj.IsJumping)
+                    //{
+                    //    obj.TimeElapsed = (DateTime.Now - obj.FallingStart).TotalSeconds;
+                    //    gravityLogic.Jumping(obj);
+                    //}
                 }
             }
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
@@ -291,15 +332,17 @@ namespace SZGUIFeleves.Logic
         {
             // Button control checks
             if (ButtonFlags[ButtonKey.W])
-                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y -= 100.0f * Elapsed;
-            if (ButtonFlags[ButtonKey.S])
-                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y += 100.0f * Elapsed;
+                if (!CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsJumping)
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravitySet(true, true);
+                //CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y -= 100.0f * Elapsed;
+            //if (ButtonFlags[ButtonKey.S])
+            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y += 100.0f * Elapsed;
             if (ButtonFlags[ButtonKey.A])
                 CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 100.0f * Elapsed;
             if (ButtonFlags[ButtonKey.D])
                 CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 100.0f * Elapsed;
-            if (ButtonFlags[ButtonKey.Space])
-                gravityLogic.IsJumping(CurrentScene.Objects[CurrentScene.PlayerIndex], ElapsedTime, true);
+            //if (ButtonFlags[ButtonKey.Space])
+            //    gravityLogic.IsJumping(CurrentScene.Objects[CurrentScene.PlayerIndex], ElapsedTime, true);
         }
 
         /// <summary>

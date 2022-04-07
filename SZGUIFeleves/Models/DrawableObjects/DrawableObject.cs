@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,12 +18,14 @@ namespace SZGUIFeleves.Models
         /// <summary>
         /// Exact time, when IsFalling is set to true.
         /// </summary>
-        public DateTime FallingStart { get; set; }
+        public DateTime GravityStart { get; set; }
+        //public DateTime FallingStart { get; set; }
 
         /// <summary>
         /// Seconds elapsed from FallingStart.
         /// </summary>
-        public double TimeElapsed { get; set; }
+        public double GravityTimeElapsed { get; set; }
+        //public double TimeElapsed { get; set; }
 
         /// <summary>
         /// In degrees
@@ -78,17 +81,20 @@ namespace SZGUIFeleves.Models
         /// </summary>
         public bool IsAffectedByCamera { get; set; }
 
+        /// <summary>
+        /// If true, this object is the player.
+        /// </summary>
         public bool IsPlayer { get; set; }
 
         /// <summary>
-        /// If true, gravity affects on this object.
+        /// If true, gravity affects on this object. To set this property, use IsGravitySet(bool value).
         /// </summary>
-        public bool IsFalling { get; set; }
+        public bool IsGravity { get; private set; }
 
         /// <summary>
-        /// If true, gravity affects contrary to this object.
+        /// If true, v0 of gravity is going to be increased.
         /// </summary>
-        public bool IsJumping { get; set; }
+        public bool IsJumping { get; private set; }
 
         public DrawableObject()
         {
@@ -160,5 +166,17 @@ namespace SZGUIFeleves.Models
             return DrawPriority.CompareTo((obj as DrawableObject).DrawPriority);
         }
 
+        /// <summary>
+        /// Sets IsGravity and updates GravityStart property.
+        /// </summary>
+        /// <param name="value"></param>
+        public void IsGravitySet(bool value, bool jumping = false)
+        {
+            IsGravity = value;
+            IsJumping = jumping;
+            if (value)
+                GravityStart = DateTime.Now;
+                GravityTimeElapsed = 0;
+        }
     }
 }
