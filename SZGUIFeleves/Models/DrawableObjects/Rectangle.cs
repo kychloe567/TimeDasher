@@ -62,7 +62,6 @@ namespace SZGUIFeleves.Models
         {
             Rectangle r = new Rectangle(new Vec2d(Position), new Vec2d(Size), new Color(Color))
             {
-                OrigSize = OrigSize,
                 Rotation = Rotation,
                 OutLineThickness = OutLineThickness,
                 OutLineColor = new Color(OutLineColor),
@@ -72,6 +71,11 @@ namespace SZGUIFeleves.Models
                 IsPlayer = IsPlayer,
                 ObjectType = ObjectType
             };
+
+            if (OrigSize is null)
+                r.OrigSize = Size;
+            else
+                r.OrigSize = OrigSize;
 
             if (Texture != null)
                 r.Texture = Texture.Clone();

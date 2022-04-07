@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LevelEditor.Controller;
 using LevelEditor.Logic;
+using LevelEditor.ViewModels;
 using SZGUIFeleves.Models;
 
 namespace LevelEditor
@@ -31,63 +32,15 @@ namespace LevelEditor
             RenderOptions.SetBitmapScalingMode(MainGrid, BitmapScalingMode.NearestNeighbor);
             EditorLogic logic = new EditorLogic((int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
 
-            logic.ItemsUpdated += Logic_ItemsUpdated;
-
             display.SetupModel(logic, (int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
             controller = new GameController(logic);
+
+            DataContext = new MainWindowViewModel(logic);
+
             logic.Start();
         }
 
-        private void Logic_ItemsUpdated(List<DrawableObject> background, List<DrawableObject> foreground, List<DrawableObject> decoration)
-        {
-            foreach (var obj in background)
-            {
-                Image i = new Image()
-                {
-                    Source = obj.Texture,
-                    Height = 64,
-                    Width = 64,
-                    Tag = obj
-                };
-
-                BackgroundObjects.Items.Add(i);
-            }
-            foreach (var obj in foreground)
-            {
-                Image i = new Image()
-                {
-                    Source = obj.Texture,
-                    Height = 64,
-                    Width = 64,
-                    Tag = obj
-                };
-
-                ForegroundObjects.Items.Add(i);
-            }
-
-            //TODO: Size management
-            foreach (var obj in decoration)
-            {
-                Image i = new Image()
-                {
-                    Source = obj.Texture,
-                    Height = 64,
-                    Width = 64,
-                    Tag = obj
-                };
-
-                DecorationObjects.Items.Add(i);
-            }
-        }
-
-        private void Objects_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if((sender as ListBox).SelectedItem != null)
-            {
-                controller.SetCurrentTexture(((sender as ListBox).SelectedItem as Image).Tag as DrawableObject);
-            }
-        }
-
+        // Events ----------------------------------------------------------------------------
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (controller != null)

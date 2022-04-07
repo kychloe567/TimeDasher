@@ -20,7 +20,7 @@ namespace SZGUIFeleves.Models
             return new Scene("default", new List<DrawableObject>(), 0, new List<DynamicPointLight>());
         }
 
-        public static Scene GetScene(string scene)
+        public static Scene GetSceneByName(string scene)
         {
             if (!File.Exists(ScenePath + scene + ".json"))
                 return null;
@@ -63,6 +63,49 @@ namespace SZGUIFeleves.Models
             return s;
         }
 
+        public static Scene GetSceneByFullPath(string path)
+        {
+            if (!File.Exists(path))
+                return null;
+
+            SceneJson sj = JsonConvert.DeserializeObject<SceneJson>(File.ReadAllText(path));
+            List<DrawableObject> Objects = new List<DrawableObject>();
+            int playerIndex = -1;
+            for (int i = 0; i < sj.Circles.Count(); i++)
+            {
+                if (playerIndex == -1 && sj.Circles[i].IsPlayer)
+                    playerIndex = i;
+                Objects.Add(sj.Circles[i]);
+            }
+            for (int i = 0; i < sj.Lines.Count(); i++)
+            {
+                if (playerIndex == -1 && sj.Lines[i].IsPlayer)
+                    playerIndex = i;
+                Objects.Add(sj.Lines[i]);
+            }
+            for (int i = 0; i < sj.Polygons.Count(); i++)
+            {
+                if (playerIndex == -1 && sj.Polygons[i].IsPlayer)
+                    playerIndex = i;
+                Objects.Add(sj.Polygons[i]);
+            }
+            for (int i = 0; i < sj.Rectangles.Count(); i++)
+            {
+                if (playerIndex == -1 && sj.Rectangles[i].IsPlayer)
+                    playerIndex = i;
+                Objects.Add(sj.Rectangles[i]);
+            }
+            for (int i = 0; i < sj.Texts.Count(); i++)
+            {
+                if (playerIndex == -1 && sj.Texts[i].IsPlayer)
+                    playerIndex = i;
+                Objects.Add(sj.Texts[i]);
+            }
+
+            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights);
+            return s;
+        }
+
         public static void SaveScene(Scene scene)
         {
             SceneJson sj = new SceneJson();
@@ -83,6 +126,28 @@ namespace SZGUIFeleves.Models
             sj.PointLights = scene.PointLights;
 
             File.WriteAllText(ScenePath + scene.Title + ".json", JsonConvert.SerializeObject(sj));
+        }
+
+        public static void SaveScene(Scene scene, string path)
+        {
+            SceneJson sj = new SceneJson();
+            foreach(var obj in scene.Objects)
+            {
+                if (obj is Circle c)
+                    sj.Circles.Add(c);
+                else if (obj is Line l)
+                    sj.Lines.Add(l);
+                else if (obj is Polygon p)
+                    sj.Polygons.Add(p);
+                else if (obj is Rectangle r)
+                    sj.Rectangles.Add(r);
+                else if (obj is Text t)
+                    sj.Texts.Add(t);
+            }
+            sj.Title = scene.Title;
+            sj.PointLights = scene.PointLights;
+
+            File.WriteAllText(path, JsonConvert.SerializeObject(sj));
         }
     }
 }

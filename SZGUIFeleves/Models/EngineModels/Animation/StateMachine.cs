@@ -52,7 +52,7 @@ namespace SZGUIFeleves.Models
         public StateMachine GetCopy()
         {
             Dictionary<string, Animation> states = new Dictionary<string, Animation>();
-            foreach(KeyValuePair<string, Animation> pair in states)
+            foreach(KeyValuePair<string, Animation> pair in States)
                 states.Add(pair.Key, pair.Value.GetCopy());
             return new StateMachine(states)
             {

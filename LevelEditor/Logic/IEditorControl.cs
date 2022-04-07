@@ -11,6 +11,10 @@ namespace LevelEditor.Logic
     public interface IEditorControl
     {
         void SetCurrentTexture(DrawableObject obj);
+        void ResetScene();
+        void LoadScene(Scene s);
+        Scene SaveScene(string title);
+
         void SetButtonFlag(ButtonKey key, bool isDown);
         void SetMousePosition(Vec2d position);
         void DeltaMouseWheel(double delta);

@@ -1,4 +1,5 @@
 ﻿using LevelEditor.Helpers;
+using LevelEditor.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -61,10 +62,8 @@ namespace LevelEditor.Logic
         #region Editor Variables
         private const double OrigGridSize = 64;
         private double GridSize = OrigGridSize;
-        private DrawableObject SelectedItem { get; set; }
-        private BitmapImage SelectedTexture { get; set; }
-        private BitmapImage SelectedTextureRed { get; set; }
-        private BitmapImage SelectedTextureGreen { get; set; }
+        private SelectedItem SelectedItem { get; set; }
+        
         #endregion
 
         public EditorLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -106,7 +105,7 @@ namespace LevelEditor.Logic
                 DrawPriority = DrawPriority.Top
             };
             r.OrigSize = r.Size;
-            SelectedItem = r;
+            SelectedItem = new SelectedItem() { Object = r };
         }
 
         /// <summary>
@@ -119,6 +118,7 @@ namespace LevelEditor.Logic
             List<DrawableObject> foreground = new List<DrawableObject>();
             List<DrawableObject> decoration = new List<DrawableObject>();
 
+            #region Textures
             foreach (var image in new DirectoryInfo(objectsPath + "\\Background\\").GetFiles("*.png"))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
@@ -126,7 +126,6 @@ namespace LevelEditor.Logic
                 r.Texture = bi;
                 r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize,0));
                 r.ObjectType = DrawableObject.ObjectTypes.Background;
-                r.DrawPriority = DrawPriority.Custom(-3);
                 background.Add(r);
             }
             foreach(var image in new DirectoryInfo(objectsPath + "\\Foreground\\").GetFiles("*.png"))
@@ -136,7 +135,6 @@ namespace LevelEditor.Logic
                 r.Texture = bi;
                 r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize,0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
                 r.ObjectType = DrawableObject.ObjectTypes.Foreground;
-                r.DrawPriority = DrawPriority.Custom(-2);
                 foreground.Add(r);
             }
             foreach (var image in new DirectoryInfo(objectsPath + "\\Decoration\\").GetFiles("*.png"))
@@ -146,9 +144,90 @@ namespace LevelEditor.Logic
                 r.Texture = bi;
                 r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
                 r.ObjectType = DrawableObject.ObjectTypes.Decoration;
-                r.DrawPriority = DrawPriority.Custom(-1);
                 decoration.Add(r);
             }
+            #endregion
+
+            #region Animations
+            foreach (var ani in new DirectoryInfo(objectsPath + "\\Background\\").GetDirectories())
+            {
+                bool first = true;
+
+                Rectangle r = new Rectangle();
+                Animation a = new Animation(ani.Name);
+
+                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png"))
+                {
+                    BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                    if (first)
+                    {
+                        first = false;
+                        r.Texture = bi;
+                        r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
+                        r.ObjectType = DrawableObject.ObjectTypes.Background;
+                    }
+
+                    // TODO: animation time in file?
+                    a.AddTexture(bi, 0.2);
+                }
+
+                r.StateMachine = new StateMachine(a);
+
+                background.Add(r);
+            }
+            foreach (var ani in new DirectoryInfo(objectsPath + "\\Foreground\\").GetDirectories())
+            {
+                bool first = true;
+
+                Rectangle r = new Rectangle();
+                Animation a = new Animation(ani.Name);
+
+                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png"))
+                {
+                    BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                    if (first)
+                    {
+                        first = false;
+                        r.Texture = bi;
+                        r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
+                        r.ObjectType = DrawableObject.ObjectTypes.Foreground;
+                    }
+
+                    // TODO: animation time in file?
+                    a.AddTexture(bi, 0.2);
+                }
+
+                r.StateMachine = new StateMachine(a);
+
+                foreground.Add(r);
+            }
+            foreach (var ani in new DirectoryInfo(objectsPath + "\\Decoration\\").GetDirectories())
+            {
+                bool first = true;
+
+                Rectangle r = new Rectangle();
+                Animation a = new Animation(ani.Name);
+
+                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png"))
+                {
+                    BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                    if (first)
+                    {
+                        first = false;
+                        r.Texture = bi;
+                        r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
+                        r.ObjectType = DrawableObject.ObjectTypes.Decoration;
+                    }
+
+                    // TODO: animation time in file?
+                    a.AddTexture(bi, 0.2);
+                }
+
+                r.StateMachine = new StateMachine(a);
+
+                decoration.Add(r);
+            }
+            #endregion
 
             ItemsUpdated.Invoke(background, foreground, decoration);
 
@@ -157,12 +236,11 @@ namespace LevelEditor.Logic
 
         public void SetCurrentTexture(DrawableObject obj)
         {
-            SelectedTexture = obj.Texture;
-            SelectedTextureRed = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Red);
-            SelectedTextureGreen = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Green);
-            SelectedItem = (obj as Rectangle).GetCopy();
-            (SelectedItem as Rectangle).OrigSize = (obj as Rectangle).Size;
-            SelectedItem.Texture = SelectedTexture;
+            SelectedItem.SelectedTexture = obj.Texture;
+            SelectedItem.SelectedTextureRed = ImageColoring.SetColor(obj.Texture, ImageColoring.ColorFilters.Red);
+            SelectedItem.SelectedTextureGreen = ImageColoring.SetColor(obj.Texture, ImageColoring.ColorFilters.Green);
+            SelectedItem.Object = (obj as Rectangle).GetCopy();
+            SelectedItem.Object.Texture = obj.Texture;
         }
 
         /// <summary>
@@ -207,20 +285,20 @@ namespace LevelEditor.Logic
 
             if (!ButtonFlags[ButtonKey.MouseMiddle])
             {
-                SelectedItem.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                SelectedItem.Object.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
                                                   MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
 
                 if (MousePositionWorldSpace.x < 0)
                 {
-                    SelectedItem.Position.x -= GridSize;
+                    SelectedItem.Object.Position.x -= GridSize;
                 }
                 if (MousePositionWorldSpace.y < 0)
                 {
-                    SelectedItem.Position.y -= GridSize;
+                    SelectedItem.Object.Position.y -= GridSize;
                 }
             }
 
-            if (SelectedItem != null && SelectedTexture != null)
+            if (SelectedItem != null && SelectedItem.SelectedTexture != null)
             {
                 bool already = false;
                 Circle checkCircle = new Circle(MousePositionWorldSpace, 1);
@@ -229,14 +307,14 @@ namespace LevelEditor.Logic
                 {
                     if (obj.Intersects(checkCircle))
                     {
-                        SelectedItem.Texture = SelectedTextureRed;
+                        SelectedItem.Object.Texture = SelectedItem.SelectedTextureRed;
                         already = true;
                         break;
                     }
                 }
 
-                if (!already && !SelectedItem.Texture.Equals(SelectedTextureGreen))
-                    SelectedItem.Texture = SelectedTextureGreen;
+                if (!already && !SelectedItem.Object.Texture.Equals(SelectedItem.SelectedTextureGreen))
+                    SelectedItem.Object.Texture = SelectedItem.SelectedTextureGreen;
             }
         }
 
@@ -263,14 +341,17 @@ namespace LevelEditor.Logic
             Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             foreach (var obj in Objects)
             {
-                if(obj is Rectangle r)
+                if (!(obj.StateMachine is null))
+                    obj.StateMachine.Update();
+
+                if (obj is Rectangle r)
                 {
                     r.Size = r.OrigSize * Camera.Zoom;
                 }
 
                 ObjectsToDisplayWorldSpace.Add(obj);
             }
-            ObjectsToDisplayWorldSpace.Add(SelectedItem);
+            ObjectsToDisplayWorldSpace.Add(SelectedItem.Object);
 
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
@@ -290,8 +371,8 @@ namespace LevelEditor.Logic
 
             if (ButtonFlags[ButtonKey.MouseLeft])
             {
-                var toPlace = SelectedItem.GetCopy();
-                toPlace.Texture = SelectedTexture;
+                var toPlace = SelectedItem.Object.GetCopy();
+                toPlace.Texture = SelectedItem.SelectedTexture;
 
                 bool already = false;
                 for (int i = 0; i < Objects.Count; i++)
@@ -333,12 +414,11 @@ namespace LevelEditor.Logic
                 {
                     if (Objects[i].Intersects(checkCircle))
                     {
-                        SelectedTexture = Objects[i].Texture.Clone();
-                        SelectedTextureRed = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Red);
-                        SelectedTextureGreen = ImageColoring.SetColor(SelectedTexture, ImageColoring.ColorFilters.Green);
-                        SelectedItem = Objects[i].GetCopy();
-                        (SelectedItem as Rectangle).OrigSize = (Objects[i] as Rectangle).Size;
-                        SelectedItem.Texture = SelectedTexture;
+                        SelectedItem.SelectedTexture = Objects[i].Texture.Clone();
+                        SelectedItem.SelectedTextureRed = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Red);
+                        SelectedItem.SelectedTextureGreen = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Green);
+                        SelectedItem.Object = Objects[i].GetCopy();
+                        SelectedItem.Object.Texture = SelectedItem.SelectedTexture;
                         break;
                     }
                 }
@@ -351,6 +431,28 @@ namespace LevelEditor.Logic
         private void Update()
         {
             // Game Logic Update
+        }
+
+        public void ResetScene()
+        {
+            Objects.Clear();
+
+            CurrentCameraPosition = WindowSize / 2;
+            Camera.UpdatePosition(CurrentCameraPosition, 0);
+
+            MousePositionWorldSpace = CurrentCameraPosition - WindowSize / 2 + MousePosition;
+        }
+
+        public void LoadScene(Scene s)
+        {
+            ResetScene();
+            foreach (var obj in s.Objects)
+                Objects.Add(obj);
+        }
+
+        public Scene SaveScene(string title)
+        {
+            return new Scene(title, Objects, -1, new List<DynamicPointLight>());
         }
     }
 }

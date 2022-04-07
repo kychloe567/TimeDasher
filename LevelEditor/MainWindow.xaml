@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LevelEditor"
+        xmlns:vms="clr-namespace:LevelEditor.ViewModels"
+        xmlns:conv="clr-namespace:LevelEditor.Converters"
         xmlns:renderer="clr-namespace:LevelEditor.Renderer"
         mc:Ignorable="d"
         SizeChanged="Window_SizeChanged"
@@ -11,49 +13,107 @@
         KeyUp="Window_KeyUp"
         Loaded="Window_Loaded"
         Title="Level Editor" Width="1280" Height="768">
+    <Window.Resources>
+        <conv:DrawLevelToColor x:Key="DrawLevelToColor"/>
+    </Window.Resources>
+    
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="250"/>
         </Grid.ColumnDefinitions>
 
-        <Grid x:Name="MainGrid" MouseMove="Window_MouseMove" MouseDown="Window_MouseDown"
-                                MouseUp="Window_MouseUp" MouseWheel="Window_MouseWheel">
+        <Menu Grid.Row="0" Grid.Column="0">
+            <MenuItem Header="File"  Height="30" BorderBrush="Gray" BorderThickness="1">
+                <MenuItem.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="2"/>
+                    </Style>
+                </MenuItem.Resources>
+
+                <MenuItem Header="New&#x09;&#x09;Ctrl+N" Command="{Binding NewCommand}"/>
+                <MenuItem Header="Load&#x09;&#x09;Ctrl+O" Command="{Binding LoadCommand}"/>
+                <MenuItem Header="Save&#x09;&#x09;Ctrl+S" Command="{Binding SaveCommand}"/>
+                <Separator/>
+                <MenuItem Header="Exit&#x09;&#x09;Ctrl+Q" Command="{Binding ExitCommand}"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid x:Name="MainGrid" Grid.Row="1"
+              MouseMove="Window_MouseMove" MouseDown="Window_MouseDown"
+              MouseUp="Window_MouseUp" MouseWheel="Window_MouseWheel">
             <renderer:Display x:Name="display"/>
         </Grid>
 
+        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="90"/>
+            </Grid.RowDefinitions>
+            
+            <TabControl Width="250" SelectedIndex="{Binding SelectedTab}">
+                <TabItem Header="Foreground">
+                    <ListBox ItemsSource="{Binding ForegroundObjects}" Background="#1e1e1e" 
+                     SelectedItem="{Binding SelectedImageForeground}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
+                </TabItem>
+                <TabItem Header="Background">
+                    <ListBox ItemsSource="{Binding BackgroundObjects}" Background="#1e1e1e"
+                     SelectedItem="{Binding SelectedImageBackground}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
+                </TabItem>
+                <TabItem Header="Decoration">
+                    <ListBox ItemsSource="{Binding DecorationObjects}" Background="#1e1e1e"
+                     SelectedItem="{Binding SelectedImageDecoration}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
+                </TabItem>
+            </TabControl>
 
-        <TabControl Grid.Column="1" Width="250">
-            <TabItem Header="Foreground">
-                <ListBox Background="#1e1e1e" x:Name="ForegroundObjects"
-                     SelectionChanged="Objects_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-            </TabItem>
-            <TabItem Header="Background">
-                <ListBox Background="#1e1e1e" x:Name="BackgroundObjects"
-                     SelectionChanged="Objects_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-            </TabItem>
-            <TabItem Header="Decoration">
-                <ListBox Background="#1e1e1e" x:Name="DecorationObjects"
-                     SelectionChanged="Objects_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-            </TabItem>
-        </TabControl>
+            <Grid Grid.Row="1" Background="#1e1e1e">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Row="0" Grid.ColumnSpan="3" Content="Top" Command="{Binding TopCommand}"
+                        Background="{Binding DrawLevel, Converter={StaticResource DrawLevelToColor}, ConverterParameter=top}" />
+
+                <Button Grid.Row="1" Grid.Column="0" Content="↑" FontWeight="Bold" FontSize="20" Command="{Binding HigherCommand}"/>
+                <TextBox Grid.Row="1" Grid.Column="1" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                         Text="{Binding CurrentCustomLayer}" Background="{Binding DrawLevel, Converter={StaticResource DrawLevelToColor}, 
+                                                                          ConverterParameter=custom}"/>
+                <Button Grid.Row="1" Grid.Column="2" Content="↓" FontWeight="Bold" FontSize="20" Command="{Binding LowerCommand}"/>
+
+                <Button Grid.Row="2" Grid.ColumnSpan="3" Content="Bottom" Command="{Binding BottomCommand}"
+                        Background="{Binding DrawLevel, Converter={StaticResource DrawLevelToColor}, ConverterParameter=bottom}"/>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>

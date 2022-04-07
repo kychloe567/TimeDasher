@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
 
@@ -262,6 +264,21 @@
 	  <None Update="Textures\CitySet\Decoration\0hanzi_20.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	  <None Update="Textures\CitySet\Decoration\box\box_01.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Textures\CitySet\Decoration\box\box_02.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Textures\CitySet\Decoration\box\box_03.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Textures\CitySet\Decoration\box\box_04.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Textures\CitySet\Decoration\box\box_05.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="Textures\CitySet\Decoration\decor_01.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
@@ -282,6 +299,18 @@
 	  </None>
 	  <None Update="Textures\CitySet\Decoration\decor_07.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Textures\CitySet\Decoration\fan\fan_01.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Textures\CitySet\Decoration\fan\fan_02.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Textures\CitySet\Decoration\fan\fan_03.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Textures\CitySet\Decoration\fan\fan_04.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	  <None Update="Textures\CitySet\Foreground\CitySet_01.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
