@@ -124,23 +124,17 @@ namespace SZGUIFeleves.Logic
             CurrentScene.Objects.Add(new Player() {
                 IsPlayer = true,
                 IsFilled = true,
-                //FallingStart = DateTime.Now,
-                //TimeElapsed = 0,
                 GravityStart = DateTime.Now,
                 Size = new Vec2d(50, 50),
                 Position = new Vec2d(100, 100),
                 Color = Color.Purple,
                 TextureOpacity = 50,
-                OutLineColor = Color.White,
-                OutLineThickness = 2
             });
             CurrentScene.Objects.Add(new Rectangle()
             {
                 Position = new Vec2d(120, 170),
                 Size = new Vec2d(250, 55),
                 IsFilled = true,
-                OutLineColor = Color.Blue,
-                OutLineThickness = 2,
                 Color = Color.Red
             });
 
@@ -284,7 +278,7 @@ namespace SZGUIFeleves.Logic
                     {
                         // If code is here, then IsJumping == true. DoesIntersect is unknown yet.
                         // JUMP - v0 > 0
-                        gravityLogic.Jumping(obj, 2);
+                        gravityLogic.Jumping(obj, 10);
                     }
                     else if (doesIntersect)
                     {
@@ -338,9 +332,9 @@ namespace SZGUIFeleves.Logic
             //if (ButtonFlags[ButtonKey.S])
             //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y += 100.0f * Elapsed;
             if (ButtonFlags[ButtonKey.A])
-                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 100.0f * Elapsed;
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 200.0f * Elapsed;
             if (ButtonFlags[ButtonKey.D])
-                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 100.0f * Elapsed;
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 200.0f * Elapsed;
             //if (ButtonFlags[ButtonKey.Space])
             //    gravityLogic.IsJumping(CurrentScene.Objects[CurrentScene.PlayerIndex], ElapsedTime, true);
         }

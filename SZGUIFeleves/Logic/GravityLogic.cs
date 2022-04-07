@@ -10,7 +10,7 @@ namespace SZGUIFeleves.Logic
 {
     internal class GravityLogic : IGravityLogic
     {
-        private const double GravityCoe = 50;
+        private const double GravityCoe = 40;
 
         public void Falling(DrawableObject obj)
         {
@@ -37,13 +37,13 @@ namespace SZGUIFeleves.Logic
 
         private double Gravity(double v0, double gravityCoe, double timeElapsed)
         {
-            //double tmp = -v0 + (gravityCoe / 2) * Math.Pow((timeElapsed - (5 * v0 * v0)), 2);
-            double tmp = -v0 + (gravityCoe / 2) * Math.Pow((timeElapsed - Math.Sqrt(v0 / (gravityCoe / 2))), 2);
+            //double tmp = (-v0 + (gravityCoe / 2) * Math.Pow((timeElapsed - Math.Sqrt(v0 / (gravityCoe / 2))), 2));
+            double tmp = -v0 + gravityCoe * Math.Abs(timeElapsed - (v0 / gravityCoe));
 
-            using (StreamWriter sw = new StreamWriter("timelapsed_8.txt", true))
-            {
-                sw.WriteLine("TimeElapsed: " + ((decimal)timeElapsed) + "\nTmpVal: " + (decimal)tmp + "\n");
-            }
+            //using (StreamWriter sw = new StreamWriter("timelapsed_8.txt", true))
+            //{
+            //    sw.WriteLine("TimeElapsed: " + ((decimal)timeElapsed) + "\nTmpVal: " + (decimal)tmp + "\n");
+            //}
 
             return tmp;
         }
