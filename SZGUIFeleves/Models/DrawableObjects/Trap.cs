@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using SZGUIFeleves.Helpers;
 
-namespace SZGUIFeleves.Models.DrawableObjects
+namespace SZGUIFeleves.Models
 {
-    class Trap : DrawableObject
+    public class Trap : DrawableObject
     {
         public Vec2d Size { get; set; }
         public double Right
@@ -70,11 +70,12 @@ namespace SZGUIFeleves.Models.DrawableObjects
             }
             else if (d is Player j)
             {
-                return j.
+                j.Dies();
+                return true;
             }
             else if (d is Rectangle r)
             {
-                return !(r.Position.x > Right || r.Right < Position.x || r.Position.y > Bottom || r.Bottom < Position.y);
+                return !(r.Position.x >= Right || r.Right <= Position.x || r.Position.y >= Bottom || r.Bottom <= Position.y);
             }
             else if (d is Polygon p)
             {
