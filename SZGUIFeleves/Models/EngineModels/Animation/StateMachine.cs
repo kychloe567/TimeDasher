@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace SZGUIFeleves.Models
     {
         private Dictionary<string, Animation> States { get; set; }
         private string CurrentState { get; set; }
+
+        [JsonIgnore]
         public BitmapImage CurrentTexture
         {
             get
@@ -31,6 +34,11 @@ namespace SZGUIFeleves.Models
             CurrentState = state.Title;
         }
 
+        public void LoadTextures()
+        {
+            foreach (KeyValuePair<string, Animation> pair in States)
+                pair.Value.LoadTextures();
+        }
         public void AddState(Animation an)
         {
             States.Add(an.Title, an);

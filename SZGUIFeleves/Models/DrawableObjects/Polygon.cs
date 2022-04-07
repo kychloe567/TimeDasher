@@ -90,7 +90,10 @@ namespace SZGUIFeleves.Models
             };
 
             if (Texture != null)
+            {
                 p.Texture = Texture.Clone();
+                p.TexturePath = TexturePath;
+            }
 
             if (StateMachine != null)
                 p.StateMachine = StateMachine.GetCopy();

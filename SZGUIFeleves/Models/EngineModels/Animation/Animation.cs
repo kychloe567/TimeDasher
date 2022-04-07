@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,10 +11,13 @@ namespace SZGUIFeleves.Models
     public class Animation
     {
         public string Title { get; set; }
+        [JsonIgnore]
         private List<BitmapImage> Textures { get; set; }
+        private List<string> TexturePaths { get; set; }
         private List<double> Times { get; set; }    // Seconds
 
         private int currentTexture;
+        [JsonIgnore]
         public BitmapImage CurrentTexture
         {
             get { return Textures[currentTexture]; }
@@ -43,6 +47,13 @@ namespace SZGUIFeleves.Models
             Textures = textures;
             Times = times;
             Start = DateTime.Now;
+        }
+
+        public void LoadTextures()
+        {
+            Textures = new List<BitmapImage>();
+            foreach(string tex in TexturePaths)
+                Textures.Add(new BitmapImage(new Uri(tex, UriKind.RelativeOrAbsolute)));
         }
 
         public void AddTexture(BitmapImage bi, double time)

@@ -32,30 +32,35 @@ namespace SZGUIFeleves.Models
             {
                 if (playerIndex == -1 && sj.Circles[i].IsPlayer)
                     playerIndex = i;
+                sj.Circles[i].LoadTexture();
                 Objects.Add(sj.Circles[i]);
             }
             for(int i = 0; i < sj.Lines.Count(); i++)
             {
                 if (playerIndex == -1 && sj.Lines[i].IsPlayer)
                     playerIndex = i;
+                sj.Lines[i].LoadTexture();
                 Objects.Add(sj.Lines[i]);
             }
             for(int i = 0; i < sj.Polygons.Count(); i++)
             {
                 if (playerIndex == -1 && sj.Polygons[i].IsPlayer)
                     playerIndex = i;
+                sj.Polygons[i].LoadTexture();
                 Objects.Add(sj.Polygons[i]);
             }
             for(int i = 0; i < sj.Rectangles.Count(); i++)
             {
                 if (playerIndex == -1 && sj.Rectangles[i].IsPlayer)
                     playerIndex = i;
+                sj.Rectangles[i].LoadTexture();
                 Objects.Add(sj.Rectangles[i]);
             }
             for(int i = 0; i < sj.Texts.Count(); i++)
             {
                 if (playerIndex == -1 && sj.Texts[i].IsPlayer)
                     playerIndex = i;
+                sj.Texts[i].LoadTexture();
                 Objects.Add(sj.Texts[i]);
             }
 
@@ -75,30 +80,35 @@ namespace SZGUIFeleves.Models
             {
                 if (playerIndex == -1 && sj.Circles[i].IsPlayer)
                     playerIndex = i;
+                sj.Circles[i].LoadTexture();
                 Objects.Add(sj.Circles[i]);
             }
             for (int i = 0; i < sj.Lines.Count(); i++)
             {
                 if (playerIndex == -1 && sj.Lines[i].IsPlayer)
                     playerIndex = i;
+                sj.Lines[i].LoadTexture();
                 Objects.Add(sj.Lines[i]);
             }
             for (int i = 0; i < sj.Polygons.Count(); i++)
             {
                 if (playerIndex == -1 && sj.Polygons[i].IsPlayer)
                     playerIndex = i;
+                sj.Polygons[i].LoadTexture();
                 Objects.Add(sj.Polygons[i]);
             }
             for (int i = 0; i < sj.Rectangles.Count(); i++)
             {
                 if (playerIndex == -1 && sj.Rectangles[i].IsPlayer)
                     playerIndex = i;
+                sj.Rectangles[i].LoadTexture();
                 Objects.Add(sj.Rectangles[i]);
             }
             for (int i = 0; i < sj.Texts.Count(); i++)
             {
                 if (playerIndex == -1 && sj.Texts[i].IsPlayer)
                     playerIndex = i;
+                sj.Texts[i].LoadTexture();
                 Objects.Add(sj.Texts[i]);
             }
 

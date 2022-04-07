@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,9 @@ namespace SZGUIFeleves.Models
         /// <summary>
         /// If not null, Color is ignored
         /// </summary>
+        [JsonIgnore]
         public BitmapImage Texture { get; set; }
+        public string TexturePath { get; set; }
         public double TextureOpacity { get; set; }
 
         /// <summary>
@@ -148,5 +151,12 @@ namespace SZGUIFeleves.Models
             return DrawPriority.CompareTo((obj as DrawableObject).DrawPriority);
         }
 
+        public void LoadTexture()
+        {
+            if (StateMachine is null)
+                Texture = new BitmapImage(new Uri(TexturePath, UriKind.RelativeOrAbsolute));
+            else
+                StateMachine.LoadTextures();
+        }
     }
 }

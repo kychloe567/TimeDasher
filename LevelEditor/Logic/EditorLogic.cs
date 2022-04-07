@@ -124,6 +124,7 @@ namespace LevelEditor.Logic
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
                 r.Texture = bi;
+                r.TexturePath = image.FullName;
                 r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize,0));
                 r.ObjectType = DrawableObject.ObjectTypes.Background;
                 background.Add(r);
@@ -133,6 +134,7 @@ namespace LevelEditor.Logic
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
                 r.Texture = bi;
+                r.TexturePath = image.FullName;
                 r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize,0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
                 r.ObjectType = DrawableObject.ObjectTypes.Foreground;
                 foreground.Add(r);
@@ -142,6 +144,7 @@ namespace LevelEditor.Logic
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
                 r.Texture = bi;
+                r.TexturePath = image.FullName;
                 r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
                 r.ObjectType = DrawableObject.ObjectTypes.Decoration;
                 decoration.Add(r);
@@ -163,6 +166,7 @@ namespace LevelEditor.Logic
                     {
                         first = false;
                         r.Texture = bi;
+                        r.TexturePath = image.FullName;
                         r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
                         r.ObjectType = DrawableObject.ObjectTypes.Background;
                     }
@@ -189,6 +193,7 @@ namespace LevelEditor.Logic
                     {
                         first = false;
                         r.Texture = bi;
+                        r.TexturePath = image.FullName;
                         r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
                         r.ObjectType = DrawableObject.ObjectTypes.Foreground;
                     }
@@ -215,6 +220,7 @@ namespace LevelEditor.Logic
                     {
                         first = false;
                         r.Texture = bi;
+                        r.TexturePath = image.FullName;
                         r.Size = new Vec2d(Math.Round(bi.PixelWidth / 128 * OrigGridSize, 0), Math.Round(bi.PixelHeight / 128 * OrigGridSize, 0));
                         r.ObjectType = DrawableObject.ObjectTypes.Decoration;
                     }
