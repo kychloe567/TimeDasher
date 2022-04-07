@@ -52,7 +52,13 @@ namespace SZGUIFeleves.Models
                     playerIndex = i;
                 Objects.Add(sj.Rectangles[i]);
             }
-            for(int i = 0; i < sj.Texts.Count(); i++)
+            for (int i = 0; i < sj.Traps.Count(); i++)
+            {
+                if (playerIndex == -1 && sj.Rectangles[i].IsPlayer)
+                    playerIndex = i;
+                Objects.Add(sj.Traps[i]);
+            }
+            for (int i = 0; i < sj.Texts.Count(); i++)
             {
                 if (playerIndex == -1 && sj.Texts[i].IsPlayer)
                     playerIndex = i;

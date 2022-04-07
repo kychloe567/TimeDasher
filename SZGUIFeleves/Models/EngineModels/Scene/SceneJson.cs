@@ -13,8 +13,10 @@ namespace SZGUIFeleves.Models
         public List<Line> Lines { get; set; }
         public List<Polygon> Polygons { get; set; }
         public List<Rectangle> Rectangles { get; set; }
+        public List<Trap> Traps { get; set; }
         public List<Text> Texts { get; set; }
         public List<DynamicPointLight> PointLights { get; set; }
+        
 
 
         public SceneJson()
@@ -23,6 +25,7 @@ namespace SZGUIFeleves.Models
             Lines = new List<Line>();
             Polygons = new List<Polygon>();
             Rectangles = new List<Rectangle>();
+            Traps = new List<Trap>();
             Texts = new List<Text>();
         }
     }
