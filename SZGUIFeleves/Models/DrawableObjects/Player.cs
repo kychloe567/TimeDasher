@@ -15,7 +15,9 @@ namespace SZGUIFeleves.Models.DrawableObjects
 
         public void Dies()
         {
-            this.TextureOpacity = 0;
+           IsFilled = false;
+
+            
         }
         
 
