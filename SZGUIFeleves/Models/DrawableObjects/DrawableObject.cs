@@ -29,6 +29,16 @@ namespace SZGUIFeleves.Models
         public bool IsFilled { get; set; }
 
         /// <summary>
+        /// If true, gravity affects on this object.
+        /// </summary>
+        public bool IsGravity { get; set; }
+
+        /// <summary>
+        /// Current velocity of this object.
+        /// </summary>
+        public Vec2d Velocity { get; set; }
+
+        /// <summary>
         /// If not null, Color is ignored
         /// </summary>
         public BitmapImage Texture { get; set; }
@@ -70,6 +80,7 @@ namespace SZGUIFeleves.Models
         public DrawableObject()
         {
             Position = new Vec2d();
+            Velocity = new Vec2d(0, 0);
             Color = new Color();
             OutLineThickness = 0.0f;
             OutLineColor = new Color();

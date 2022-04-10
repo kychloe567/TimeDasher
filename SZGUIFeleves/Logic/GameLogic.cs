@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using SZGUIFeleves.Models;
+using SZGUIFeleves.Models.DrawableObjects;
 
 namespace SZGUIFeleves.Logic
 {
@@ -43,6 +44,7 @@ namespace SZGUIFeleves.Logic
 
         public event DrawDelegate DrawEvent;
         private DispatcherTimer MainLoopTimer { get; set; }
+        private MovementLogic MovementLogic { get; set; }
         private DateTime ElapsedTime { get; set; }
         private double Elapsed { get; set; }
         private double CycleMilliseconds { get; set; }
@@ -75,6 +77,7 @@ namespace SZGUIFeleves.Logic
         public GameLogic(int WindowSizeWidth, int WindowSizeHeight)
         {
             WindowSize = new Vec2d(WindowSizeWidth, WindowSizeHeight);
+            MovementLogic = new MovementLogic();
 
             // Calculating frame interval with the given FPS target
             CycleMilliseconds = 1.0f / FPSTarget * 1000.0f;
@@ -113,6 +116,23 @@ namespace SZGUIFeleves.Logic
             CurrentScene = SceneManager.GetScene("try1");
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
+
+            CurrentScene.Objects.Add(new Player()
+            {
+                IsPlayer = true,
+                Position = new Vec2d(200, 100),
+                Size = new Vec2d(50, 100),
+                Color = Color.White
+            });
+            for (int i = 1; i <= 5; i++)
+            {
+                CurrentScene.Objects.Add(new Rectangle()
+                {
+                    Position = new Vec2d(i * 100, 300),
+                    Size = new Vec2d(100, 100),
+                    Color = Color.Gray
+                });
+            }
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
@@ -161,8 +181,8 @@ namespace SZGUIFeleves.Logic
 
         public void SetMousePosition(double x, double y)
         {
-            MousePosition.x = x;
-            MousePosition.y = y;
+            MousePosition.X = x;
+            MousePosition.Y = y;
         }
 
         /// <summary>
@@ -172,8 +192,8 @@ namespace SZGUIFeleves.Logic
         /// <param name="WindowSizeHeight"></param>
         public void WindowSizeChanged(int WindowSizeWidth, int WindowSizeHeight)
         {
-            WindowSize.x = WindowSizeWidth;
-            WindowSize.y = WindowSizeHeight;
+            WindowSize.X = WindowSizeWidth;
+            WindowSize.Y = WindowSizeHeight;
         }
 
         /// <summary>
@@ -187,25 +207,32 @@ namespace SZGUIFeleves.Logic
             Elapsed = (DateTime.Now - ElapsedTime).TotalSeconds;
             ElapsedTime = DateTime.Now;
 
+            bool up = true;
+            bool down = true;
+            bool left = true;
+            bool right = true;
+            
+            #region
             // Uncomment to get FPS property -> To display averaged FPS
             //double currentFps = 1.0f / Elapsed;
             //RecentFPS.Add(currentFps);
             //if (RecentFPS.Count > 20)
             //    RecentFPS.Remove(RecentFPS.First());
             //ObjectsToDisplayWorldSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+            #endregion
 
-            Control();  // Keyboard/Mouse input
-            Update();   // Game logic update
-
-
+            #region
             // Remove after player has been created 
             Camera.UpdatePosition(WindowSize / 2, Elapsed);
             // Then uncomment this
             //Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
 
             CurrentScene.Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
+            #endregion
+
             foreach (var obj in CurrentScene.Objects)
             {
+                #region
                 if (!(obj.StateMachine is null))
                     obj.StateMachine.Update();
 
@@ -213,24 +240,93 @@ namespace SZGUIFeleves.Logic
                     ObjectsToDisplayWorldSpace.Add(obj);
                 else
                     ObjectsToDisplayScreenSpace.Add(obj);
+                #endregion
+
+                // My part starts here --------------
+                if (obj.IsPlayer && obj is Player p)
+                {
+                    foreach (var item in CurrentScene.Objects)
+                    {
+                        if (!obj.Equals(item) && item is Rectangle r && obj.Intersects(item))
+                        {
+                            // Angle of Vector IO.
+                            double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
+                                ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
+                                : (p.GetMiddleRight() - r.GetMiddle()).Angle;
+
+                            //double vecInDegrees = (obj.GetMiddle() - item.GetMiddle()).Angle;
+                            if (vecInDegrees < 45 || vecInDegrees > 315)
+                            {
+                                // Player is on the RIGHT side
+                                if (p.Position.X < r.Position.X + r.Size.X)
+                                {
+                                    p.Position.X = r.Position.X + r.Size.X;
+                                }
+                                r.Color = Color.Red;
+                                left = false;
+                            }
+                            else if (vecInDegrees >= 45 && vecInDegrees <= 135)
+                            {
+                                // Player is UNDER item
+                                if (p.Position.Y < r.Position.Y + r.Size.Y)
+                                {
+                                    p.Position.Y = r.Position.Y + r.Size.Y;
+                                }
+                                r.Color = Color.Yellow;
+                                up = false;
+                            }
+                            else if (vecInDegrees > 135 && vecInDegrees < 225)
+                            {
+                                // Player is on the LEFT side
+                                if (p.Right > r.Position.X)
+                                {
+                                    p.Position.X = r.Position.X - p.Size.X;
+                                }
+                                r.Color = Color.Blue;
+                                right = false;
+                            }
+                            else
+                            {
+                                // Player is ABOVE item
+                                if (p.Bottom > r.Position.Y)
+                                {
+                                    p.Position.Y = r.Position.Y - p.Size.Y;
+                                }
+                                r.Color = Color.Green;
+                                down = false;
+                            }
+                            ObjectsToDisplayWorldSpace.Add(new Text(new Vec2d(10, 10), Math.Round(vecInDegrees, 1) + "°", 25, new Color(255, 255, 255)));
+                        }
+                        else if (!obj.Equals(item) && item.Color != Color.Gray)
+                        {
+                            item.Color = Color.Gray;
+                        }
+                    }
+                }
             }
+
+            Control(up, left, down, right);  // Keyboard/Mouse input
+            Update();   // Game logic update
+            
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
 
         /// <summary>
         /// Input checking
         /// </summary>
-        private void Control()
+        private void Control(bool up = true, bool left = true, bool down = true, bool right = true)
         {
             //Button control checks
-            //if (ButtonFlags[ButtonKey.W])
-            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y -= 100.0f * Elapsed;
-            //if (ButtonFlags[ButtonKey.S])
-            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y += 100.0f * Elapsed;
-            //if (ButtonFlags[ButtonKey.A])
-            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x -= 100.0f * Elapsed;
-            //if (ButtonFlags[ButtonKey.D])
-            //    CurrentScene.Objects[CurrentScene.PlayerIndex].Position.x += 100.0f * Elapsed;
+            if (ButtonFlags[ButtonKey.W] && up/*!CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity*/)
+                //CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity = true;
+                //IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true);
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(0, -1), 200.0f * Elapsed);
+            if (ButtonFlags[ButtonKey.A] && left)
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1, 0), 200.0f * Elapsed);
+            if (ButtonFlags[ButtonKey.S] && down)
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(0, 1), 200.0f * Elapsed);
+            if (ButtonFlags[ButtonKey.D] && right)
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1, 0), 200.0f * Elapsed);
         }
 
         /// <summary>
@@ -255,6 +351,28 @@ namespace SZGUIFeleves.Logic
                     ObjectsToDisplayWorldSpace.Add(shadow);
                 }
                 dpl.Position = originalPos;
+            }
+        }
+
+        private void IsGravitySet(DrawableObject obj, bool value)
+        {
+            if (value)
+            {
+                // We'd like to turn ON the gravity. It is possible only if Player is standing on the floor.
+                foreach (var item in CurrentScene.Objects)
+                {
+                    if (!obj.Equals(item) && obj.Intersects(item))
+                    {
+                        obj.IsGravity = value;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                // We'd like to turn OFF the gravity. It is possible only if Player has just landed on the floor.
+                bool intersection = CurrentScene.Objects.TrueForAll(item => obj.Equals(item) || !obj.Intersects(item));
+                intersection = false ? obj.IsGravity = false : obj.IsGravity = obj.IsGravity;
             }
         }
     }
