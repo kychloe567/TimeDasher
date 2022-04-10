@@ -13,11 +13,6 @@ namespace SZGUIFeleves.Models.DrawableObjects
         public double SpeedX { get; set; }
         public double SpeedY { get; set; }
 
-        public Player() : base()
-        {
-            Velocity = new Vec2d(0, -30);
-        }
-
         /// <summary>
         /// ┌---┐
         /// |   |

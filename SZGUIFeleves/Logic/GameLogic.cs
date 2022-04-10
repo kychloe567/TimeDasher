@@ -121,18 +121,42 @@ namespace SZGUIFeleves.Logic
             {
                 IsPlayer = true,
                 Position = new Vec2d(200, 100),
-                Size = new Vec2d(50, 100),
+                Size = new Vec2d(30, 70),
                 Color = Color.White
             });
-            for (int i = 1; i <= 5; i++)
+            for (int i = 1; i <= 4; i++)
             {
+                CurrentScene.Objects.Add(new Rectangle()
+                {
+                    Position = new Vec2d((3 + i) * 100, 100),
+                    Size = new Vec2d(100, 100),
+                });
                 CurrentScene.Objects.Add(new Rectangle()
                 {
                     Position = new Vec2d(i * 100, 300),
                     Size = new Vec2d(100, 100),
-                    Color = Color.Gray
+                });
+                CurrentScene.Objects.Add(new Rectangle()
+                {
+                    Position = new Vec2d((3 + i) * 100, 500),
+                    Size = new Vec2d(100, 100),
+                });
+                CurrentScene.Objects.Add(new Rectangle()
+                {
+                    Position = new Vec2d(i * 100, 700),
+                    Size = new Vec2d(100, 100),
                 });
             }
+            CurrentScene.Objects.Add(new Rectangle()
+            {
+                Position = new Vec2d(600, 300),
+                Size = new Vec2d(100, 100),
+            });
+            CurrentScene.Objects.Add(new Rectangle()
+            {
+                Position = new Vec2d(200, 500),
+                Size = new Vec2d(100, 100),
+            });
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
@@ -207,6 +231,9 @@ namespace SZGUIFeleves.Logic
             Elapsed = (DateTime.Now - ElapsedTime).TotalSeconds;
             ElapsedTime = DateTime.Now;
 
+            if (Elapsed > 0.3)
+                Elapsed = 0.3;
+
             bool up = true;
             bool down = true;
             bool left = true;
@@ -245,10 +272,14 @@ namespace SZGUIFeleves.Logic
                 // My part starts here --------------
                 if (obj.IsPlayer && obj is Player p)
                 {
+                    bool doesIntersect = false;
+
                     foreach (var item in CurrentScene.Objects)
                     {
                         if (!obj.Equals(item) && item is Rectangle r && obj.Intersects(item))
                         {
+                            doesIntersect = true;
+                            
                             // Angle of Vector IO.
                             double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
                                 ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
@@ -274,6 +305,13 @@ namespace SZGUIFeleves.Logic
                                 }
                                 r.Color = Color.Yellow;
                                 up = false;
+
+                                if (p.IsGravity)
+                                {
+                                    // POTENCIÁLISAN HIBÁS KÓDRÉSZLET
+                                    p.Velocity.X = -p.Velocity.X;
+                                    p.Velocity.Y = -p.Velocity.Y;
+                                }
                             }
                             else if (vecInDegrees > 135 && vecInDegrees < 225)
                             {
@@ -294,14 +332,21 @@ namespace SZGUIFeleves.Logic
                                 }
                                 r.Color = Color.Green;
                                 down = false;
+
+                                // Turn off gravity
+                                IsGravitySet(p, false, null);
                             }
-                            ObjectsToDisplayWorldSpace.Add(new Text(new Vec2d(10, 10), Math.Round(vecInDegrees, 1) + "°", 25, new Color(255, 255, 255)));
+                            //ObjectsToDisplayWorldSpace.Add(new Text(new Vec2d(10, 10), Math.Round(vecInDegrees, 1) + "°", 25, new Color(255, 255, 255)));
                         }
                         else if (!obj.Equals(item) && item.Color != Color.Gray)
                         {
                             item.Color = Color.Gray;
                         }
                     }
+                    if (!doesIntersect && !p.IsGravity)
+                        IsGravitySet(p, true, new Vec2d(0, 0));
+                    else if (!doesIntersect && p.IsGravity)
+                        up = false;
                 }
             }
 
@@ -317,16 +362,19 @@ namespace SZGUIFeleves.Logic
         private void Control(bool up = true, bool left = true, bool down = true, bool right = true)
         {
             //Button control checks
-            if (ButtonFlags[ButtonKey.W] && up/*!CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity*/)
-                //CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity = true;
-                //IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true);
-                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(0, -1), 200.0f * Elapsed);
+            if (ButtonFlags[ButtonKey.W] && up)
+            {
+                IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -300));
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
+            }
             if (ButtonFlags[ButtonKey.A] && left)
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1, 0), 200.0f * Elapsed);
             if (ButtonFlags[ButtonKey.S] && down)
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(0, 1), 200.0f * Elapsed);
             if (ButtonFlags[ButtonKey.D] && right)
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1, 0), 200.0f * Elapsed);
+            if (CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
         }
 
         /// <summary>
@@ -354,26 +402,11 @@ namespace SZGUIFeleves.Logic
             }
         }
 
-        private void IsGravitySet(DrawableObject obj, bool value)
+        private void IsGravitySet(DrawableObject obj, bool value, Vec2d newVelocity)
         {
+            obj.IsGravity = value;
             if (value)
-            {
-                // We'd like to turn ON the gravity. It is possible only if Player is standing on the floor.
-                foreach (var item in CurrentScene.Objects)
-                {
-                    if (!obj.Equals(item) && obj.Intersects(item))
-                    {
-                        obj.IsGravity = value;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                // We'd like to turn OFF the gravity. It is possible only if Player has just landed on the floor.
-                bool intersection = CurrentScene.Objects.TrueForAll(item => obj.Equals(item) || !obj.Intersects(item));
-                intersection = false ? obj.IsGravity = false : obj.IsGravity = obj.IsGravity;
-            }
+                obj.Velocity = newVelocity;
         }
     }
 }

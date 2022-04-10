@@ -9,17 +9,22 @@ namespace SZGUIFeleves.Logic
 {
     internal class MovementLogic
     {
-        private Vec2d Gravity = new Vec2d(0, 2);
+        private Vec2d Gravity = new Vec2d(0, 500);
 
-        public void Move(DrawableObject objToMove, Vec2d direction, double velocity)
+        public void Move(DrawableObject objToMove, Vec2d direction, double velocity, double timeElapsed = -1)
         {
             objToMove.Position += direction * velocity;
+            if (objToMove.IsGravity && timeElapsed > 0)
+            {
+                objToMove.Position += objToMove.Velocity * timeElapsed;
+            }
         }
 
-        public void GravityMove(DrawableObject objToMove, double timeElapsed)
+        // Gravity
+        public void Move(DrawableObject objToMove, double timeElapsed)
         {
-            objToMove.Position += objToMove.Velocity * timeElapsed;
-            objToMove.Velocity += Gravity * timeElapsed;
+            objToMove.Position += objToMove.Velocity * timeElapsed * 1.5;
+            objToMove.Velocity += Gravity * timeElapsed * 2;
         }
     }
 }
