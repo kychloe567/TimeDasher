@@ -1,5 +1,6 @@
 ﻿using LevelEditor.Helpers;
 using LevelEditor.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -172,7 +173,7 @@ namespace LevelEditor.Logic
                     }
 
                     // TODO: animation time in file?
-                    a.AddTexture(bi, 0.2);
+                    a.AddTexture(bi, image.FullName, 0.2);
                 }
 
                 r.StateMachine = new StateMachine(a);
@@ -199,7 +200,7 @@ namespace LevelEditor.Logic
                     }
 
                     // TODO: animation time in file?
-                    a.AddTexture(bi, 0.2);
+                    a.AddTexture(bi, image.FullName, 0.2);
                 }
 
                 r.StateMachine = new StateMachine(a);
@@ -226,7 +227,7 @@ namespace LevelEditor.Logic
                     }
 
                     // TODO: animation time in file?
-                    a.AddTexture(bi, 0.2);
+                    a.AddTexture(bi, image.FullName, 0.2);
                 }
 
                 r.StateMachine = new StateMachine(a);
@@ -400,6 +401,8 @@ namespace LevelEditor.Logic
 
                 if (!already)
                     Objects.Add(toPlace);
+
+                File.WriteAllText("asd.json", JsonConvert.SerializeObject(toPlace));
             }
 
             if (ButtonFlags[ButtonKey.MouseRight])

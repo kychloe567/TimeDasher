@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,6 +46,7 @@ namespace SZGUIFeleves.Models
         /// <summary>
         /// This state machine manages animations
         /// </summary>
+        [JsonProperty]
         public StateMachine StateMachine { get; set; }
 
         /// <summary>
@@ -154,7 +156,10 @@ namespace SZGUIFeleves.Models
         public void LoadTexture()
         {
             if (StateMachine is null)
-                Texture = new BitmapImage(new Uri(TexturePath, UriKind.RelativeOrAbsolute));
+            {
+                if(TexturePath != null && File.Exists(TexturePath))
+                    Texture = new BitmapImage(new Uri(TexturePath, UriKind.RelativeOrAbsolute));
+            }
             else
                 StateMachine.LoadTextures();
         }

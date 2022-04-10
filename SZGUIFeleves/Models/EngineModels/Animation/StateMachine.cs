@@ -10,7 +10,9 @@ namespace SZGUIFeleves.Models
 {
     public class StateMachine
     {
+        [JsonProperty]
         private Dictionary<string, Animation> States { get; set; }
+        [JsonProperty]
         private string CurrentState { get; set; }
 
         [JsonIgnore]
@@ -20,6 +22,11 @@ namespace SZGUIFeleves.Models
             {
                 return States[CurrentState].CurrentTexture;
             }
+        }
+
+        public StateMachine()
+        {
+            States = new Dictionary<string, Animation>();
         }
 
         public StateMachine(Dictionary<string, Animation> states)
