@@ -29,6 +29,7 @@ namespace LevelEditor.Renderer
             if (model is null)
                 return;
 
+
             // Clearing the screen
             dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, WindowSize.x, WindowSize.y));
 
@@ -40,7 +41,6 @@ namespace LevelEditor.Renderer
 
             DrawObjects(ref dc, model.ObjectsToDisplayWorldSpace);
             dc.Pop();
-            //dc.Pop();
 
             // Drawing the UI (or screen fixed objects)
 

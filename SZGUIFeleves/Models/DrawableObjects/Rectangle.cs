@@ -9,7 +9,6 @@ namespace SZGUIFeleves.Models
 {
     public class Rectangle : DrawableObject
     {
-        public Vec2d OrigSize { get; set; }
         public Vec2d Size { get; set; }
         public Vec2d CornerRadius { get; set; }
         public bool IsRounded { get; set; }
@@ -72,11 +71,6 @@ namespace SZGUIFeleves.Models
                 ObjectType = ObjectType
             };
 
-            if (OrigSize is null)
-                r.OrigSize = Size;
-            else
-                r.OrigSize = OrigSize;
-
             if (Texture != null)
             {
                 r.Texture = Texture.Clone();
@@ -137,6 +131,13 @@ namespace SZGUIFeleves.Models
                 throw new NotImplementedException();
             }
 
+            return false;
+        }
+
+        public override bool Intersects(Vec2d v)
+        {
+            if (v.x >= Position.x && v.x <= Right && v.y >= Position.y && v.y <= Bottom)
+                return true;
             return false;
         }
 

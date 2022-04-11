@@ -113,6 +113,11 @@ namespace SZGUIFeleves.Models
             throw new NotImplementedException();
         }
 
+        public override bool Intersects(Vec2d v)
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool Equals(object obj)
         {
             throw new NotImplementedException();

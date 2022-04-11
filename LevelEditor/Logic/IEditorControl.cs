@@ -11,6 +11,9 @@ namespace LevelEditor.Logic
     public interface IEditorControl
     {
         void SetCurrentTexture(DrawableObject obj);
+        void SetChanged(string currentSet);
+        event SetsUpdatedDelegate SetsUpdated;
+        event ItemsUpdatedDelegate ItemsUpdated;
         void ResetScene();
         void LoadScene(Scene s);
         Scene SaveScene(string title);
@@ -19,6 +22,5 @@ namespace LevelEditor.Logic
         void SetMousePosition(Vec2d position);
         void DeltaMouseWheel(double delta);
         void WindowSizeChanged(int WindowWidth, int WindowHeight);
-        event ItemsUpdatedDelegate ItemsUpdated;
     }
 }

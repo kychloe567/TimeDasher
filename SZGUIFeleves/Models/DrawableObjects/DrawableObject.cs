@@ -142,6 +142,7 @@ namespace SZGUIFeleves.Models
         // TODO: Does not take rotation into account!!
         // TODO: Polygon, Text intersections
         public abstract bool Intersects(DrawableObject d);
+        public abstract bool Intersects(Vec2d v);
 
         public int CompareTo(object obj)
         {

@@ -30,6 +30,7 @@ namespace LevelEditor
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             RenderOptions.SetBitmapScalingMode(MainGrid, BitmapScalingMode.NearestNeighbor);
+
             EditorLogic logic = new EditorLogic((int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
 
             display.SetupModel(logic, (int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
@@ -63,7 +64,7 @@ namespace LevelEditor
         {
             if (controller != null)
             {
-                var pos = e.GetPosition(this);
+                var pos = e.GetPosition(MainGrid);
                 controller.MouseMoved(pos.X, pos.Y);
             }
         }

@@ -22,6 +22,20 @@ namespace LevelEditor.ViewModels
     {
         IEditorControl logic { get; set; }
 
+        public ObservableCollection<string> Sets { get; set; }
+
+        private string selectedSet;
+        public string SelectedSet
+        {
+            get { return selectedSet; }
+            set
+            {
+                selectedSet = value;
+                OnPropertyChanged();
+                logic.SetChanged(selectedSet);
+            }
+        }
+
         public ObservableCollection<Image> ForegroundObjects { get; set; }
         public ObservableCollection<Image> BackgroundObjects { get; set; }
         public ObservableCollection<Image> DecorationObjects { get; set; }
@@ -139,6 +153,10 @@ namespace LevelEditor.ViewModels
         public ICommand ExitCommand { get; set; }
         #endregion
 
+        #region EditorSettings
+        private const int ObjectSize = 48;
+        #endregion
+
         public MainWindowViewModel(IEditorControl logic)
         {
             this.logic = logic;
@@ -147,6 +165,7 @@ namespace LevelEditor.ViewModels
             BackgroundObjects = new ObservableCollection<Image>();
             DecorationObjects = new ObservableCollection<Image>();
 
+            logic.SetsUpdated += Logic_SetsUpdated;
             logic.ItemsUpdated += Logic_ItemsUpdated;
 
             TopCommand = new RelayCommand(
@@ -206,16 +225,25 @@ namespace LevelEditor.ViewModels
             }
         }
 
+        private void Logic_SetsUpdated(List<string> sets)
+        {
+            Sets = new ObservableCollection<string>(sets);
+        }
+
         private void Logic_ItemsUpdated(List<DrawableObject> background, List<DrawableObject> foreground, List<DrawableObject> decoration)
         {
+            BackgroundObjects.Clear();
+            ForegroundObjects.Clear();
+            DecorationObjects.Clear();
+
             foreach (var obj in background)
             {
                 obj.Position = new Vec2d(-200, -200);
                 Image i = new Image()
                 {
                     Source = obj.Texture,
-                    Height = 64,
-                    Width = 64,
+                    Height = ObjectSize,
+                    Width = ObjectSize,
                     Tag = obj
                 };
 
@@ -227,8 +255,8 @@ namespace LevelEditor.ViewModels
                 Image i = new Image()
                 {
                     Source = obj.Texture,
-                    Height = 64,
-                    Width = 64,
+                    Height = ObjectSize,
+                    Width = ObjectSize,
                     Tag = obj
                 };
 
@@ -242,8 +270,8 @@ namespace LevelEditor.ViewModels
                 Image i = new Image()
                 {
                     Source = obj.Texture,
-                    Height = 64,
-                    Width = 64,
+                    Height = ObjectSize,
+                    Width = ObjectSize,
                     Tag = obj
                 };
 

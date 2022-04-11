@@ -169,6 +169,12 @@ namespace SZGUIFeleves.Models
             return false;
         }
 
+        // TODO
+        public override bool Intersects(Vec2d v)
+        {
+            return false;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is Line l && Position == l.Position && Position2 == l.Position2 && Color == l.Color)

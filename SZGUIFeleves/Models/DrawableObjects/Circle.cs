@@ -123,6 +123,14 @@ namespace SZGUIFeleves.Models
 
             return false;
         }
+
+        public override bool Intersects(Vec2d v)
+        {
+            if ((v - Position).Length <= Radius)
+                return true;
+            return false;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is Circle c && c.Position == Position && c.Radius == Radius && c.Color == Color)
