@@ -157,6 +157,12 @@ namespace LevelEditor.ViewModels
         private const int ObjectSize = 48;
         #endregion
 
+        #region EditorButtons
+        public ICommand MoveToolCommand { get; set; }
+        public ICommand SelectionToolCommand { get; set; }
+        public ICommand ArrowToolCommand { get; set; }
+        #endregion
+
         public MainWindowViewModel(IEditorControl logic)
         {
             this.logic = logic;
@@ -188,6 +194,15 @@ namespace LevelEditor.ViewModels
 
             ExitCommand = new RelayCommand(
                 () => Application.Current.Shutdown());
+
+            MoveToolCommand = new RelayCommand(
+                () => logic.ToolChanged(Tool.Move));
+
+            SelectionToolCommand = new RelayCommand(
+                () => logic.ToolChanged(Tool.Selection));
+
+            ArrowToolCommand = new RelayCommand(
+                () => logic.ToolChanged(Tool.Arrow));
 
             DrawLevel = DrawPriority.Default;
             CurrentCustomLayer = -2;

@@ -27,6 +27,11 @@ namespace LevelEditor.Logic
         MouseLeft, MouseRight, MouseMiddle
     }
 
+    public enum Tool
+    {
+        Move, Selection, Arrow
+    }
+
     public class EditorLogic : IEditorModel, IEditorControl
     {
         #region App Constants
@@ -67,6 +72,7 @@ namespace LevelEditor.Logic
         private const int ObjectSizeMult = GridSize/32;
         private SelectedItem SelectedItem { get; set; }
         private bool AlreadyDeleted { get; set; }
+        private Tool CurrentTool { get; set; }
         #endregion
 
         public EditorLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -108,6 +114,8 @@ namespace LevelEditor.Logic
                 DrawPriority = DrawPriority.Top
             };
             SelectedItem = new SelectedItem() { Object = r };
+
+            CurrentTool = Tool.Arrow;
         }
 
         /// <summary>
@@ -265,6 +273,11 @@ namespace LevelEditor.Logic
         public void SetChanged(string currentSet)
         {
             LoadSet(currentSet);
+        }
+
+        public void ToolChanged(Tool tool)
+        {
+            CurrentTool = tool;
         }
 
         /// <summary>

@@ -17,6 +17,8 @@ namespace LevelEditor.Logic
         void ResetScene();
         void LoadScene(Scene s);
         Scene SaveScene(string title);
+        void ToolChanged(Tool tool);
+
 
         void SetButtonFlag(ButtonKey key, bool isDown);
         void SetMousePosition(Vec2d position);

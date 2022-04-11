@@ -48,13 +48,13 @@
         </Menu>
 
         <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Margin="0,10">
-            <Button Width="30" Height="30" Background="#1e1e1e" Margin="0,5"> 
+            <Button Width="30" Height="30" Background="#1e1e1e" Margin="0,5" Command="{Binding MoveToolCommand}"> 
                 <Image Source="EditorTextures\MoveIcon.png" Width="32" Height="32" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Button>
-            <Button Width="30" Height="30" Background="#1e1e1e" Margin="0,5"> 
+            <Button Width="30" Height="30" Background="#1e1e1e" Margin="0,5" Command="{Binding SelectionToolCommand}"> 
                 <Image Source="EditorTextures\SelectionIcon.png" Width="32" Height="32" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Button>
-            <Button Width="30" Height="30" Background="#1e1e1e" Margin="0,5"> 
+            <Button Width="30" Height="30" Background="#1e1e1e" Margin="0,5" Command="{Binding ArrowToolCommand}"> 
                 <Image Source="EditorTextures\ArrowIcon.png" Width="32" Height="32" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Button>
         </StackPanel>
