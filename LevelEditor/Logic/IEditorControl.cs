@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LevelEditor.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,8 +18,8 @@ namespace LevelEditor.Logic
         void ResetScene();
         void LoadScene(Scene s);
         Scene SaveScene(string title);
-        void ToolChanged(Tool tool);
-
+        Tool CurrentTool { get; set; }
+        event ToolChangedDelegate ToolChanged;
 
         void SetButtonFlag(ButtonKey key, bool isDown);
         void SetMousePosition(Vec2d position);

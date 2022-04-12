@@ -29,15 +29,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="EditorTextures\ArrowIcon.png" />
     <None Remove="EditorTextures\MoveIcon.png" />
     <None Remove="EditorTextures\SelectionIcon.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="EditorTextures\ArrowIcon.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="EditorTextures\MoveIcon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

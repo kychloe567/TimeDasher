@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using LevelEditor.Logic;
+using LevelEditor.Models;
 using SZGUIFeleves.Models;
 
 namespace LevelEditor.Controller

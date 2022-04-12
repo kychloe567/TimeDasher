@@ -122,5 +122,18 @@ namespace SZGUIFeleves.Models
         {
             throw new NotImplementedException();
         }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Position);
+            hash.Add(Rotation);
+            hash.Add(OutLineThickness);
+            hash.Add(OutLineColor);
+            hash.Add(Color);
+            hash.Add(Content);
+            hash.Add(FontSize);
+            return hash.ToHashCode();
+        }
     }
 }

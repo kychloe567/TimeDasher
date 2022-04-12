@@ -48,19 +48,17 @@ namespace SZGUIFeleves.Models
 
         public override bool IsVisible(Camera camera)
         {
-            Vec2d centeredPos = camera.CenteredPosition;
-
             bool any = false;
-            if (Position.x >= centeredPos.x && Position.x < centeredPos.x + camera.WindowSize.x &&
-               Position.y >= centeredPos.y && Position.y < centeredPos.y + camera.WindowSize.y)
+            if (Position.x > camera.CenteredPosition.x && Position.x < camera.CenteredPosition.x + camera.WindowSize.x &&
+               Position.y > camera.CenteredPosition.y && Position.y < camera.CenteredPosition.y + camera.WindowSize.y)
                 any = true;
 
             if (!any)
             {
                 foreach (Vec2d p in Points)
                 {
-                    if (p.x >= centeredPos.x && p.x < centeredPos.x + camera.WindowSize.x &&
-                        p.y >= centeredPos.y && p.y < centeredPos.y + camera.WindowSize.y)
+                    if (p.x >= camera.CenteredPosition.x && p.x < camera.CenteredPosition.x + camera.WindowSize.x &&
+                        p.y >= camera.CenteredPosition.y && p.y < camera.CenteredPosition.y + camera.WindowSize.y)
                     {
                         any = true;
                         break;
@@ -128,6 +126,19 @@ namespace SZGUIFeleves.Models
             }
 
             return true;
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Position);
+            hash.Add(Rotation);
+            hash.Add(OutLineThickness);
+            hash.Add(OutLineColor);
+            hash.Add(Color);
+            hash.Add(DrawPriority);
+            hash.Add(Points);
+            return hash.ToHashCode();
         }
     }
 }

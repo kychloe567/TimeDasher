@@ -164,5 +164,7 @@ namespace SZGUIFeleves.Models
             else
                 StateMachine.LoadTextures();
         }
+
+        public abstract override int GetHashCode();
     }
 }

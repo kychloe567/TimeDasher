@@ -96,8 +96,8 @@ namespace LevelEditor.Renderer
 
                 if (obj is Rectangle r)
                 {
-                    //if (!r.IsVisible(model.Camera))
-                    //    continue;
+                    if (!r.IsVisible(model.Camera))
+                        continue;
 
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
 

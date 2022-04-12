@@ -17,20 +17,7 @@ namespace LevelEditor.Logic
     public delegate void DrawDelegate();
     public delegate void ItemsUpdatedDelegate(List<DrawableObject> background, List<DrawableObject> foreground, List<DrawableObject> decoration);
     public delegate void SetsUpdatedDelegate(List<string> sets);
-
-    public enum ButtonKey // TODO: More buttons to add if needed
-    {
-        W, A, S, D,
-        Up, Down, Left, Right,
-        Space, C, LeftCtrl,
-        Q, E,
-        MouseLeft, MouseRight, MouseMiddle
-    }
-
-    public enum Tool
-    {
-        Move, Selection, Arrow
-    }
+    public delegate void ToolChangedDelegate(Tool tool);
 
     public class EditorLogic : IEditorModel, IEditorControl
     {
@@ -55,6 +42,7 @@ namespace LevelEditor.Logic
         public event DrawDelegate DrawEvent;
         public event SetsUpdatedDelegate SetsUpdated;
         public event ItemsUpdatedDelegate ItemsUpdated;
+        public event ToolChangedDelegate ToolChanged;
         private DispatcherTimer MainLoopTimer { get; set; }
         private DateTime ElapsedTime { get; set; }
         private double Elapsed { get; set; }
@@ -72,7 +60,15 @@ namespace LevelEditor.Logic
         private const int ObjectSizeMult = GridSize/32;
         private SelectedItem SelectedItem { get; set; }
         private bool AlreadyDeleted { get; set; }
-        private Tool CurrentTool { get; set; }
+        public Tool CurrentTool { get; set; }
+        #endregion
+
+        #region Tool Variables
+        public DrawableObject SelectedPlacedItem { get; set; }
+
+        public Vec2d SelectionPos { get; set; }
+        public Vec2d SelectionSize { get; set; }
+        public List<DrawableObject> SelectedPlacedItems { get; set; }
         #endregion
 
         public EditorLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -115,7 +111,9 @@ namespace LevelEditor.Logic
             };
             SelectedItem = new SelectedItem() { Object = r };
 
-            CurrentTool = Tool.Arrow;
+            CurrentTool = Tool.Move;
+
+            SelectedPlacedItems = new List<DrawableObject>();
         }
 
         /// <summary>
@@ -275,11 +273,6 @@ namespace LevelEditor.Logic
             LoadSet(currentSet);
         }
 
-        public void ToolChanged(Tool tool)
-        {
-            CurrentTool = tool;
-        }
-
         /// <summary>
         /// Called by the Main Window through IGameControl
         /// <para>Sets the given button flag in the button dictionary</para>
@@ -298,11 +291,58 @@ namespace LevelEditor.Logic
                 MouseDrag = new Vec2d(MousePosition);
             }
 
-            if (key == ButtonKey.MouseRight && AlreadyDeleted && !isDown)
-                AlreadyDeleted = false;
+            if (CurrentTool == Tool.Move)
+            {
+                if(isDown && key == ButtonKey.MouseLeft)
+                {
+                    if (SelectedPlacedItem is null)
+                    {
+                        for (int i = Objects.Count - 1; i >= 0; i--)
+                        {
+                            if (Objects[i].Intersects(MousePositionWorldSpace))
+                            {
+                                SelectedPlacedItem = Objects[i];
+                                break;
+                            }
+                        }
+                    }
+                    else
+                        SelectedPlacedItem = null;
+                }
+                
+            }
+            else if (CurrentTool == Tool.Selection)
+            {
+                if (key == ButtonKey.MouseLeft)
+                {
+                    if (isDown)
+                    {
+                        SelectionPos = MousePositionWorldSpace;
+                    }
+                    else
+                    {
+                        Rectangle selectionRect = new Rectangle(SelectionPos, SelectionSize);
+                        SelectedPlacedItems = new List<DrawableObject>();
+                        for (int i = Objects.Count - 1; i >= 0; i--)
+                        {
+                            if (selectionRect.Intersects(Objects[i]))
+                            {
+                                SelectedPlacedItems.Add(Objects[i]);
+                            }
+                        }
+                        CurrentTool = Tool.Move;
+                        ToolChanged.Invoke(CurrentTool);
+                    }
+                }
+            }
+            else if (CurrentTool == Tool.Place)
+            {
+                if (key == ButtonKey.MouseRight && AlreadyDeleted && !isDown)
+                    AlreadyDeleted = false;
 
-            if (key == ButtonKey.Space)
-                Camera.Zoom = 1;
+                if (key == ButtonKey.Space)
+                    Camera.Zoom = 1;
+            }
 
             ButtonFlags[key] = isDown;
         }
@@ -323,7 +363,41 @@ namespace LevelEditor.Logic
             MousePosition = position;
             MousePositionWorldSpace = CurrentCameraPosition - WindowSize / 2 + MousePosition;
 
-            if (!ButtonFlags[ButtonKey.MouseMiddle] && SelectedItem.Object is Rectangle r)
+            if(!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Move && SelectedPlacedItem != null)
+            {
+                if (SelectedPlacedItem.ObjectType != DrawableObject.ObjectTypes.Decoration)
+                {
+                    SelectedPlacedItem.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                                                      MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
+
+                    if (MousePositionWorldSpace.x < 0)
+                    {
+                        SelectedPlacedItem.Position.x -= GridSize;
+                    }
+                    if (MousePositionWorldSpace.y < 0)
+                    {
+                        SelectedPlacedItem.Position.y -= GridSize;
+                    }
+                }
+                else
+                {
+                    Rectangle r = SelectedPlacedItem as Rectangle;
+                    SelectedPlacedItem.Position = MousePositionWorldSpace - r.Size / 2;
+                    if (SelectedPlacedItem.Position.x < Camera.CenteredPosition.x)
+                        SelectedPlacedItem.Position.x = Camera.CenteredPosition.x;
+                    if (SelectedPlacedItem.Position.y < Camera.CenteredPosition.y)
+                        SelectedPlacedItem.Position.y = Camera.CenteredPosition.y;
+                    if (SelectedPlacedItem.Position.x + r.Size.x > Camera.CenteredPosition.x + Camera.WindowSize.x)
+                        SelectedPlacedItem.Position.x = Camera.CenteredPosition.x + Camera.WindowSize.x - r.Size.x;
+                    if (SelectedPlacedItem.Position.y + r.Size.y > Camera.CenteredPosition.y + Camera.WindowSize.y)
+                        SelectedPlacedItem.Position.y = Camera.CenteredPosition.y + Camera.WindowSize.y - r.Size.y;
+                }
+            }
+            else if (!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Selection && ButtonFlags[ButtonKey.MouseLeft])
+            {
+                SelectionSize = new Vec2d(MousePositionWorldSpace - SelectionPos);
+            }
+            else if (!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Place && SelectedItem.Object is Rectangle r)
             {
                 if (r.ObjectType != DrawableObject.ObjectTypes.Decoration)
                 {
@@ -341,26 +415,34 @@ namespace LevelEditor.Logic
                 }
                 else
                 {
-                    SelectedItem.Object.Position = MousePositionWorldSpace - r.Size/2;
+                    SelectedItem.Object.Position = MousePositionWorldSpace - r.Size / 2;
+                    if (SelectedItem.Object.Position.x < Camera.CenteredPosition.x) 
+                        SelectedItem.Object.Position.x = Camera.CenteredPosition.x;
+                    if (SelectedItem.Object.Position.y < Camera.CenteredPosition.y) 
+                        SelectedItem.Object.Position.y = Camera.CenteredPosition.y;
+                    if (SelectedItem.Object.Position.x + r.Size.x > Camera.CenteredPosition.x + Camera.WindowSize.x) 
+                        SelectedItem.Object.Position.x = Camera.CenteredPosition.x + Camera.WindowSize.x - r.Size.x;
+                    if (SelectedItem.Object.Position.y + r.Size.y > Camera.CenteredPosition.y + Camera.WindowSize.y) 
+                        SelectedItem.Object.Position.y = Camera.CenteredPosition.y + Camera.WindowSize.y - r.Size.y;
                 }
-            }
 
-            if (SelectedItem != null && SelectedItem.SelectedTexture != null && SelectedItem.Object.ObjectType != DrawableObject.ObjectTypes.Decoration)
-            {
-                bool already = false;
-
-                foreach (var obj in Objects)
+                if (SelectedItem != null && SelectedItem.SelectedTexture != null && SelectedItem.Object.ObjectType != DrawableObject.ObjectTypes.Decoration)
                 {
-                    if (obj.Intersects(MousePositionWorldSpace))
-                    {
-                        SelectedItem.Object.Texture = SelectedItem.SelectedTextureRed;
-                        already = true;
-                        break;
-                    }
-                }
+                    bool already = false;
 
-                if (!already && !SelectedItem.Object.Texture.Equals(SelectedItem.SelectedTextureGreen))
-                    SelectedItem.Object.Texture = SelectedItem.SelectedTextureGreen;
+                    foreach (var obj in Objects)
+                    {
+                        if (obj.Intersects(MousePositionWorldSpace))
+                        {
+                            SelectedItem.Object.Texture = SelectedItem.SelectedTextureRed;
+                            already = true;
+                            break;
+                        }
+                    }
+
+                    if (!already && !SelectedItem.Object.Texture.Equals(SelectedItem.SelectedTextureGreen))
+                        SelectedItem.Object.Texture = SelectedItem.SelectedTextureGreen;
+                }
             }
         }
 
@@ -391,7 +473,25 @@ namespace LevelEditor.Logic
 
                 ObjectsToDisplayWorldSpace.Add(obj);
             }
-            ObjectsToDisplayWorldSpace.Add(SelectedItem.Object);
+            if(CurrentTool == Tool.Place)
+                ObjectsToDisplayWorldSpace.Add(SelectedItem.Object);
+            else if(CurrentTool == Tool.Selection && ButtonFlags[ButtonKey.MouseLeft])
+            {
+                //TODO
+                if (SelectionSize is null)
+                    ;
+                else
+                {
+
+                    Rectangle selectionRect = new Rectangle(SelectionPos, SelectionSize)
+                    {
+                        IsFilled = false,
+                        OutLineColor = Color.Green,
+                        OutLineThickness = 1
+                    };
+                    ObjectsToDisplayWorldSpace.Add(selectionRect);
+                }
+            }
 
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
@@ -407,60 +507,71 @@ namespace LevelEditor.Logic
                 Camera.UpdatePosition(CurrentCameraPosition + (MouseDrag - MousePosition), Elapsed);
             }
 
-            if (ButtonFlags[ButtonKey.MouseLeft])
+            if (CurrentTool == Tool.Move)
             {
-                var toPlace = SelectedItem.Object.GetCopy();
-                toPlace.Texture = SelectedItem.SelectedTexture;
+                
+            }
+            else if (CurrentTool == Tool.Selection)
+            {
 
-                bool already = false;
-                for (int i = 0; i < Objects.Count; i++)
+            }
+            else if (CurrentTool == Tool.Place)
+            {
+                if (ButtonFlags[ButtonKey.MouseLeft])
                 {
-                    if (toPlace.Intersects(Objects[i]))
+                    var toPlace = SelectedItem.Object.GetCopy();
+                    toPlace.Texture = SelectedItem.SelectedTexture;
+
+                    bool already = false;
+                    for (int i = 0; i < Objects.Count; i++)
                     {
-                        if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background &&
-                           Objects[i].ObjectType == DrawableObject.ObjectTypes.Background)
-                            already = true;
-                        else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Foreground &&
-                                Objects[i].ObjectType == DrawableObject.ObjectTypes.Foreground)
-                            already = true;
-                        else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Decoration &&
-                                Objects[i].ObjectType == DrawableObject.ObjectTypes.Decoration &&
-                                toPlace.Texture.Equals(Objects[i].Texture))
-                            already = true;
+                        if (toPlace.Intersects(Objects[i]))
+                        {
+                            if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background &&
+                               Objects[i].ObjectType == DrawableObject.ObjectTypes.Background)
+                                already = true;
+                            else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Foreground &&
+                                    Objects[i].ObjectType == DrawableObject.ObjectTypes.Foreground)
+                                already = true;
+                            else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Decoration &&
+                                    Objects[i].ObjectType == DrawableObject.ObjectTypes.Decoration &&
+                                    toPlace.Texture.Equals(Objects[i].Texture))
+                                already = true;
+                        }
+                    }
+
+                    if (!already)
+                        Objects.Add(toPlace);
+
+                    File.WriteAllText("asd.json", JsonConvert.SerializeObject(toPlace));
+                }
+
+                if (ButtonFlags[ButtonKey.MouseRight] && !AlreadyDeleted)
+                {
+                    for (int i = Objects.Count - 1; i >= 0; i--)
+                    {
+                        if (Objects[i].Intersects(MousePositionWorldSpace))
+                        {
+                            Objects.RemoveAt(i);
+                            AlreadyDeleted = true;
+                            break;
+                        }
                     }
                 }
 
-                if (!already)
-                    Objects.Add(toPlace);
-
-                File.WriteAllText("asd.json", JsonConvert.SerializeObject(toPlace));
-            }
-
-            if (ButtonFlags[ButtonKey.MouseRight] && !AlreadyDeleted)
-            {
-                for (int i = Objects.Count - 1; i >= 0; i--)
+                if (ButtonFlags[ButtonKey.Q])
                 {
-                    if (Objects[i].Intersects(MousePositionWorldSpace))
+                    for (int i = Objects.Count - 1; i >= 0; i--)
                     {
-                        Objects.RemoveAt(i);
-                        AlreadyDeleted = true;
-                        break;
-                    }
-                }
-            }
-
-            if(ButtonFlags[ButtonKey.Q])
-            {
-                for (int i = Objects.Count - 1; i >= 0; i--)
-                {
-                    if (Objects[i].Intersects(MousePositionWorldSpace))
-                    {
-                        SelectedItem.SelectedTexture = Objects[i].Texture.Clone();
-                        SelectedItem.SelectedTextureRed = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Red);
-                        SelectedItem.SelectedTextureGreen = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Green);
-                        SelectedItem.Object = Objects[i].GetCopy();
-                        SelectedItem.Object.Texture = SelectedItem.SelectedTexture;
-                        break;
+                        if (Objects[i].Intersects(MousePositionWorldSpace))
+                        {
+                            SelectedItem.SelectedTexture = Objects[i].Texture.Clone();
+                            SelectedItem.SelectedTextureRed = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Red);
+                            SelectedItem.SelectedTextureGreen = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Green);
+                            SelectedItem.Object = Objects[i].GetCopy();
+                            SelectedItem.Object.Texture = SelectedItem.SelectedTexture;
+                            break;
+                        }
                     }
                 }
             }

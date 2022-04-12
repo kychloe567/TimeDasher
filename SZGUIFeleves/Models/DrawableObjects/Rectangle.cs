@@ -50,11 +50,10 @@ namespace SZGUIFeleves.Models
 
         public override bool IsVisible(Camera camera)
         {
-            Vec2d centeredPos = camera.CenteredPosition;
-            if (Position.x + Size.x >= centeredPos.x && Position.x < centeredPos.x + camera.WindowSize.x &&
-               Position.y + Size.y >= centeredPos.y && Position.y < centeredPos.y + camera.WindowSize.y)
+            if (Position.x + Size.x > camera.CenteredPosition.x && Position.x < camera.CenteredPosition.x + camera.WindowSize.x &&
+               Position.y + Size.y > camera.CenteredPosition.y && Position.y < camera.CenteredPosition.y + camera.WindowSize.y)
                 return true;
-            else return false;
+            return false;
         }
 
         public override Rectangle GetCopy()
@@ -146,6 +145,21 @@ namespace SZGUIFeleves.Models
             if (obj is Rectangle r && Position == r.Position && Size == r.Size && Color == r.Color)
                 return true;
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Position);
+            hash.Add(Rotation);
+            hash.Add(OutLineThickness);
+            hash.Add(OutLineColor);
+            hash.Add(Color);
+            hash.Add(TexturePath);
+            hash.Add(DrawPriority);
+            hash.Add(ObjectType);
+            hash.Add(Size);
+            return hash.ToHashCode();
         }
     }
 }

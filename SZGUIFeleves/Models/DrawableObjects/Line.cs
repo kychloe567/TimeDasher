@@ -52,11 +52,10 @@ namespace SZGUIFeleves.Models
         {
             Vec2d centeredPos = camera.CenteredPosition;
 
-            if (Position.x >= centeredPos.x && Position.x < centeredPos.x + camera.WindowSize.x &&
-               Position.y >= centeredPos.y && Position.y < centeredPos.y + camera.WindowSize.y)
-                return true;
-            else if (Position2.x >= centeredPos.x && Position2.x < centeredPos.x + camera.WindowSize.x &&
-               Position2.y >= centeredPos.y && Position2.y < centeredPos.y + camera.WindowSize.y)
+            if (Position.x > camera.CenteredPosition.x && Position.x < camera.CenteredPosition.x + camera.WindowSize.x &&
+                Position.y > camera.CenteredPosition.y && Position.y < camera.CenteredPosition.y + camera.WindowSize.y &&
+                Position2.x > camera.CenteredPosition.x && Position2.x < camera.CenteredPosition.x + camera.WindowSize.x &&
+                Position2.y > camera.CenteredPosition.y && Position2.y < camera.CenteredPosition.y + camera.WindowSize.y)
                 return true;
             else return false;
         }
@@ -180,6 +179,19 @@ namespace SZGUIFeleves.Models
             if (obj is Line l && Position == l.Position && Position2 == l.Position2 && Color == l.Color)
                 return true;
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Position);
+            hash.Add(Position2);
+            hash.Add(Rotation);
+            hash.Add(OutLineThickness);
+            hash.Add(OutLineColor);
+            hash.Add(Color);
+            hash.Add(DrawPriority);
+            return hash.ToHashCode();
         }
     }
 }

@@ -15,6 +15,7 @@ using System.Windows.Input;
 using SZGUIFeleves.Models;
 using Ookii.Dialogs.Wpf;
 using System.IO;
+using LevelEditor.Models;
 
 namespace LevelEditor.ViewModels
 {
@@ -160,7 +161,17 @@ namespace LevelEditor.ViewModels
         #region EditorButtons
         public ICommand MoveToolCommand { get; set; }
         public ICommand SelectionToolCommand { get; set; }
-        public ICommand ArrowToolCommand { get; set; }
+
+        private Tool currentTool;
+        public Tool CurrentTool
+        {
+            get { return currentTool; }
+            set
+            {
+                currentTool = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
 
         public MainWindowViewModel(IEditorControl logic)
@@ -173,6 +184,7 @@ namespace LevelEditor.ViewModels
 
             logic.SetsUpdated += Logic_SetsUpdated;
             logic.ItemsUpdated += Logic_ItemsUpdated;
+            logic.ToolChanged += Logic_ToolChanged;
 
             TopCommand = new RelayCommand(
                 () => DrawLevel = DrawPriority.Top);
@@ -196,16 +208,18 @@ namespace LevelEditor.ViewModels
                 () => Application.Current.Shutdown());
 
             MoveToolCommand = new RelayCommand(
-                () => logic.ToolChanged(Tool.Move));
+                () => SetCurrentTool(Tool.Move));
 
             SelectionToolCommand = new RelayCommand(
-                () => logic.ToolChanged(Tool.Selection));
-
-            ArrowToolCommand = new RelayCommand(
-                () => logic.ToolChanged(Tool.Arrow));
+                () => SetCurrentTool(Tool.Selection));
 
             DrawLevel = DrawPriority.Default;
             CurrentCustomLayer = -2;
+        }
+
+        private void Logic_ToolChanged(Tool tool)
+        {
+            CurrentTool = tool;
         }
 
         private void Load()
@@ -230,11 +244,19 @@ namespace LevelEditor.ViewModels
             }
         }
 
+        private void SetCurrentTool(Tool tool)
+        {
+            logic.CurrentTool = tool;
+            CurrentTool = tool;
+        }
+
         private void SelectionChanged()
         {
             DrawableObject d = SelectedDrawable;
             if (logic != null && d != null)
             {
+                logic.CurrentTool = Tool.Place;
+                CurrentTool = Tool.Place;
                 d.DrawPriority = DrawLevel;
                 logic.SetCurrentTexture(d);
             }
@@ -243,6 +265,7 @@ namespace LevelEditor.ViewModels
         private void Logic_SetsUpdated(List<string> sets)
         {
             Sets = new ObservableCollection<string>(sets);
+            SelectedSet = Sets.First();
         }
 
         private void Logic_ItemsUpdated(List<DrawableObject> background, List<DrawableObject> foreground, List<DrawableObject> decoration)
