@@ -15,7 +15,7 @@ namespace LevelEditor.Models
     {
         W, A, S, D,
         Up, Down, Left, Right,
-        Space, C, LeftCtrl,
+        Space, C, LeftCtrl, Delete,
         Q, E,
         MouseLeft, MouseRight, MouseMiddle
     }

@@ -42,6 +42,10 @@ namespace SZGUIFeleves.Models
         public BitmapImage Texture { get; set; }
         public string TexturePath { get; set; }
         public double TextureOpacity { get; set; }
+        [JsonIgnore]
+        public BitmapImage TempTexture { get; set; }
+        [JsonIgnore]
+        public Vec2d TempPosition { get; set; }
 
         /// <summary>
         /// This state machine manages animations

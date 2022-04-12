@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using SZGUIFeleves.Helpers;
 using SZGUIFeleves.Models;
 
 namespace LevelEditor.Logic
@@ -60,15 +61,28 @@ namespace LevelEditor.Logic
         private const int ObjectSizeMult = GridSize/32;
         private SelectedItem SelectedItem { get; set; }
         private bool AlreadyDeleted { get; set; }
-        public Tool CurrentTool { get; set; }
+
+        private Tool currentTool;
+        public Tool CurrentTool
+        {
+            get { return currentTool; }
+            set
+            {
+                currentTool = value;
+                ClearSelections();
+            }
+        }
         #endregion
 
         #region Tool Variables
-        public DrawableObject SelectedPlacedItem { get; set; }
+        private DrawableObject SelectedPlacedItem { get; set; }
 
-        public Vec2d SelectionPos { get; set; }
-        public Vec2d SelectionSize { get; set; }
-        public List<DrawableObject> SelectedPlacedItems { get; set; }
+        private Vec2d SelectionPos { get; set; }
+        private Vec2d SelectionSize { get; set; }
+        private List<DrawableObject> SelectedPlacedItems { get; set; }
+        private DrawableObject SelectedPlacedItemsCenter { get; set; }
+        private Vec2d SelectedPlacedItemsMove { get; set; }
+        private bool AllSelectedIsDecor { get; set; }
         #endregion
 
         public EditorLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -113,6 +127,8 @@ namespace LevelEditor.Logic
 
             CurrentTool = Tool.Move;
 
+            SelectionPos = new Vec2d();
+            SelectionSize = new Vec2d();
             SelectedPlacedItems = new List<DrawableObject>();
         }
 
@@ -126,6 +142,7 @@ namespace LevelEditor.Logic
                 sets[i] = Path.GetFileName(sets[i]);
 
             SetsUpdated.Invoke(sets);
+            ToolChanged.Invoke(CurrentTool);
 
             MainLoopTimer.Start();
         }
@@ -137,6 +154,8 @@ namespace LevelEditor.Logic
             SelectedItem.SelectedTextureGreen = ImageColoring.SetColor(obj.Texture, ImageColoring.ColorFilters.Green);
             SelectedItem.Object = (obj as Rectangle).GetCopy();
             SelectedItem.Object.Texture = obj.Texture;
+
+            ClearSelections();
         }
 
         private void LoadSet(string currentSet)
@@ -273,6 +292,31 @@ namespace LevelEditor.Logic
             LoadSet(currentSet);
         }
 
+        private void ClearSelections()
+        {
+            if (SelectedPlacedItems != null)
+            {
+                foreach (var item in SelectedPlacedItems)
+                {
+                    item.Position = new Vec2d(item.TempPosition);
+                    item.Texture = item.TempTexture.Clone();
+                    item.TempTexture = null;
+                }
+                SelectedPlacedItems.Clear();
+                SelectedPlacedItems = null;
+                SelectedPlacedItemsCenter = null;
+                SelectedPlacedItemsMove = null;
+            }
+
+            if (SelectedPlacedItem != null)
+            {
+                SelectedPlacedItem.Position = new Vec2d(SelectedPlacedItem.TempPosition);
+                SelectedPlacedItem.Texture = SelectedPlacedItem.TempTexture.Clone();
+                SelectedPlacedItem.TempTexture = null;
+                SelectedPlacedItem = null;
+            }
+        }
+
         /// <summary>
         /// Called by the Main Window through IGameControl
         /// <para>Sets the given button flag in the button dictionary</para>
@@ -291,47 +335,137 @@ namespace LevelEditor.Logic
                 MouseDrag = new Vec2d(MousePosition);
             }
 
+            if((CurrentTool == Tool.Move || currentTool == Tool.Selection) && key == ButtonKey.Delete && isDown)
+            {
+                if(CurrentTool == Tool.Move && SelectedPlacedItem != null)
+                {
+                    Objects.Remove(SelectedPlacedItem);
+                    ClearSelections();
+                }
+                else if(CurrentTool == Tool.Selection && SelectedPlacedItems != null)
+                {
+                    foreach(var item in SelectedPlacedItems)
+                        Objects.Remove(item);
+                    ClearSelections();
+                }
+            }
             if (CurrentTool == Tool.Move)
             {
                 if(isDown && key == ButtonKey.MouseLeft)
                 {
                     if (SelectedPlacedItem is null)
                     {
+                        if (SelectedPlacedItems != null)
+                        {
+                            foreach (var item in SelectedPlacedItems)
+                            {
+                                item.Texture = item.TempTexture.Clone();
+                                item.TempTexture = null;
+                            }
+                            SelectedPlacedItems = null;
+                        }
+
                         for (int i = Objects.Count - 1; i >= 0; i--)
                         {
                             if (Objects[i].Intersects(MousePositionWorldSpace))
                             {
+                                Objects[i].TempPosition = new Vec2d(Objects[i].Position);
+                                Objects[i].TempTexture = Objects[i].Texture.Clone();
+                                Objects[i].Texture = ImageColoring.SetColor(Objects[i].Texture, ImageColoring.ColorFilters.Green);
                                 SelectedPlacedItem = Objects[i];
                                 break;
                             }
                         }
                     }
                     else
+                    {
+                        SelectedPlacedItem.Texture = SelectedPlacedItem.TempTexture.Clone();
+                        SelectedPlacedItem.TempTexture = null;
                         SelectedPlacedItem = null;
+                    }
                 }
                 
             }
             else if (CurrentTool == Tool.Selection)
             {
-                if (key == ButtonKey.MouseLeft)
+                bool tryToMove = false;
+                if (SelectedPlacedItems != null)
                 {
+                    foreach (var item in SelectedPlacedItems)
+                    {
+                        if (item.Intersects(MousePositionWorldSpace))
+                        {
+                            tryToMove = true;
+                            SelectedPlacedItemsCenter = item;
+                            break;
+                        }
+                    }
+                }
+
+                if (key == ButtonKey.MouseLeft && !tryToMove)
+                {
+                    ClearSelections();
                     if (isDown)
                     {
                         SelectionPos = MousePositionWorldSpace;
                     }
                     else
                     {
-                        Rectangle selectionRect = new Rectangle(SelectionPos, SelectionSize);
                         SelectedPlacedItems = new List<DrawableObject>();
+
+                        Rectangle selectionRect = MathHelper.NormalizeSize(new Rectangle(SelectionPos, SelectionSize));
+                        AllSelectedIsDecor = true;
                         for (int i = Objects.Count - 1; i >= 0; i--)
                         {
                             if (selectionRect.Intersects(Objects[i]))
                             {
+                                Objects[i].TempPosition = new Vec2d(Objects[i].Position);
+                                Objects[i].TempTexture = Objects[i].Texture.Clone();
+                                Objects[i].Texture = ImageColoring.SetColor(Objects[i].Texture, ImageColoring.ColorFilters.Green);
                                 SelectedPlacedItems.Add(Objects[i]);
+
+                                if (Objects[i].ObjectType != DrawableObject.ObjectTypes.Decoration)
+                                    AllSelectedIsDecor = false;
                             }
                         }
-                        CurrentTool = Tool.Move;
-                        ToolChanged.Invoke(CurrentTool);
+
+                        SelectionPos = new Vec2d();
+                        SelectionSize = new Vec2d();
+                    }
+                }
+                else if(key == ButtonKey.MouseLeft && tryToMove)
+                {
+                    if (!ButtonFlags[ButtonKey.MouseMiddle] && SelectedPlacedItems != null && SelectedPlacedItemsMove != null && isDown)
+                    {
+                        foreach (var item in SelectedPlacedItems)
+                        {
+                            item.Texture = item.TempTexture.Clone();
+                            item.TempTexture = null;
+                        }
+                        SelectedPlacedItems.Clear();
+                        SelectedPlacedItems = null;
+                        SelectedPlacedItemsCenter = null;
+                        SelectedPlacedItemsMove = null;
+                    }
+                    else if (!ButtonFlags[ButtonKey.MouseMiddle] && SelectedPlacedItems != null && SelectedPlacedItemsMove == null)
+                    {
+                        if (tryToMove && key == ButtonKey.MouseLeft)
+                        {
+                            SelectedPlacedItemsMove = MousePositionWorldSpace;
+                        }
+                        else
+                        {
+                            foreach (var item in SelectedPlacedItems)
+                            {
+                                item.Position = new Vec2d(item.TempPosition);
+                                item.Texture = item.TempTexture.Clone();
+                                item.TempTexture = null;
+                            }
+                            SelectedPlacedItems = null;
+
+                            CurrentTool = Tool.Move;
+                            ToolChanged.Invoke(CurrentTool);
+                        }
                     }
                 }
             }
@@ -363,21 +497,60 @@ namespace LevelEditor.Logic
             MousePosition = position;
             MousePositionWorldSpace = CurrentCameraPosition - WindowSize / 2 + MousePosition;
 
-            if(!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Move && SelectedPlacedItem != null)
+            if (!ButtonFlags[ButtonKey.MouseMiddle] && SelectedPlacedItems != null && SelectedPlacedItemsMove != null)
+            {
+                if(!AllSelectedIsDecor)
+                {
+                    SelectedPlacedItemsCenter.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                                                          MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
+
+                    if (MousePositionWorldSpace.x < 0) { SelectedPlacedItemsCenter.Position.x -= GridSize; }
+                    if (MousePositionWorldSpace.y < 0) { SelectedPlacedItemsCenter.Position.y -= GridSize; }
+
+                    foreach (var item in SelectedPlacedItems)
+                    {
+                        if (item == SelectedPlacedItemsCenter)
+                            continue;
+
+                        Vec2d relative = item.TempPosition - SelectedPlacedItemsCenter.TempPosition;
+                        item.Position = SelectedPlacedItemsCenter.Position + relative;
+
+                        if (MousePositionWorldSpace.x < 0) { item.Position.x -= GridSize; }
+                        if (MousePositionWorldSpace.y < 0) { item.Position.y -= GridSize; }
+                    }
+                }
+                else
+                {
+                    Rectangle r = SelectedPlacedItemsCenter as Rectangle;
+                    SelectedPlacedItemsCenter.Position = MousePositionWorldSpace - r.Size / 2;
+                    if (SelectedPlacedItemsCenter.Position.x < Camera.CenteredPosition.x)
+                        SelectedPlacedItemsCenter.Position.x = Camera.CenteredPosition.x;
+                    if (SelectedPlacedItemsCenter.Position.y < Camera.CenteredPosition.y)
+                        SelectedPlacedItemsCenter.Position.y = Camera.CenteredPosition.y;
+                    if (SelectedPlacedItemsCenter.Position.x + r.Size.x > Camera.CenteredPosition.x + Camera.WindowSize.x)
+                        SelectedPlacedItemsCenter.Position.x = Camera.CenteredPosition.x + Camera.WindowSize.x - r.Size.x;
+                    if (SelectedPlacedItemsCenter.Position.y + r.Size.y > Camera.CenteredPosition.y + Camera.WindowSize.y)
+                        SelectedPlacedItemsCenter.Position.y = Camera.CenteredPosition.y + Camera.WindowSize.y - r.Size.y;
+
+                    foreach (var item in SelectedPlacedItems)
+                    {
+                        if (item == SelectedPlacedItemsCenter)
+                            continue;
+
+                        Vec2d relative = item.TempPosition - SelectedPlacedItemsCenter.TempPosition;
+                        item.Position = SelectedPlacedItemsCenter.Position + relative;
+                    }
+                }
+            }
+            else if(!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Move && SelectedPlacedItem != null)
             {
                 if (SelectedPlacedItem.ObjectType != DrawableObject.ObjectTypes.Decoration)
                 {
                     SelectedPlacedItem.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
                                                       MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
 
-                    if (MousePositionWorldSpace.x < 0)
-                    {
-                        SelectedPlacedItem.Position.x -= GridSize;
-                    }
-                    if (MousePositionWorldSpace.y < 0)
-                    {
-                        SelectedPlacedItem.Position.y -= GridSize;
-                    }
+                    if (MousePositionWorldSpace.x < 0) { SelectedPlacedItem.Position.x -= GridSize; }
+                    if (MousePositionWorldSpace.y < 0) { SelectedPlacedItem.Position.y -= GridSize; }
                 }
                 else
                 {
@@ -477,20 +650,13 @@ namespace LevelEditor.Logic
                 ObjectsToDisplayWorldSpace.Add(SelectedItem.Object);
             else if(CurrentTool == Tool.Selection && ButtonFlags[ButtonKey.MouseLeft])
             {
-                //TODO
-                if (SelectionSize is null)
-                    ;
-                else
+                Rectangle selectionRect = new Rectangle(SelectionPos, SelectionSize)
                 {
-
-                    Rectangle selectionRect = new Rectangle(SelectionPos, SelectionSize)
-                    {
-                        IsFilled = false,
-                        OutLineColor = Color.Green,
-                        OutLineThickness = 1
-                    };
-                    ObjectsToDisplayWorldSpace.Add(selectionRect);
-                }
+                    IsFilled = false,
+                    OutLineColor = Color.Green,
+                    OutLineThickness = 1
+                };
+                ObjectsToDisplayWorldSpace.Add(MathHelper.NormalizeSize(selectionRect));
             }
 
             DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
@@ -507,15 +673,7 @@ namespace LevelEditor.Logic
                 Camera.UpdatePosition(CurrentCameraPosition + (MouseDrag - MousePosition), Elapsed);
             }
 
-            if (CurrentTool == Tool.Move)
-            {
-                
-            }
-            else if (CurrentTool == Tool.Selection)
-            {
-
-            }
-            else if (CurrentTool == Tool.Place)
+            if (CurrentTool == Tool.Place)
             {
                 if (ButtonFlags[ButtonKey.MouseLeft])
                 {
@@ -542,8 +700,6 @@ namespace LevelEditor.Logic
 
                     if (!already)
                         Objects.Add(toPlace);
-
-                    File.WriteAllText("asd.json", JsonConvert.SerializeObject(toPlace));
                 }
 
                 if (ButtonFlags[ButtonKey.MouseRight] && !AlreadyDeleted)
