@@ -60,7 +60,6 @@ namespace LevelEditor.Logic
         private const int GridSize = 64;
         private const int ObjectSizeMult = GridSize/32;
         private SelectedItem SelectedItem { get; set; }
-        private bool AlreadyDeleted { get; set; }
 
         private Tool currentTool;
         public Tool CurrentTool
@@ -313,6 +312,10 @@ namespace LevelEditor.Logic
             LoadSet(currentSet);
         }
 
+        /// <summary>
+        /// Clears all selections to avoid problems when switching tools
+        /// <para>If objects were still moving then they're put back to their original position</para>
+        /// </summary>
         private void ClearSelections()
         {
             if (SelectedPlacedItems != null)
@@ -357,7 +360,33 @@ namespace LevelEditor.Logic
                 MouseDrag = new Vec2d(MousePosition);
             }
 
-            if((CurrentTool == Tool.Move || currentTool == Tool.Selection) && key == ButtonKey.Delete && isDown)
+            // If user is trying to pick a placed object (to place again)
+            if(key == ButtonKey.Q)
+            {
+                bool found = false;
+                for (int i = Objects.Count - 1; i >= 0; i--)
+                {
+                    if (Objects[i].Intersects(MousePositionWorldSpace))
+                    {
+                        SelectedItem.SelectedTexture = Objects[i].Texture.Clone();
+                        SelectedItem.SelectedTextureRed = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Red);
+                        SelectedItem.SelectedTextureGreen = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Green);
+                        SelectedItem.Object = Objects[i].GetCopy();
+                        SelectedItem.Object.Texture = SelectedItem.SelectedTexture;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                {
+                    ClearSelections();
+                    CurrentTool = Tool.Place;
+                    ToolChanged.Invoke(CurrentTool);
+                }
+            }
+            // Object deletion - Delete key
+            else if((CurrentTool == Tool.Move || currentTool == Tool.Selection) && key == ButtonKey.Delete && isDown)
             {
                 if(CurrentTool == Tool.Move && SelectedPlacedItem != null)
                 {
@@ -375,19 +404,12 @@ namespace LevelEditor.Logic
             {
                 if(isDown && key == ButtonKey.MouseLeft)
                 {
-                    // Check if mouse is on an object (to move)
+                    // If there is no selected item yet
                     if (SelectedPlacedItem is null)
                     {
-                        if (SelectedPlacedItems != null)
-                        {
-                            foreach (var item in SelectedPlacedItems)
-                            {
-                                item.Texture = item.TempTexture.Clone();
-                                item.TempTexture = null;
-                            }
-                            SelectedPlacedItems = null;
-                        }
+                        ClearSelections();
 
+                        // Check if mouse is on an object (to move)
                         for (int i = Objects.Count - 1; i >= 0; i--)
                         {
                             if (Objects[i].Intersects(MousePositionWorldSpace))
@@ -400,6 +422,7 @@ namespace LevelEditor.Logic
                             }
                         }
                     }
+                    // If the mouse clicked again while moving, place it
                     else
                     {
                         SelectedPlacedItem.Texture = SelectedPlacedItem.TempTexture.Clone();
@@ -412,6 +435,9 @@ namespace LevelEditor.Logic
             else if (CurrentTool == Tool.Selection)
             {
                 bool tryToMove = false;
+
+                // Check if the mouse is on an object in the SelectedPlacedItems list.
+                // Set the "center" item as the item the mouse clicked on
                 if (SelectedPlacedItems != null)
                 {
                     foreach (var item in SelectedPlacedItems)
@@ -425,6 +451,7 @@ namespace LevelEditor.Logic
                     }
                 }
 
+                // If the selection started not on an object, the user is starting to select
                 if (key == ButtonKey.MouseLeft && !tryToMove)
                 {
                     ClearSelections();
@@ -435,13 +462,16 @@ namespace LevelEditor.Logic
                     }
                     else
                     {
-                        // Selection is done, check for objects inside the selection rect
+                        // Selection is done
                         SelectedPlacedItems = new List<DrawableObject>();
 
+                        // Normalize selectionRect (negative size -> positive size with corresponding position)
                         Rectangle selectionRect = MathHelper.NormalizeSize(new Rectangle(SelectionPos, SelectionSize));
+
                         AllSelectedIsDecor = true;
                         for (int i = Objects.Count - 1; i >= 0; i--)
                         {
+                            //Check for objects inside the selectionr rect
                             if (selectionRect.Intersects(Objects[i]))
                             {
                                 Objects[i].TempPosition = new Vec2d(Objects[i].Position);
@@ -449,6 +479,8 @@ namespace LevelEditor.Logic
                                 Objects[i].Texture = ImageColoring.SetColor(Objects[i].Texture, ImageColoring.ColorFilters.Green);
                                 SelectedPlacedItems.Add(Objects[i]);
 
+                                // If there is even one not decor, the moving is grid based
+                                // If all objects are decor, the moving is pixel based
                                 if (Objects[i].ObjectType != DrawableObject.ObjectTypes.Decoration)
                                     AllSelectedIsDecor = false;
                             }
@@ -458,8 +490,10 @@ namespace LevelEditor.Logic
                         SelectionSize = new Vec2d();
                     }
                 }
+                // Selection already done and the mouse is on an selected object (to move)
                 else if(key == ButtonKey.MouseLeft && tryToMove)
                 {
+                    // The user clicked a second time, selected items moving is done, place them
                     if (!ButtonFlags[ButtonKey.MouseMiddle] && SelectedPlacedItems != null && SelectedPlacedItemsMove != null && isDown)
                     {
                         foreach (var item in SelectedPlacedItems)
@@ -472,12 +506,15 @@ namespace LevelEditor.Logic
                         SelectedPlacedItemsCenter = null;
                         SelectedPlacedItemsMove = null;
                     }
+                    // The user clicked the first time, start to move the selected items
                     else if (!ButtonFlags[ButtonKey.MouseMiddle] && SelectedPlacedItems != null && SelectedPlacedItemsMove == null)
                     {
                         if (tryToMove && key == ButtonKey.MouseLeft)
                         {
                             SelectedPlacedItemsMove = MousePositionWorldSpace;
                         }
+                        // Drop selection if the user clicks with not the left button
+                        // Objects are placed back to their original position
                         else
                         {
                             foreach (var item in SelectedPlacedItems)
@@ -494,13 +531,34 @@ namespace LevelEditor.Logic
                     }
                 }
             }
-            else if (CurrentTool == Tool.Place)
+            // If user is trying to place an object
+            if(CurrentTool == Tool.Place && key == ButtonKey.MouseLeft)
             {
-                if (key == ButtonKey.MouseRight && AlreadyDeleted && !isDown)
-                    AlreadyDeleted = false;
+                var toPlace = SelectedItem.Object.GetCopy();
+                toPlace.Texture = SelectedItem.SelectedTexture;
 
-                if (key == ButtonKey.Space)
-                    Camera.Zoom = 1;
+                // Check if the object the user is trying to place is not on an another object
+                // Decor on decor is allowed
+                bool already = false;
+                for (int i = 0; i < Objects.Count; i++)
+                {
+                    if (toPlace.Intersects(Objects[i]))
+                    {
+                        if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background &&
+                           Objects[i].ObjectType == DrawableObject.ObjectTypes.Background)
+                            already = true;
+                        else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Foreground &&
+                                Objects[i].ObjectType == DrawableObject.ObjectTypes.Foreground)
+                            already = true;
+                        else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Decoration &&
+                                Objects[i].ObjectType == DrawableObject.ObjectTypes.Decoration &&
+                                toPlace.Texture.Equals(Objects[i].Texture))
+                            already = true;
+                    }
+                }
+
+                if (!already)
+                    Objects.Add(toPlace);
             }
 
             ButtonFlags[key] = isDown;
@@ -517,37 +575,56 @@ namespace LevelEditor.Logic
             WindowSize.y = WindowSizeHeight;
         }
 
+        /// <summary>
+        /// Sets the current mouse position in screen space to world space
+        /// <para>Manages tools/movement</para>
+        /// </summary>
+        /// <param name="position"></param>
         public void SetMousePosition(Vec2d position)
         {
+            // Screen space -> World space
+            // Translating by the Camera's position
             MousePosition = position;
             MousePositionWorldSpace = CurrentCameraPosition - WindowSize / 2 + MousePosition;
 
+            // If the user is currently moving the selected items (Tool.Selection)
             if (!ButtonFlags[ButtonKey.MouseMiddle] && SelectedPlacedItems != null && SelectedPlacedItemsMove != null)
             {
+                // If there is even one not decor object in the selected items
+                // Move them grid based
                 if(!AllSelectedIsDecor)
                 {
+                    // Calculating the "center" object's grid location
                     SelectedPlacedItemsCenter.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
                                                           MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
 
+                    // Y angle is offset by -1 gridunit
                     if (MousePositionWorldSpace.x < 0) { SelectedPlacedItemsCenter.Position.x -= GridSize; }
                     if (MousePositionWorldSpace.y < 0) { SelectedPlacedItemsCenter.Position.y -= GridSize; }
 
                     foreach (var item in SelectedPlacedItems)
                     {
+                        // Skipping the already calculated "center" object's position
                         if (item == SelectedPlacedItemsCenter)
                             continue;
 
+                        // Calculating the current objects position relative to the center and offset by the moved position
                         Vec2d relative = item.TempPosition - SelectedPlacedItemsCenter.TempPosition;
                         item.Position = SelectedPlacedItemsCenter.Position + relative;
 
+                        // Y angle is offset by -1 gridunit
                         if (MousePositionWorldSpace.x < 0) { item.Position.x -= GridSize; }
                         if (MousePositionWorldSpace.y < 0) { item.Position.y -= GridSize; }
                     }
                 }
+                // If all selected objects are decor
+                // Move them pixel based
                 else
                 {
                     Rectangle r = SelectedPlacedItemsCenter as Rectangle;
                     SelectedPlacedItemsCenter.Position = MousePositionWorldSpace - r.Size / 2;
+
+                    // Clamp "center" object's position the the screen
                     if (SelectedPlacedItemsCenter.Position.x < Camera.CenteredPosition.x)
                         SelectedPlacedItemsCenter.Position.x = Camera.CenteredPosition.x;
                     if (SelectedPlacedItemsCenter.Position.y < Camera.CenteredPosition.y)
@@ -559,28 +636,39 @@ namespace LevelEditor.Logic
 
                     foreach (var item in SelectedPlacedItems)
                     {
+                        // Skipping the already calculated "center" object's position
                         if (item == SelectedPlacedItemsCenter)
                             continue;
 
+                        // Calculating the current objects position relative to the center and offset by the moved position
                         Vec2d relative = item.TempPosition - SelectedPlacedItemsCenter.TempPosition;
                         item.Position = SelectedPlacedItemsCenter.Position + relative;
                     }
                 }
             }
-            else if(!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Move && SelectedPlacedItem != null)
+            // If the user is currently moving the selected item (Tool.Move)
+            else if (!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Move && SelectedPlacedItem != null)
             {
+                // If selected object is not decor
+                // Move it grid based
                 if (SelectedPlacedItem.ObjectType != DrawableObject.ObjectTypes.Decoration)
                 {
+                    // Calculating selected object's grid location
                     SelectedPlacedItem.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
                                                       MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
 
+                    // Y angle is offset by -1 gridunit
                     if (MousePositionWorldSpace.x < 0) { SelectedPlacedItem.Position.x -= GridSize; }
                     if (MousePositionWorldSpace.y < 0) { SelectedPlacedItem.Position.y -= GridSize; }
                 }
+                // If selected object is decor
+                // Move it pixel based
                 else
                 {
                     Rectangle r = SelectedPlacedItem as Rectangle;
                     SelectedPlacedItem.Position = MousePositionWorldSpace - r.Size / 2;
+
+                    // Clamp "center" object's position the the screen
                     if (SelectedPlacedItem.Position.x < Camera.CenteredPosition.x)
                         SelectedPlacedItem.Position.x = Camera.CenteredPosition.x;
                     if (SelectedPlacedItem.Position.y < Camera.CenteredPosition.y)
@@ -591,29 +679,30 @@ namespace LevelEditor.Logic
                         SelectedPlacedItem.Position.y = Camera.CenteredPosition.y + Camera.WindowSize.y - r.Size.y;
                 }
             }
+            // If the user is currently selecting
             else if (!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Selection && ButtonFlags[ButtonKey.MouseLeft])
             {
                 SelectionSize = new Vec2d(MousePositionWorldSpace - SelectionPos);
             }
+            // If the user is currently placing an object
             else if (!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Place && SelectedItem.Object is Rectangle r)
             {
+                // If the object is not a decor
                 if (r.ObjectType != DrawableObject.ObjectTypes.Decoration)
                 {
+                    // Calculating grid location
                     SelectedItem.Object.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
                                                       MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
 
-                    if (MousePositionWorldSpace.x < 0)
-                    {
-                        SelectedItem.Object.Position.x -= GridSize;
-                    }
-                    if (MousePositionWorldSpace.y < 0)
-                    {
-                        SelectedItem.Object.Position.y -= GridSize;
-                    }
+                    // Y angle is offset by -1 gridunit
+                    if (MousePositionWorldSpace.x < 0) { SelectedItem.Object.Position.x -= GridSize; }
+                    if (MousePositionWorldSpace.y < 0) { SelectedItem.Object.Position.y -= GridSize; }
                 }
                 else
                 {
                     SelectedItem.Object.Position = MousePositionWorldSpace - r.Size / 2;
+
+                    // Clamp position the the screen
                     if (SelectedItem.Object.Position.x < Camera.CenteredPosition.x) 
                         SelectedItem.Object.Position.x = Camera.CenteredPosition.x;
                     if (SelectedItem.Object.Position.y < Camera.CenteredPosition.y) 
@@ -624,6 +713,8 @@ namespace LevelEditor.Logic
                         SelectedItem.Object.Position.y = Camera.CenteredPosition.y + Camera.WindowSize.y - r.Size.y;
                 }
 
+                // If placeable object is not a decor check if gridposition is already occupied
+                // Change texture to red if occupied, to green if not
                 if (SelectedItem != null && SelectedItem.SelectedTexture != null && SelectedItem.Object.ObjectType != DrawableObject.ObjectTypes.Decoration)
                 {
                     bool already = false;
@@ -644,6 +735,11 @@ namespace LevelEditor.Logic
             }
         }
 
+        /// <summary>
+        /// Zooming
+        /// <para>Not working yet</para>
+        /// </summary>
+        /// <param name="delta"></param>
         public void DeltaMouseWheel(double delta)
         {
             //Camera.Zoom += delta;
@@ -671,8 +767,11 @@ namespace LevelEditor.Logic
 
                 ObjectsToDisplayWorldSpace.Add(obj);
             }
+
+            // Passing placeable item to the display
             if(CurrentTool == Tool.Place)
                 ObjectsToDisplayWorldSpace.Add(SelectedItem.Object);
+            // Passing selection rect to the display
             else if(CurrentTool == Tool.Selection && ButtonFlags[ButtonKey.MouseLeft])
             {
                 Rectangle selectionRect = new Rectangle(SelectionPos, SelectionSize)
@@ -697,65 +796,6 @@ namespace LevelEditor.Logic
             {
                 Camera.UpdatePosition(CurrentCameraPosition + (MouseDrag - MousePosition), Elapsed);
             }
-
-            if (CurrentTool == Tool.Place)
-            {
-                if (ButtonFlags[ButtonKey.MouseLeft])
-                {
-                    var toPlace = SelectedItem.Object.GetCopy();
-                    toPlace.Texture = SelectedItem.SelectedTexture;
-
-                    bool already = false;
-                    for (int i = 0; i < Objects.Count; i++)
-                    {
-                        if (toPlace.Intersects(Objects[i]))
-                        {
-                            if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background &&
-                               Objects[i].ObjectType == DrawableObject.ObjectTypes.Background)
-                                already = true;
-                            else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Foreground &&
-                                    Objects[i].ObjectType == DrawableObject.ObjectTypes.Foreground)
-                                already = true;
-                            else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Decoration &&
-                                    Objects[i].ObjectType == DrawableObject.ObjectTypes.Decoration &&
-                                    toPlace.Texture.Equals(Objects[i].Texture))
-                                already = true;
-                        }
-                    }
-
-                    if (!already)
-                        Objects.Add(toPlace);
-                }
-
-                if (ButtonFlags[ButtonKey.MouseRight] && !AlreadyDeleted)
-                {
-                    for (int i = Objects.Count - 1; i >= 0; i--)
-                    {
-                        if (Objects[i].Intersects(MousePositionWorldSpace))
-                        {
-                            Objects.RemoveAt(i);
-                            AlreadyDeleted = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (ButtonFlags[ButtonKey.Q])
-                {
-                    for (int i = Objects.Count - 1; i >= 0; i--)
-                    {
-                        if (Objects[i].Intersects(MousePositionWorldSpace))
-                        {
-                            SelectedItem.SelectedTexture = Objects[i].Texture.Clone();
-                            SelectedItem.SelectedTextureRed = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Red);
-                            SelectedItem.SelectedTextureGreen = ImageColoring.SetColor(SelectedItem.SelectedTexture, ImageColoring.ColorFilters.Green);
-                            SelectedItem.Object = Objects[i].GetCopy();
-                            SelectedItem.Object.Texture = SelectedItem.SelectedTexture;
-                            break;
-                        }
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -766,6 +806,9 @@ namespace LevelEditor.Logic
             // Game Logic Update
         }
 
+        /// <summary>
+        /// Clear scene and reset the camera.
+        /// </summary>
         public void ResetScene()
         {
             Objects.Clear();
@@ -776,6 +819,10 @@ namespace LevelEditor.Logic
             MousePositionWorldSpace = CurrentCameraPosition - WindowSize / 2 + MousePosition;
         }
 
+        /// <summary>
+        /// Load given scene into objects
+        /// </summary>
+        /// <param name="s"></param>
         public void LoadScene(Scene s)
         {
             ResetScene();
@@ -783,6 +830,11 @@ namespace LevelEditor.Logic
                 Objects.Add(obj);
         }
 
+        /// <summary>
+        /// Return the current state as a scene
+        /// </summary>
+        /// <param name="title"></param>
+        /// <returns></returns>
         public Scene SaveScene(string title)
         {
             return new Scene(title, Objects, -1, new List<DynamicPointLight>());
