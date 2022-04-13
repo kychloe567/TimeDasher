@@ -93,10 +93,7 @@ namespace LevelEditor.Logic
                 ButtonFlags.Add(b, false);
 
 
-            Camera = new Camera(WindowSize)
-            {
-                DeadZone = new Vec2d(0, 0),
-            };
+            Camera = new Camera(WindowSize);
 
             MousePosition = new Vec2d();
 
@@ -105,6 +102,7 @@ namespace LevelEditor.Logic
 
             MousePositionWorldSpace = CurrentCameraPosition - WindowSize / 2 + MousePosition;
 
+            // Place tool item
             Rectangle r = new Rectangle(MousePosition, new Vec2d(GridSize, GridSize))
             {
                 DrawPriority = DrawPriority.Top
@@ -121,24 +119,40 @@ namespace LevelEditor.Logic
         /// </summary>
         public void Start()
         {
+            // Get all the sets in the Textures folder
             var sets = Directory.GetDirectories("Textures\\").ToList();
             for (int i = 0; i < sets.Count; i++)
                 sets[i] = Path.GetFileName(sets[i]);
 
+            // Tell the viewmodel to update the setlist
             SetsUpdated.Invoke(sets);
 
             MainLoopTimer.Start();
         }
 
+        /// <summary>
+        /// Viewmodel calls this when the user selects an object
+        /// </summary>
+        /// <param name="obj"></param>
         public void SetCurrentTexture(DrawableObject obj)
         {
+            // Set selected (placeable) item
             SelectedItem.SelectedTexture = obj.Texture;
+
+            // Calculate red and green textures
             SelectedItem.SelectedTextureRed = ImageColoring.SetColor(obj.Texture, ImageColoring.ColorFilters.Red);
             SelectedItem.SelectedTextureGreen = ImageColoring.SetColor(obj.Texture, ImageColoring.ColorFilters.Green);
+
+            // Copy the selected object
             SelectedItem.Object = (obj as Rectangle).GetCopy();
             SelectedItem.Object.Texture = obj.Texture;
         }
 
+        /// <summary>
+        /// This gets called whenever the user changes the current set
+        /// <para>Loads in the textures from the given set</para>
+        /// </summary>
+        /// <param name="currentSet"></param>
         private void LoadSet(string currentSet)
         {
             string objectsPath = "Textures\\";
@@ -148,6 +162,7 @@ namespace LevelEditor.Logic
             List<DrawableObject> foreground = new List<DrawableObject>();
             List<DrawableObject> decoration = new List<DrawableObject>();
 
+            // Static objects
             #region Textures
             foreach (var image in new DirectoryInfo(objectsPath + "\\Background\\").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
@@ -181,6 +196,7 @@ namespace LevelEditor.Logic
             }
             #endregion
 
+            // Animated objects
             #region Animations
             foreach (var ani in new DirectoryInfo(objectsPath + "\\Background\\").GetDirectories())
             {
@@ -265,9 +281,14 @@ namespace LevelEditor.Logic
             }
             #endregion
 
+            // Send textures to the viewmodel
             ItemsUpdated.Invoke(background, foreground, decoration);
         }
 
+        /// <summary>
+        /// Viewmodel calls this when the user changes the current set
+        /// </summary>
+        /// <param name="currentSet"></param>
         public void SetChanged(string currentSet)
         {
             LoadSet(currentSet);
@@ -281,6 +302,7 @@ namespace LevelEditor.Logic
         /// <param name="isDown"></param>
         public void SetButtonFlag(ButtonKey key, bool isDown)
         {
+            // View panning
             if (key == ButtonKey.MouseMiddle && !isDown)
             {
                 CurrentCameraPosition += MouseDrag - MousePosition;
@@ -295,6 +317,7 @@ namespace LevelEditor.Logic
             {
                 if(isDown && key == ButtonKey.MouseLeft)
                 {
+                    // Check if mouse is on an object (to move)
                     if (SelectedPlacedItem is null)
                     {
                         for (int i = Objects.Count - 1; i >= 0; i--)
@@ -317,10 +340,12 @@ namespace LevelEditor.Logic
                 {
                     if (isDown)
                     {
+                        // Start Selection rectangle
                         SelectionPos = MousePositionWorldSpace;
                     }
                     else
                     {
+                        // Selection is done, check for objects inside the selection rect
                         Rectangle selectionRect = new Rectangle(SelectionPos, SelectionSize);
                         SelectedPlacedItems = new List<DrawableObject>();
                         for (int i = Objects.Count - 1; i >= 0; i--)
