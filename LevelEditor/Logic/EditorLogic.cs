@@ -436,7 +436,6 @@ namespace LevelEditor.Logic
                     else
                     {
                         // Selection is done, check for objects inside the selection rect
-                        Rectangle selectionRect = new Rectangle(SelectionPos, SelectionSize);
                         SelectedPlacedItems = new List<DrawableObject>();
 
                         Rectangle selectionRect = MathHelper.NormalizeSize(new Rectangle(SelectionPos, SelectionSize));
