@@ -166,10 +166,12 @@ namespace SZGUIFeleves.Logic
             });
             CurrentScene.Objects.Add(new Trap()
             {
-                Position = new Vec2d(720, 400),
+                Position = new Vec2d(920, 400),
                 Size = new Vec2d(50, 50),
                 IsMoving = true,
-            });
+                SpeedX = -2,
+                SpeedY = 0,
+            }) ;
 
 
             // Emitter example settings
@@ -264,9 +266,9 @@ namespace SZGUIFeleves.Logic
 
             #region
             // Remove after player has been created 
-            Camera.UpdatePosition(WindowSize / 2, Elapsed);
+            //Camera.UpdatePosition(WindowSize / 2, Elapsed);
             // Then uncomment this
-            //Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
+            Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
 
             CurrentScene.Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             #endregion
@@ -399,9 +401,9 @@ namespace SZGUIFeleves.Logic
                 if (CurrentScene.Objects[i] is Trap t)
                 {
                     
-                    if (t.IsMoving)
+                    if (t.IsMoving && t.IsVisible(Camera))
                     {
-                        MovementLogic.Move(CurrentScene.Objects[i], new Vec2d(-1, 0), 200.0f * Elapsed);
+                        MovementLogic.Move(CurrentScene.Objects[i], new Vec2d(t.SpeedX, t.SpeedY), 200.0f * Elapsed);
                     }
                 }
             }
