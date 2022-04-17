@@ -124,29 +124,29 @@ namespace SZGUIFeleves.Logic
                 Size = new Vec2d(30, 70),
                 Color = Color.White
             });
-            for (int i = 1; i <= 4; i++)
-            {
-                CurrentScene.Objects.Add(new Rectangle()
-                {
-                    Position = new Vec2d((3 + i) * 100, 100),
-                    Size = new Vec2d(100, 100),
-                });
-                CurrentScene.Objects.Add(new Rectangle()
-                {
-                    Position = new Vec2d(i * 100, 300),
-                    Size = new Vec2d(100, 100),
-                });
-                CurrentScene.Objects.Add(new Rectangle()
-                {
-                    Position = new Vec2d((3 + i) * 100, 500),
-                    Size = new Vec2d(100, 100),
-                });
-                CurrentScene.Objects.Add(new Rectangle()
-                {
-                    Position = new Vec2d(i * 100, 700),
-                    Size = new Vec2d(100, 100),
-                });
-            }
+            //for (int i = 1; i <= 4; i++)
+            //{
+            //    CurrentScene.Objects.Add(new Rectangle()
+            //    {
+            //        Position = new Vec2d((3 + i) * 100, 100),
+            //        Size = new Vec2d(100, 100),
+            //    });
+            //    CurrentScene.Objects.Add(new Rectangle()
+            //    {
+            //        Position = new Vec2d(i * 100, 300),
+            //        Size = new Vec2d(100, 100),
+            //    });
+            //    CurrentScene.Objects.Add(new Rectangle()
+            //    {
+            //        Position = new Vec2d((3 + i) * 100, 500),
+            //        Size = new Vec2d(100, 100),
+            //    });
+            //    CurrentScene.Objects.Add(new Rectangle()
+            //    {
+            //        Position = new Vec2d(i * 100, 700),
+            //        Size = new Vec2d(100, 100),
+            //    });
+            //}
             CurrentScene.Objects.Add(new Rectangle()
             {
                 Position = new Vec2d(600, 300),
@@ -156,7 +156,21 @@ namespace SZGUIFeleves.Logic
             {
                 Position = new Vec2d(200, 500),
                 Size = new Vec2d(100, 100),
+                Color = Color.Blue,
             });
+            CurrentScene.Objects.Add(new Trap()
+            {
+                Position = new Vec2d(320, 500),
+                Size = new Vec2d(100, 100),
+                Color = Color.Blue,
+            });
+            CurrentScene.Objects.Add(new Trap()
+            {
+                Position = new Vec2d(720, 400),
+                Size = new Vec2d(50, 50),
+                IsMoving = true,
+            });
+
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
@@ -278,8 +292,12 @@ namespace SZGUIFeleves.Logic
                     {
                         if (!obj.Equals(item) && item is Rectangle r && obj.Intersects(item))
                         {
-                            doesIntersect = true;
                             
+                            doesIntersect = true;
+                            if (item is Trap t)
+                            {
+                                obj.Color = Color.Red;
+                            }
                             // Angle of Vector IO.
                             double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
                                 ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
@@ -373,8 +391,21 @@ namespace SZGUIFeleves.Logic
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(0, 1), 200.0f * Elapsed);
             if (ButtonFlags[ButtonKey.D] && right)
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1, 0), 200.0f * Elapsed);
+            
             if (CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
+            for (int i = 0; i < CurrentScene.Objects.Count; i++)
+            {
+                if (CurrentScene.Objects[i] is Trap t)
+                {
+                    
+                    if (t.IsMoving)
+                    {
+                        MovementLogic.Move(CurrentScene.Objects[i], new Vec2d(-1, 0), 200.0f * Elapsed);
+                    }
+                }
+            }
+
         }
 
         /// <summary>
