@@ -166,7 +166,7 @@ namespace SZGUIFeleves.Logic
             });
             CurrentScene.Objects.Add(new Trap()
             {
-                Position = new Vec2d(920, 400),
+                Position = new Vec2d(720, 400),
                 Size = new Vec2d(50, 50),
                 IsMoving = true,
                 SpeedX = -2,
@@ -296,6 +296,7 @@ namespace SZGUIFeleves.Logic
                         {
                             
                             doesIntersect = true;
+                            //TODO: player Dies() method or property
                             if (item is Trap t)
                             {
                                 obj.Color = Color.Red;
@@ -396,6 +397,7 @@ namespace SZGUIFeleves.Logic
             
             if (CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
+            //TODO: Getting the moving traps out from Objects more optimally
             for (int i = 0; i < CurrentScene.Objects.Count; i++)
             {
                 if (CurrentScene.Objects[i] is Trap t)

@@ -10,6 +10,8 @@ namespace SZGUIFeleves.Models.DrawableObjects
     {
         public double SpeedX { get; set; }
         public double SpeedY { get; set; }
+
+        //For the moving traps, examined in Logic
         public bool IsMoving { get; set; }
 
 
