@@ -300,6 +300,7 @@ namespace SZGUIFeleves.Logic
                             if (item is Trap t)
                             {
                                 obj.Color = Color.Red;
+                                obj.Rotation = 90;
                             }
                             // Angle of Vector IO.
                             double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
