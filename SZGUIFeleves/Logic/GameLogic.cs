@@ -63,6 +63,7 @@ namespace SZGUIFeleves.Logic
         }
         private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
         public Camera Camera { get; set; }
+        public MovingBackground Background { get; set; }
         public Scene CurrentScene { get; set; }
         public Vec2d MousePosition { get; set; }
         #endregion
@@ -104,6 +105,20 @@ namespace SZGUIFeleves.Logic
                 DeadZone = new Vec2d(75, 20),
             };
 
+            Background = new MovingBackground()
+            {
+                Size = new Vec2d(400, 400),
+                Position = Camera.Position,
+                DrawPriority = DrawPriority.Top,
+                CameraDeadZone = new Vec2d(75, 20),
+                CameraDamping = new Vec2d(),
+                CameraOffset = new Vec2d(),
+                Color = Color.Purple,
+                OutLineColor = Color.Purple,
+                
+
+            };
+
             MousePosition = new Vec2d();
 
             // This is an example for creating a scene/level
@@ -124,6 +139,9 @@ namespace SZGUIFeleves.Logic
                 Size = new Vec2d(30, 70),
                 Color = Color.White
             });
+            CurrentScene.Objects.Add(Background);
+
+
             //for (int i = 1; i <= 4; i++)
             //{
             //    CurrentScene.Objects.Add(new Rectangle()
@@ -166,12 +184,13 @@ namespace SZGUIFeleves.Logic
             });
             CurrentScene.Objects.Add(new Trap()
             {
-                Position = new Vec2d(720, 400),
+                Position = new Vec2d(920, 400),
                 Size = new Vec2d(50, 50),
                 IsMoving = true,
                 SpeedX = -2,
                 SpeedY = 0,
-            }) ;
+            });
+            
 
 
             // Emitter example settings
@@ -269,6 +288,9 @@ namespace SZGUIFeleves.Logic
             //Camera.UpdatePosition(WindowSize / 2, Elapsed);
             // Then uncomment this
             Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
+            Background.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
+
+
 
             CurrentScene.Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             #endregion
