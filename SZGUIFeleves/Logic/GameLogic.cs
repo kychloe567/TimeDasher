@@ -362,11 +362,15 @@ namespace SZGUIFeleves.Logic
         private void Control(bool up = true, bool left = true, bool down = true, bool right = true)
         {
             //Button control checks
-            if (ButtonFlags[ButtonKey.W] && up)
+            if (ButtonFlags[ButtonKey.W] && up && CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
             {
                 IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -300));
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
+                CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = false;
             }
+            if (!ButtonFlags[ButtonKey.W] && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
+                CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = true;
+
             if (ButtonFlags[ButtonKey.A] && left)
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1, 0), 200.0f * Elapsed);
             if (ButtonFlags[ButtonKey.S] && down)

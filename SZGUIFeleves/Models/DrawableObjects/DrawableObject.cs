@@ -34,6 +34,11 @@ namespace SZGUIFeleves.Models
         public bool IsGravity { get; set; }
 
         /// <summary>
+        /// If true, object is allowed to jump, otherwise not.
+        /// </summary>
+        public bool IsOnGround { get; set; }
+
+        /// <summary>
         /// Current velocity of this object.
         /// </summary>
         public Vec2d Velocity { get; set; }
