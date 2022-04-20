@@ -111,52 +111,52 @@ namespace SZGUIFeleves.Logic
                 CurrentScene = SceneManager.GetDefaultScene();
 
             // This is an example for creating a scene/level
-            List<DrawableObject> Objects = new List<DrawableObject>();
-            Objects.Add(new Circle(new Vec2d(500, 200), 25, Color.Green) { IsPlayer = true });
-            Objects.Add(new Rectangle(new Vec2d(100, 100), new Vec2d(50, 50), Color.Red));
-            Scene s = new Scene("try1", new List<DrawableObject>(Objects), 0, new List<DynamicPointLight>());
-            SceneManager.SaveScene(s);
+            //List<DrawableObject> Objects = new List<DrawableObject>();
+            //Objects.Add(new Circle(new Vec2d(500, 200), 25, Color.Green) { IsPlayer = true });
+            //Objects.Add(new Rectangle(new Vec2d(100, 100), new Vec2d(50, 50), Color.Red));
+            //Scene s = new Scene("try1", new List<DrawableObject>(Objects), 0, new List<DynamicPointLight>());
+            //SceneManager.SaveScene(s);
 
-            //CurrentScene.Objects.Add(new Player()
-            //{
-            //    IsPlayer = true,
-            //    Position = new Vec2d(200, 100),
-            //    Size = new Vec2d(30, 70),
-            //    Color = Color.White
-            //});
-            //for (int i = 1; i <= 4; i++)
-            //{
-            //    CurrentScene.Objects.Add(new Rectangle()
-            //    {
-            //        Position = new Vec2d((3 + i) * 100, 100),
-            //        Size = new Vec2d(100, 100),
-            //    });
-            //    CurrentScene.Objects.Add(new Rectangle()
-            //    {
-            //        Position = new Vec2d(i * 100, 300),
-            //        Size = new Vec2d(100, 100),
-            //    });
-            //    CurrentScene.Objects.Add(new Rectangle()
-            //    {
-            //        Position = new Vec2d((3 + i) * 100, 500),
-            //        Size = new Vec2d(100, 100),
-            //    });
-            //    CurrentScene.Objects.Add(new Rectangle()
-            //    {
-            //        Position = new Vec2d(i * 100, 700),
-            //        Size = new Vec2d(100, 100),
-            //    });
-            //}
-            //CurrentScene.Objects.Add(new Rectangle()
-            //{
-            //    Position = new Vec2d(600, 300),
-            //    Size = new Vec2d(100, 100),
-            //});
-            //CurrentScene.Objects.Add(new Rectangle()
-            //{
-            //    Position = new Vec2d(200, 500),
-            //    Size = new Vec2d(100, 100),
-            //});
+            CurrentScene.Objects.Add(new Player()
+            {
+                IsPlayer = true,
+                Position = new Vec2d(200, 100),
+                Size = new Vec2d(30, 70),
+                Color = Color.White
+            });
+            for (int i = 1; i <= 4; i++)
+            {
+                CurrentScene.Objects.Add(new Rectangle()
+                {
+                    Position = new Vec2d((3 + i) * 100, 100),
+                    Size = new Vec2d(100, 100),
+                });
+                CurrentScene.Objects.Add(new Rectangle()
+                {
+                    Position = new Vec2d(i * 100, 300),
+                    Size = new Vec2d(100, 100),
+                });
+                CurrentScene.Objects.Add(new Rectangle()
+                {
+                    Position = new Vec2d((3 + i) * 100, 500),
+                    Size = new Vec2d(100, 100),
+                });
+                CurrentScene.Objects.Add(new Rectangle()
+                {
+                    Position = new Vec2d(i * 100, 700),
+                    Size = new Vec2d(100, 100),
+                });
+            }
+            CurrentScene.Objects.Add(new Rectangle()
+            {
+                Position = new Vec2d(600, 300),
+                Size = new Vec2d(100, 100),
+            });
+            CurrentScene.Objects.Add(new Rectangle()
+            {
+                Position = new Vec2d(200, 500),
+                Size = new Vec2d(100, 100),
+            });
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
