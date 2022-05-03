@@ -119,7 +119,7 @@ namespace SZGUIFeleves.Models
             }
             else if (d is Rectangle r)
             {
-                return !(r.Position.x >= Right || r.Right <= Position.x || r.Position.y >= Bottom || r.Bottom <= Position.y);
+                return !(r.Position.x > Right || r.Right < Position.x || r.Position.y > Bottom || r.Bottom < Position.y);
             }
             else if (d is Polygon p)
             {
@@ -131,6 +131,14 @@ namespace SZGUIFeleves.Models
             }
 
             return false;
+        }
+
+        public bool IntersectsEquals(DrawableObject d)
+        {
+            if (d is Rectangle r)
+                return !(r.Position.x >= Right || r.Right <= Position.x || r.Position.y >= Bottom || r.Bottom <= Position.y);
+            else
+                throw new NotImplementedException();
         }
 
         public override bool Intersects(Vec2d v)

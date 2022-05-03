@@ -542,7 +542,7 @@ namespace LevelEditor.Logic
                 bool already = false;
                 for (int i = 0; i < Objects.Count; i++)
                 {
-                    if (toPlace.Intersects(Objects[i]))
+                    if ((toPlace as Rectangle).IntersectsEquals(Objects[i]))
                     {
                         if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background &&
                            Objects[i].ObjectType == DrawableObject.ObjectTypes.Background)
