@@ -51,16 +51,16 @@ namespace SZGUIFeleves.Models
             Vec2d centeredPos = camera.CenteredPosition;
 
             bool any = false;
-            if (Position.X >= centeredPos.X && Position.X < centeredPos.X + camera.WindowSize.X &&
-               Position.Y >= centeredPos.Y && Position.Y < centeredPos.Y + camera.WindowSize.Y)
+            if (Position.x >= centeredPos.x && Position.x < centeredPos.x + camera.WindowSize.x &&
+               Position.y >= centeredPos.y && Position.y < centeredPos.y + camera.WindowSize.y)
                 any = true;
 
             if (!any)
             {
                 foreach (Vec2d p in Points)
                 {
-                    if (p.X >= centeredPos.X && p.X < centeredPos.X + camera.WindowSize.X &&
-                        p.Y >= centeredPos.Y && p.Y < centeredPos.Y + camera.WindowSize.Y)
+                    if (p.x >= centeredPos.x && p.x < centeredPos.x + camera.WindowSize.x &&
+                        p.y >= centeredPos.y && p.y < centeredPos.y + camera.WindowSize.y)
                     {
                         any = true;
                         break;

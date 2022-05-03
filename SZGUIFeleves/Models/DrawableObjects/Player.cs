@@ -23,7 +23,7 @@ namespace SZGUIFeleves.Models.DrawableObjects
         /// <returns>Returns a new Vec2d instance.</returns>
         public Vec2d GetMiddleLeft()
         {
-            return new Vec2d(Position.X, (Position.Y + Size.Y / 2));
+            return new Vec2d(Position.x, (Position.y + Size.y / 2));
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace SZGUIFeleves.Models.DrawableObjects
         /// <returns>Returns a new Vec2d instance.</returns>
         public Vec2d GetMiddleRight()
         {
-            return new Vec2d(Position.X + Size.X, (Position.Y + Size.Y / 2));
+            return new Vec2d(Position.x + Size.x, (Position.y + Size.y / 2));
         }
     }
 }

@@ -30,10 +30,10 @@ namespace SZGUIFeleves.Renderer
                 return;
 
             // Clearing the screen
-            dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, WindowSize.X, WindowSize.Y));
+            dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, WindowSize.x, WindowSize.y));
 
             // Transforming objects by the camera
-            dc.PushTransform(new TranslateTransform(-model.Camera.CenteredPosition.X, -model.Camera.CenteredPosition.Y));
+            dc.PushTransform(new TranslateTransform(-model.Camera.CenteredPosition.x, -model.Camera.CenteredPosition.y));
 
             // Zoom not working yet
             //dc.PushTransform(new ScaleTransform(model.Camera.Zoom, model.Camera.Zoom));
@@ -92,7 +92,7 @@ namespace SZGUIFeleves.Renderer
                 if (obj.Rotation != 0 && !(obj is Text))
                 {
                     Vec2d middle = obj.GetMiddle();
-                    dc.PushTransform(new RotateTransform(obj.Rotation, middle.X, middle.Y));
+                    dc.PushTransform(new RotateTransform(obj.Rotation, middle.x, middle.y));
                 }
 
                 if (obj is Rectangle r)
@@ -100,14 +100,14 @@ namespace SZGUIFeleves.Renderer
                     if (!r.IsVisible(model.Camera))
                         continue;
 
-                    Rect rect = new Rect(r.Position.X, r.Position.Y, r.Size.X, r.Size.Y);
+                    Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
 
                     if (r.IsRounded)
                     {
                         if (obj.IsFilled)
-                            dc.DrawRoundedRectangle(brush, pen, rect, r.CornerRadius.X, r.CornerRadius.Y);
+                            dc.DrawRoundedRectangle(brush, pen, rect, r.CornerRadius.x, r.CornerRadius.y);
                         else
-                            dc.DrawRoundedRectangle(null, pen, rect, r.CornerRadius.X, r.CornerRadius.Y);
+                            dc.DrawRoundedRectangle(null, pen, rect, r.CornerRadius.x, r.CornerRadius.y);
                     }
                     else
                     {
@@ -123,16 +123,16 @@ namespace SZGUIFeleves.Renderer
                         continue;
 
                     if (obj.IsFilled)
-                        dc.DrawEllipse(brush, pen, new Point(e.Position.X, e.Position.Y), e.Radius, e.Radius);
+                        dc.DrawEllipse(brush, pen, new Point(e.Position.x, e.Position.y), e.Radius, e.Radius);
                     else
-                        dc.DrawEllipse(null, pen, new Point(e.Position.X, e.Position.Y), e.Radius, e.Radius);
+                        dc.DrawEllipse(null, pen, new Point(e.Position.x, e.Position.y), e.Radius, e.Radius);
                 }
                 else if (obj is Line line)
                 {
                     if (!line.IsVisible(model.Camera))
                         continue;
 
-                    dc.DrawLine(pen, new Point(line.Position.X, line.Position.Y), new Point(line.Position2.X, line.Position2.Y));
+                    dc.DrawLine(pen, new Point(line.Position.x, line.Position.y), new Point(line.Position2.x, line.Position2.y));
                 }
                 else if (obj is Polygon p)
                 {
@@ -143,10 +143,10 @@ namespace SZGUIFeleves.Renderer
                     geometry.FillRule = FillRule.EvenOdd;
                     using (StreamGeometryContext ctx = geometry.Open())
                     {
-                        ctx.BeginFigure(new Point(p.Position.X, p.Position.Y), obj.IsFilled, true);
+                        ctx.BeginFigure(new Point(p.Position.x, p.Position.y), obj.IsFilled, true);
 
                         foreach (Vec2d point in p.Points)
-                            ctx.LineTo(new Point(point.X, point.Y), true, true);
+                            ctx.LineTo(new Point(point.x, point.y), true, true);
                     }
                     geometry.Freeze();
 
@@ -160,7 +160,7 @@ namespace SZGUIFeleves.Renderer
                     FormattedText formattedText = new FormattedText(t.Content, System.Globalization.CultureInfo.CurrentCulture,
                         FlowDirection.LeftToRight, new Typeface(t.FontFamily, t.FontStyle, t.FontWeight, FontStretches.Normal), t.FontSize,
                         brush, 10);
-                    dc.DrawText(formattedText, new Point(t.Position.X, t.Position.Y));
+                    dc.DrawText(formattedText, new Point(t.Position.x, t.Position.y));
                 }
 
                 if (obj.Rotation != 0 && !(obj is Text))

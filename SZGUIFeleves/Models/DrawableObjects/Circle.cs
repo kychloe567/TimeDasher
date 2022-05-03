@@ -27,14 +27,14 @@ namespace SZGUIFeleves.Models
 
         public override Vec2d GetMiddle()
         {
-            return new Vec2d(Position.X, Position.Y);
+            return new Vec2d(Position.x, Position.y);
         }
 
         public override bool IsVisible(Camera camera)
         {
             Vec2d centeredPos = camera.CenteredPosition;
-            if (Position.X + Radius >= centeredPos.X && Position.X - Radius < centeredPos.X + camera.WindowSize.X &&
-               Position.Y + Radius >= centeredPos.Y && Position.Y - Radius < centeredPos.Y + camera.WindowSize.Y)
+            if (Position.x + Radius >= centeredPos.x && Position.x - Radius < centeredPos.x + camera.WindowSize.x &&
+               Position.y + Radius >= centeredPos.y && Position.y - Radius < centeredPos.y + camera.WindowSize.y)
                 return true;
             else return false;
         }
@@ -99,11 +99,11 @@ namespace SZGUIFeleves.Models
             }
             else if(d is Rectangle r)
             {
-                double closestX = MathHelper.Clamp(r.Position.X, r.Right, Position.X);
-                double closestY = MathHelper.Clamp(r.Position.Y, r.Bottom, Position.Y);
+                double closestX = MathHelper.Clamp(r.Position.x, r.Right, Position.x);
+                double closestY = MathHelper.Clamp(r.Position.y, r.Bottom, Position.y);
 
-                double distanceX = Position.X - closestX;
-                double distanceY = Position.Y - closestY;
+                double distanceX = Position.x - closestX;
+                double distanceY = Position.y - closestY;
 
                 double distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
                 return distanceSquared < (Radius * Radius);

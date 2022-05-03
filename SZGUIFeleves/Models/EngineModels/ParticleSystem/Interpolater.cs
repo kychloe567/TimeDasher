@@ -19,8 +19,8 @@ namespace SZGUIFeleves.Models
 
             if (Start is Vec2d sv2 && End is Vec2d ev2) // Velocity and Size
             {
-                double x = MathHelper.MapFunction(value, 0, 1, sv2.X, ev2.X);
-                double y = MathHelper.MapFunction(value, 0, 1, sv2.Y, ev2.Y);
+                double x = MathHelper.MapFunction(value, 0, 1, sv2.x, ev2.x);
+                double y = MathHelper.MapFunction(value, 0, 1, sv2.y, ev2.y);
 
                 return new Vec2d(x, y);
             }
