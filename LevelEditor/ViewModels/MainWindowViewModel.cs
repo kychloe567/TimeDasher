@@ -161,6 +161,7 @@ namespace LevelEditor.ViewModels
         #region EditorButtons
         public ICommand MoveToolCommand { get; set; }
         public ICommand SelectionToolCommand { get; set; }
+        public ICommand PlayerToolCommand { get; set; }
 
         private Tool currentTool;
         public Tool CurrentTool
@@ -212,6 +213,9 @@ namespace LevelEditor.ViewModels
 
             SelectionToolCommand = new RelayCommand(
                 () => SetCurrentTool(Tool.Selection));
+
+            PlayerToolCommand = new RelayCommand(
+                () => SetCurrentTool(Tool.Player));
 
             DrawLevel = DrawPriority.Default;
             CurrentCustomLayer = -2;

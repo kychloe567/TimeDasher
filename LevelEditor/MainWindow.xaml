@@ -58,6 +58,9 @@
                     Background="{Binding CurrentTool, Converter={StaticResource ToolToOutline}, ConverterParameter=selection}">
                     <Image Source="EditorTextures\SelectionIcon.png" Width="32" Height="32" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </Button>
+                <Button Width="30" Height="30" Margin="0,5" Command="{Binding PlayerToolCommand}" BorderBrush="#1e1e1e" Foreground="White"
+                        FontSize="20" Content="P"
+                    Background="{Binding CurrentTool, Converter={StaticResource ToolToOutline}, ConverterParameter=player}"/>
             </StackPanel>
         </Border>
 

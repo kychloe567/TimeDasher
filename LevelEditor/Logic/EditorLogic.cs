@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using SZGUIFeleves.Helpers;
 using SZGUIFeleves.Models;
+using SZGUIFeleves.Models.DrawableObjects;
 
 namespace LevelEditor.Logic
 {
@@ -71,6 +72,8 @@ namespace LevelEditor.Logic
                 ClearSelections();
             }
         }
+
+        private int PlayerIndex { get; set; }
         #endregion
 
         #region Tool Variables
@@ -93,6 +96,15 @@ namespace LevelEditor.Logic
 
             ObjectsToDisplayWorldSpace = new List<DrawableObject>();
             Objects = new List<DrawableObject>();
+            PlayerIndex = 0;
+            Objects.Add(new Player()
+            {
+                IsPlayer = true,
+                Position = new Vec2d(0, 0),
+                Size = new Vec2d(35, 70),
+                Color = Color.White,
+                DrawPriority = DrawPriority.Top
+            });
 
             // Creating main loop timer
             MainLoopTimer = new DispatcherTimer();
@@ -400,6 +412,7 @@ namespace LevelEditor.Logic
                     ClearSelections();
                 }
             }
+
             if (CurrentTool == Tool.Move)
             {
                 if(isDown && key == ButtonKey.MouseLeft)
@@ -532,7 +545,7 @@ namespace LevelEditor.Logic
                 }
             }
             // If user is trying to place an object
-            if(CurrentTool == Tool.Place && key == ButtonKey.MouseLeft)
+            else if(CurrentTool == Tool.Place && key == ButtonKey.MouseLeft)
             {
                 var toPlace = SelectedItem.Object.GetCopy();
                 toPlace.Texture = SelectedItem.SelectedTexture;
@@ -559,6 +572,11 @@ namespace LevelEditor.Logic
 
                 if (!already)
                     Objects.Add(toPlace);
+            }
+            else if(CurrentTool == Tool.Player && key == ButtonKey.MouseLeft && isDown)
+            {
+                Objects[PlayerIndex].Position = new Vec2d(MousePositionWorldSpace.x - (Objects[PlayerIndex] as Rectangle).Size.x / 2,
+                                                          MousePositionWorldSpace.y - (Objects[PlayerIndex] as Rectangle).Size.y / 2);
             }
 
             ButtonFlags[key] = isDown;
@@ -759,8 +777,10 @@ namespace LevelEditor.Logic
             Control();  // Keyboard/Mouse input
             Update();   // Game logic update
 
-            Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
-            foreach (var obj in Objects)
+            var ToDrawObjects = new List<DrawableObject>(Objects);
+            ToDrawObjects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
+
+            foreach (var obj in ToDrawObjects)
             {
                 if (!(obj.StateMachine is null))
                     obj.StateMachine.Update();

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SZGUIFeleves.Models.DrawableObjects;
 
 namespace SZGUIFeleves.Models
 {
@@ -27,39 +28,47 @@ namespace SZGUIFeleves.Models
 
             SceneJson sj = JsonConvert.DeserializeObject<SceneJson>(File.ReadAllText(ScenePath + scene + ".json"));
             List<DrawableObject> Objects = new List<DrawableObject>();
-            int playerIndex = -1;
-            for(int i = 0; i < sj.Circles.Count(); i++)
+
+            int playerIndex = 0;
+            if (sj.Player is null)
             {
-                if (playerIndex == -1 && sj.Circles[i].IsPlayer)
-                    playerIndex = i;
+                Objects.Add(new Player()
+                {
+                    IsPlayer = true,
+                    Position = new Vec2d(0, 0),
+                    Size = new Vec2d(35, 70),
+                    Color = Color.White,
+                    DrawPriority = DrawPriority.Top
+                });
+            }
+            else
+            {
+                sj.Player.LoadTexture();
+                Objects.Add(sj.Player);
+            }
+
+            for (int i = 0; i < sj.Circles.Count(); i++)
+            {
                 sj.Circles[i].LoadTexture();
                 Objects.Add(sj.Circles[i]);
             }
             for(int i = 0; i < sj.Lines.Count(); i++)
             {
-                if (playerIndex == -1 && sj.Lines[i].IsPlayer)
-                    playerIndex = i;
                 sj.Lines[i].LoadTexture();
                 Objects.Add(sj.Lines[i]);
             }
             for(int i = 0; i < sj.Polygons.Count(); i++)
             {
-                if (playerIndex == -1 && sj.Polygons[i].IsPlayer)
-                    playerIndex = i;
                 sj.Polygons[i].LoadTexture();
                 Objects.Add(sj.Polygons[i]);
             }
             for(int i = 0; i < sj.Rectangles.Count(); i++)
             {
-                if (playerIndex == -1 && sj.Rectangles[i].IsPlayer)
-                    playerIndex = i;
                 sj.Rectangles[i].LoadTexture();
                 Objects.Add(sj.Rectangles[i]);
             }
             for(int i = 0; i < sj.Texts.Count(); i++)
             {
-                if (playerIndex == -1 && sj.Texts[i].IsPlayer)
-                    playerIndex = i;
                 sj.Texts[i].LoadTexture();
                 Objects.Add(sj.Texts[i]);
             }
@@ -75,39 +84,47 @@ namespace SZGUIFeleves.Models
 
             SceneJson sj = JsonConvert.DeserializeObject<SceneJson>(File.ReadAllText(path));
             List<DrawableObject> Objects = new List<DrawableObject>();
-            int playerIndex = -1;
+
+            int playerIndex = 0;
+            if (sj.Player is null)
+            {
+                Objects.Add(new Player()
+                {
+                    IsPlayer = true,
+                    Position = new Vec2d(0, 0),
+                    Size = new Vec2d(35, 70),
+                    Color = Color.White,
+                    DrawPriority = DrawPriority.Top
+                });
+            }
+            else
+            {
+                sj.Player.LoadTexture();
+                Objects.Add(sj.Player);
+            }
+
             for (int i = 0; i < sj.Circles.Count(); i++)
             {
-                if (playerIndex == -1 && sj.Circles[i].IsPlayer)
-                    playerIndex = i;
                 sj.Circles[i].LoadTexture();
                 Objects.Add(sj.Circles[i]);
             }
             for (int i = 0; i < sj.Lines.Count(); i++)
             {
-                if (playerIndex == -1 && sj.Lines[i].IsPlayer)
-                    playerIndex = i;
                 sj.Lines[i].LoadTexture();
                 Objects.Add(sj.Lines[i]);
             }
             for (int i = 0; i < sj.Polygons.Count(); i++)
             {
-                if (playerIndex == -1 && sj.Polygons[i].IsPlayer)
-                    playerIndex = i;
                 sj.Polygons[i].LoadTexture();
                 Objects.Add(sj.Polygons[i]);
             }
             for (int i = 0; i < sj.Rectangles.Count(); i++)
             {
-                if (playerIndex == -1 && sj.Rectangles[i].IsPlayer)
-                    playerIndex = i;
                 sj.Rectangles[i].LoadTexture();
                 Objects.Add(sj.Rectangles[i]);
             }
             for (int i = 0; i < sj.Texts.Count(); i++)
             {
-                if (playerIndex == -1 && sj.Texts[i].IsPlayer)
-                    playerIndex = i;
                 sj.Texts[i].LoadTexture();
                 Objects.Add(sj.Texts[i]);
             }
@@ -121,7 +138,9 @@ namespace SZGUIFeleves.Models
             SceneJson sj = new SceneJson();
             foreach(var obj in scene.Objects)
             {
-                if (obj is Circle c)
+                if (obj is Player player)
+                    sj.Player = player;
+                else if (obj is Circle c)
                     sj.Circles.Add(c);
                 else if (obj is Line l)
                     sj.Lines.Add(l);
@@ -143,7 +162,9 @@ namespace SZGUIFeleves.Models
             SceneJson sj = new SceneJson();
             foreach(var obj in scene.Objects)
             {
-                if (obj is Circle c)
+                if (obj is Player player)
+                    sj.Player = player;
+                else if (obj is Circle c)
                     sj.Circles.Add(c);
                 else if (obj is Line l)
                     sj.Lines.Add(l);

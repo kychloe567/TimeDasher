@@ -82,6 +82,7 @@ namespace SZGUIFeleves.Logic
             // Calculating frame interval with the given FPS target
             CycleMilliseconds = 1.0f / FPSTarget * 1000.0f;
             RecentFPS = new List<double>();
+            List<DrawableObject> Objects = new List<DrawableObject>();
 
             ObjectsToDisplayWorldSpace = new List<DrawableObject>();
             ObjectsToDisplayScreenSpace = new List<DrawableObject>();
@@ -106,13 +107,12 @@ namespace SZGUIFeleves.Logic
 
             MousePosition = new Vec2d();
 
-            //CurrentScene = SceneManager.GetScene("movementTest");
+            CurrentScene = SceneManager.GetSceneByName("player");
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
 
             // This is an example for creating a scene/level
             #region
-            List<DrawableObject> Objects = new List<DrawableObject>();
             //Objects.Add(new Circle(new Vec2d(500, 200), 25, Color.Green) { IsPlayer = true });
             //Objects.Add(new Rectangle(new Vec2d(100, 100), new Vec2d(50, 50), Color.Red));
 
@@ -121,51 +121,51 @@ namespace SZGUIFeleves.Logic
             //SceneManager.SaveScene(s);
             #endregion
 
-            CurrentScene = SceneManager.GetSceneByName("try1");
-            if (CurrentScene is null)
-                CurrentScene = SceneManager.GetDefaultScene();
+            //CurrentScene = SceneManager.GetSceneByName("try1");
+            //if (CurrentScene is null)
+            //    CurrentScene = SceneManager.GetDefaultScene();
 
-            Objects.Add(new Player()
-            {
-                IsPlayer = true,
-                Position = new Vec2d(200, 100),
-                Size = new Vec2d(30, 70),
-                Color = Color.White
-            });
-            for (int i = 1; i <= 4; i++)
-            {
-                Objects.Add(new Rectangle()
-                {
-                    Position = new Vec2d((3 + i) * 100, 100),
-                    Size = new Vec2d(100, 100),
-                });
-                Objects.Add(new Rectangle()
-                {
-                    Position = new Vec2d(i * 100, 300),
-                    Size = new Vec2d(100, 100),
-                });
-                Objects.Add(new Rectangle()
-                {
-                    Position = new Vec2d((3 + i) * 100, 500),
-                    Size = new Vec2d(100, 100),
-                });
-                Objects.Add(new Rectangle()
-                {
-                    Position = new Vec2d(i * 100, 700),
-                    Size = new Vec2d(100, 100),
-                });
-            }
-            Objects.Add(new Rectangle()
-            {
-                Position = new Vec2d(600, 300),
-                Size = new Vec2d(100, 100),
-            });
-            Objects.Add(new Rectangle()
-            {
-                Position = new Vec2d(200, 500),
-                Size = new Vec2d(100, 100),
-            });
-            CurrentScene.Objects = Objects;
+            //Objects.Add(new Player()
+            //{
+            //    IsPlayer = true,
+            //    Position = new Vec2d(200, 100),
+            //    Size = new Vec2d(35, 70),
+            //    Color = Color.White
+            //});
+            //for (int i = 1; i <= 4; i++)
+            //{
+            //    Objects.Add(new Rectangle()
+            //    {
+            //        Position = new Vec2d((3 + i) * 100, 100),
+            //        Size = new Vec2d(100, 100),
+            //    });
+            //    Objects.Add(new Rectangle()
+            //    {
+            //        Position = new Vec2d(i * 100, 300),
+            //        Size = new Vec2d(100, 100),
+            //    });
+            //    Objects.Add(new Rectangle()
+            //    {
+            //        Position = new Vec2d((3 + i) * 100, 500),
+            //        Size = new Vec2d(100, 100),
+            //    });
+            //    Objects.Add(new Rectangle()
+            //    {
+            //        Position = new Vec2d(i * 100, 700),
+            //        Size = new Vec2d(100, 100),
+            //    });
+            //}
+            //Objects.Add(new Rectangle()
+            //{
+            //    Position = new Vec2d(600, 300),
+            //    Size = new Vec2d(100, 100),
+            //});
+            //Objects.Add(new Rectangle()
+            //{
+            //    Position = new Vec2d(200, 500),
+            //    Size = new Vec2d(100, 100),
+            //});
+            //CurrentScene.Objects = Objects;
 
 
             // Emitter example settings
@@ -268,10 +268,11 @@ namespace SZGUIFeleves.Logic
             // Then uncomment this
             //Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
 
-            CurrentScene.Objects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
+            var ToDrawObjects = new List<DrawableObject>(CurrentScene.Objects);
+            ToDrawObjects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             #endregion
 
-            foreach (var obj in CurrentScene.Objects)
+            foreach (var obj in ToDrawObjects)
             {
                 #region StateMachine and IsAffectedByCamera
                 if (!(obj.StateMachine is null))
@@ -370,14 +371,17 @@ namespace SZGUIFeleves.Logic
 
             foreach (var item in CurrentScene.Objects)
             {
-                if (!p.Equals(item) && item is Rectangle r && p.Intersects(item))
+                if (!p.Equals(item) && item is Rectangle r && p.Intersects(item) && item.ObjectType == DrawableObject.ObjectTypes.Foreground)
                 {
                     doesIntersect = true;
 
                     // Angle of Vector IO.
-                    double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
-                        ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
-                        : (p.GetMiddleRight() - r.GetMiddle()).Angle;
+                    double vecInDegrees = (p.GetMiddle() - r.GetMiddle()).Length >= (p.GetMiddle() - r.GetMiddle()).Length
+                        ? (p.GetMiddle() - r.GetMiddle()).Angle
+                        : (p.GetMiddle() - r.GetMiddle()).Angle;
+                    //double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
+                    //    ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
+                    //    : (p.GetMiddleRight() - r.GetMiddle()).Angle;
 
                     //double vecInDegrees = (obj.GetMiddle() - item.GetMiddle()).Angle;
                     if (vecInDegrees < 45 || vecInDegrees > 315)
