@@ -118,15 +118,15 @@ namespace SZGUIFeleves.Models
             }
             else if (d is Line l)
             {
-                double q = (Position.y - l.Position.y) * (l.Position2.x - l.Position.x) - (Position.x - l.Position.x) * (l.Position2.y - l.Position.y);
-                double de = (Position2.x - Position.x) * (l.Position2.y - l.Position.y) - (Position2.y - Position.y) * (l.Position2.x - l.Position.x);
+                double q = (Position.Y - l.Position.Y) * (l.Position2.X - l.Position.X) - (Position.X - l.Position.X) * (l.Position2.Y - l.Position.Y);
+                double de = (Position2.X - Position.X) * (l.Position2.Y - l.Position.Y) - (Position2.Y - Position.Y) * (l.Position2.X - l.Position.X);
 
                 if (de == 0)
                     return false;
 
                 double r = q / de;
 
-                q = (Position.y - l.Position.y) * (Position2.x - Position.x) - (Position.x - l.Position.x) * (Position2.y - Position.y);
+                q = (Position.Y - l.Position.Y) * (Position2.X - Position.X) - (Position.X - l.Position.X) * (Position2.Y - Position.Y);
                 double s = q / de;
 
                 if (r < 0 || r > 1 || s < 0 || s > 1)
@@ -138,10 +138,10 @@ namespace SZGUIFeleves.Models
             {
                 List<Line> lines = new List<Line>()
                 {
-                    new Line(r.Position, new Vec2d(r.Position.x + r.Size.x, r.Position.y)),
-                    new Line(new Vec2d(r.Position.x + r.Size.x, r.Position.y), new Vec2d(r.Position.x + r.Size.x, r.Position.y + r.Size.y)),
-                    new Line(new Vec2d(r.Position.x + r.Size.x, r.Position.y + r.Size.y), new Vec2d(r.Position.x, r.Position.y + r.Size.y)),
-                    new Line(new Vec2d(r.Position.x, r.Position.y + r.Size.y), new Vec2d(r.Position))
+                    new Line(r.Position, new Vec2d(r.Position.X + r.Size.X, r.Position.Y)),
+                    new Line(new Vec2d(r.Position.X + r.Size.X, r.Position.Y), new Vec2d(r.Position.X + r.Size.X, r.Position.Y + r.Size.Y)),
+                    new Line(new Vec2d(r.Position.X + r.Size.X, r.Position.Y + r.Size.Y), new Vec2d(r.Position.X, r.Position.Y + r.Size.Y)),
+                    new Line(new Vec2d(r.Position.X, r.Position.Y + r.Size.Y), new Vec2d(r.Position))
                 };
 
                 bool intersects = false;

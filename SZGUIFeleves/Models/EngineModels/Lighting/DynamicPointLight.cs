@@ -35,16 +35,16 @@ namespace SZGUIFeleves.Models
             List<Vec2d> uniquePoints = new List<Vec2d>()
             {
                  new Vec2d(0,0),
-                 new Vec2d(0, WindowSize.y),
-                 new Vec2d(WindowSize.x, WindowSize.y),
-                 new Vec2d(WindowSize.x, 0)
+                 new Vec2d(0, WindowSize.Y),
+                 new Vec2d(WindowSize.X, WindowSize.Y),
+                 new Vec2d(WindowSize.X, 0)
             };
             List<Line> lineSegments = new List<Line>()
             {
-                new Line(new Vec2d(0, 0), new Vec2d(WindowSize.x, 0)),
-                new Line(new Vec2d(WindowSize.x, 0), new Vec2d(WindowSize.x, WindowSize.y)),
-                new Line(new Vec2d(WindowSize.x, WindowSize.y), new Vec2d(0, WindowSize.y)),
-                new Line(new Vec2d(0, WindowSize.y), new Vec2d(0, 0))
+                new Line(new Vec2d(0, 0), new Vec2d(WindowSize.X, 0)),
+                new Line(new Vec2d(WindowSize.X, 0), new Vec2d(WindowSize.X, WindowSize.Y)),
+                new Line(new Vec2d(WindowSize.X, WindowSize.Y), new Vec2d(0, WindowSize.Y)),
+                new Line(new Vec2d(0, WindowSize.Y), new Vec2d(0, 0))
             };
             foreach (DrawableObject obj in objects)
             {
@@ -55,17 +55,17 @@ namespace SZGUIFeleves.Models
 
                     if(!uniquePoints.Contains(r.Position))
                         uniquePoints.Add(r.Position);
-                    if (!uniquePoints.Contains(r.Position + new Vec2d(0, r.Size.y)))
-                        uniquePoints.Add(r.Position + new Vec2d(0,r.Size.y));
+                    if (!uniquePoints.Contains(r.Position + new Vec2d(0, r.Size.Y)))
+                        uniquePoints.Add(r.Position + new Vec2d(0,r.Size.Y));
                     if (!uniquePoints.Contains(r.Position + r.Size))
                         uniquePoints.Add(r.Position + r.Size);
-                    if (!uniquePoints.Contains(r.Position + new Vec2d(r.Size.x, 0)))
-                        uniquePoints.Add(r.Position + new Vec2d(r.Size.x, 0));
+                    if (!uniquePoints.Contains(r.Position + new Vec2d(r.Size.X, 0)))
+                        uniquePoints.Add(r.Position + new Vec2d(r.Size.X, 0));
 
-                    lineSegments.Add(new Line(r.Position, new Vec2d(r.Position.x + r.Size.x, r.Position.y)));
-                    lineSegments.Add(new Line(new Vec2d(r.Position.x + r.Size.x, r.Position.y), new Vec2d(r.Position.x + r.Size.x, r.Position.y + r.Size.y)));
-                    lineSegments.Add(new Line(new Vec2d(r.Position.x + r.Size.x, r.Position.y + r.Size.y), new Vec2d(r.Position.x, r.Position.y + r.Size.y)));
-                    lineSegments.Add(new Line(new Vec2d(r.Position.x, r.Position.y + r.Size.y), new Vec2d(r.Position)));
+                    lineSegments.Add(new Line(r.Position, new Vec2d(r.Position.X + r.Size.X, r.Position.Y)));
+                    lineSegments.Add(new Line(new Vec2d(r.Position.X + r.Size.X, r.Position.Y), new Vec2d(r.Position.X + r.Size.X, r.Position.Y + r.Size.Y)));
+                    lineSegments.Add(new Line(new Vec2d(r.Position.X + r.Size.X, r.Position.Y + r.Size.Y), new Vec2d(r.Position.X, r.Position.Y + r.Size.Y)));
+                    lineSegments.Add(new Line(new Vec2d(r.Position.X, r.Position.Y + r.Size.Y), new Vec2d(r.Position)));
                 }
                 else if(obj is Line l)
                 {
@@ -92,8 +92,8 @@ namespace SZGUIFeleves.Models
                     double a = (e.Radius * e.Radius - thalesRadius * thalesRadius + distBetweenCircles * distBetweenCircles) / (2 * distBetweenCircles);
                     double h = Math.Sqrt(e.Radius * e.Radius - a * a);
 
-                    double cx2 = e.Position.x + a * (thalesPoint.x - e.Position.x) / distBetweenCircles;
-                    double cy2 = e.Position.y + a * (thalesPoint.y - e.Position.y) / distBetweenCircles;
+                    double cx2 = e.Position.X + a * (thalesPoint.X - e.Position.X) / distBetweenCircles;
+                    double cy2 = e.Position.Y + a * (thalesPoint.Y - e.Position.Y) / distBetweenCircles;
 
                     List<Vec2d> circlePoints = new List<Vec2d>();
 
@@ -119,7 +119,7 @@ namespace SZGUIFeleves.Models
             List<double> uniqueAngles = new List<double>();
             foreach(Vec2d p in uniquePoints)
             {
-                var angle = Math.Atan2(p.y - Position.y, p.x - Position.x);
+                var angle = Math.Atan2(p.Y - Position.Y, p.X - Position.X);
                 uniqueAngles.Add(angle - 0.00001);
                 uniqueAngles.Add(angle);
                 uniqueAngles.Add(angle + 0.00001);
@@ -169,7 +169,7 @@ namespace SZGUIFeleves.Models
 
         private bool IsInside(Rectangle r)
         {
-            if (Position.x > r.Position.x && Position.x < r.Position.x + r.Size.x && Position.y > r.Position.y && Position.y < r.Position.y + r.Size.y)
+            if (Position.X > r.Position.X && Position.X < r.Position.X + r.Size.X && Position.Y > r.Position.Y && Position.Y < r.Position.Y + r.Size.Y)
                 return true;
             else return false;
         }

@@ -54,54 +54,54 @@ namespace SZGUIFeleves.Models
             Vec2d nextPosition = targetPosition + Offset;
             Vec2d delta = new Vec2d();
 
-            if (Position.x == 0 && Position.y == 0)
+            if (Position.X == 0 && Position.Y == 0)
             {
                 Position = nextPosition;
                 TargetPosition = Position;
             }
 
-            if (nextPosition.x <= Position.x - DeadZone.x / 2 || nextPosition.x > Position.x + DeadZone.x / 2)
+            if (nextPosition.X <= Position.X - DeadZone.X / 2 || nextPosition.X > Position.X + DeadZone.X / 2)
             {
-                if (nextPosition.x > Position.x)
-                    delta.x = targetPosition.x - (Position.x + DeadZone.x / 2);
+                if (nextPosition.X > Position.X)
+                    delta.X = targetPosition.X - (Position.X + DeadZone.X / 2);
                 else
-                    delta.x = targetPosition.x - (Position.x - DeadZone.x / 2);
+                    delta.X = targetPosition.X - (Position.X - DeadZone.X / 2);
 
             }
 
-            if(nextPosition.y <= Position.y - DeadZone.y / 2 || nextPosition.y > Position.y + DeadZone.y / 2)
+            if(nextPosition.Y <= Position.Y - DeadZone.Y / 2 || nextPosition.Y > Position.Y + DeadZone.Y / 2)
             {
-                if (nextPosition.y > Position.y)
-                    delta.y = targetPosition.y - (Position.y + DeadZone.y / 2);
+                if (nextPosition.Y > Position.Y)
+                    delta.Y = targetPosition.Y - (Position.Y + DeadZone.Y / 2);
                 else
-                    delta.y = targetPosition.y - (Position.y - DeadZone.y / 2);
+                    delta.Y = targetPosition.Y - (Position.Y - DeadZone.Y / 2);
 
             }
 
             // TODO: Better damping
             // TODO: Look ahead
-            if(delta.x != 0 || delta.y != 0)
+            if(delta.X != 0 || delta.Y != 0)
             {
                 TargetPosition = Position + delta;
 
                 Vec2d vel = targetPosition - Position;
 
-                if (Damping.x == 0)
+                if (Damping.X == 0)
                 {
-                    Position.x += delta.x;
+                    Position.X += delta.X;
                 }
                 else
                 {
-                    Position.x += (targetPosition.x - Position.x) * elapsed / Damping.x;
+                    Position.X += (targetPosition.X - Position.X) * elapsed / Damping.X;
                 }
 
-                if (Damping.y == 0)
+                if (Damping.Y == 0)
                 {
-                    Position.y += delta.y;
+                    Position.Y += delta.Y;
                 }
                 else
                 {
-                    Position.x += (targetPosition.y - Position.y) * elapsed / Damping.x;
+                    Position.X += (targetPosition.Y - Position.Y) * elapsed / Damping.X;
                 }
             }
         }

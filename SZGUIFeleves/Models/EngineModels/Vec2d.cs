@@ -9,77 +9,77 @@ namespace SZGUIFeleves.Models
 {
     public class Vec2d
     {
-        public double x { get; set; }
-        public double y { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
         public object Temp { get; set; }
 
         public Vec2d()
         {
-            x = 0.0f;
-            y = 0.0f;
+            X = 0.0f;
+            Y = 0.0f;
         }
 
         public Vec2d(int x, int y)
         {
-            this.x = x;
-            this.y = y;
+            this.X = x;
+            this.Y = y;
         }
 
         public Vec2d(double x, double y)
         {
-            this.x = x;
-            this.y = y;
+            this.X = x;
+            this.Y = y;
         }
 
         public Vec2d(Vec2d v)
         {
-            this.x = v.x;
-            this.y = v.y;
+            this.X = v.X;
+            this.Y = v.Y;
         }
 
         public override string ToString()
         {
-            return "x: " + x.ToString() + " y: " + y.ToString();
+            return "x: " + X.ToString() + " y: " + Y.ToString();
         }
 
         #region Operator overloads
         public static Vec2d operator +(Vec2d a, Vec2d b)
         {
-            return new Vec2d(a.x + b.x, a.y + b.y);
+            return new Vec2d(a.X + b.X, a.Y + b.Y);
         }
 
         public static Vec2d operator -(Vec2d a, Vec2d b)
         {
-            return new Vec2d(a.x - b.x, a.y - b.y);
+            return new Vec2d(a.X - b.X, a.Y - b.Y);
         }
 
         public static Vec2d operator *(Vec2d a, int x)
         {
-            return new Vec2d(a.x * x, a.y * x);
+            return new Vec2d(a.X * x, a.Y * x);
         }
 
         public static Vec2d operator *(Vec2d a, Vec2d b)
         {
-            return new Vec2d(a.x * b.x, a.y * b.y);
+            return new Vec2d(a.X * b.X, a.Y * b.Y);
         }
 
         public static Vec2d operator /(Vec2d a, int x)
         {
             if (x == 0)
                 return a;
-            return new Vec2d(a.x / x, a.y / x);
+            return new Vec2d(a.X / x, a.Y / x);
         }
 
         public static Vec2d operator *(Vec2d a, double x)
         {
-            return new Vec2d(a.x * x, a.y * x);
+            return new Vec2d(a.X * x, a.Y * x);
         }
 
         public static Vec2d operator /(Vec2d a, double x)
         {
             if (x == 0)
                 return a;
-            return new Vec2d(a.x / x, a.y / x);
+            return new Vec2d(a.X / x, a.Y / x);
         }
 
         public static bool operator ==(Vec2d a, Vec2d b)
@@ -89,7 +89,7 @@ namespace SZGUIFeleves.Models
             else if (a is null || b is null)
                 return false;
 
-            if (a.x == b.x && a.y == b.y)
+            if (a.X == b.X && a.Y == b.Y)
                 return true;
             else return false;
         }
@@ -103,21 +103,21 @@ namespace SZGUIFeleves.Models
             else if (a is null || b is null)
                 return false;
 
-            if (a.x != b.x || a.y != b.y)
+            if (a.X != b.X || a.Y != b.Y)
                 return true;
             else return false;
         }
         public override bool Equals(object obj)
         {
             Vec2d objv = (Vec2d)obj;
-            if (x == objv.x && y == objv.y)
+            if (X == objv.X && Y == objv.Y)
                 return true;
             return false;
         }
 
         public override int GetHashCode()
         {
-            return (int)x * (int)y;
+            return (int)X * (int)Y;
         }
         #endregion
 
@@ -126,7 +126,7 @@ namespace SZGUIFeleves.Models
         {
             get
             {
-                return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
+                return Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2));
             }
         }
 
@@ -134,27 +134,27 @@ namespace SZGUIFeleves.Models
         {
             double l = Length;
             if (l == 0)
-                return new Vec2d(x, y);
+                return new Vec2d(X, Y);
 
-            return new Vec2d(x / l, y / l);
+            return new Vec2d(X / l, Y / l);
         }
 
         public double Angle
         {
             get
             {
-                return MathHelper.NormalizeAngle(MathHelper.ConvertToDegrees(Math.Atan2(y, x)));// + 180;
+                return MathHelper.NormalizeAngle(MathHelper.ConvertToDegrees(Math.Atan2(Y, X)));// + 180;
             }
         }
 
         public static double DotProduct(Vec2d a, Vec2d b)
         {
-            return a.x * b.x + a.y * b.y;
+            return a.X * b.X + a.Y * b.Y;
         }
 
         public static double CrossProduct(Vec2d a, Vec2d b)
         {
-            return (a.x * b.y) - (a.y * b.x);
+            return (a.X * b.Y) - (a.Y * b.X);
         }
 
         public static Vec2d Scale(Vec2d a, double zoom)
