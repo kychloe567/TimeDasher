@@ -76,5 +76,19 @@ namespace SZGUIFeleves.Models
                 return true;
             else return false;
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Color color &&
+                   R == color.R &&
+                   G == color.G &&
+                   B == color.B &&
+                   A == color.A;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(R, G, B, A);
+        }
     }
 }

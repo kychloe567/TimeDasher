@@ -116,6 +116,15 @@ namespace SZGUIFeleves.Logic
             //Objects.Add(new Circle(new Vec2d(500, 200), 25, Color.Green) { IsPlayer = true });
             //Objects.Add(new Rectangle(new Vec2d(100, 100), new Vec2d(50, 50), Color.Red));
 
+
+            //Scene s = new Scene("movementTest", Objects, 0, new List<DynamicPointLight>());
+            //SceneManager.SaveScene(s);
+            #endregion
+
+            CurrentScene = SceneManager.GetSceneByName("try1");
+            if (CurrentScene is null)
+                CurrentScene = SceneManager.GetDefaultScene();
+
             Objects.Add(new Player()
             {
                 IsPlayer = true,
@@ -157,13 +166,8 @@ namespace SZGUIFeleves.Logic
                 Size = new Vec2d(100, 100),
             });
             CurrentScene.Objects = Objects;
-            //Scene s = new Scene("movementTest", Objects, 0, new List<DynamicPointLight>());
-            //SceneManager.SaveScene(s);
-            #endregion
 
-            CurrentScene = SceneManager.GetScene("try1");
-            if (CurrentScene is null)
-                CurrentScene = SceneManager.GetDefaultScene();
+
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
             //{
@@ -211,8 +215,8 @@ namespace SZGUIFeleves.Logic
 
         public void SetMousePosition(double x, double y)
         {
-            MousePosition.X = x;
-            MousePosition.Y = y;
+            MousePosition.x = x;
+            MousePosition.y = y;
         }
 
         /// <summary>
@@ -222,8 +226,8 @@ namespace SZGUIFeleves.Logic
         /// <param name="WindowSizeHeight"></param>
         public void WindowSizeChanged(int WindowSizeWidth, int WindowSizeHeight)
         {
-            WindowSize.X = WindowSizeWidth;
-            WindowSize.Y = WindowSizeHeight;
+            WindowSize.x = WindowSizeWidth;
+            WindowSize.y = WindowSizeHeight;
         }
 
         /// <summary>
@@ -258,7 +262,7 @@ namespace SZGUIFeleves.Logic
             //ObjectsToDisplayWorldSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
             #endregion
 
-            // Remove after player has been created 
+            // Camera and objects sort
             #region
             Camera.UpdatePosition(WindowSize / 2, Elapsed);
             // Then uncomment this
@@ -269,7 +273,7 @@ namespace SZGUIFeleves.Logic
 
             foreach (var obj in CurrentScene.Objects)
             {
-                #region
+                #region StateMachine and IsAffectedByCamera
                 if (!(obj.StateMachine is null))
                     obj.StateMachine.Update();
 
@@ -277,7 +281,7 @@ namespace SZGUIFeleves.Logic
                     ObjectsToDisplayWorldSpace.Add(obj);
                 else
                     ObjectsToDisplayScreenSpace.Add(obj);
-                #endregion
+                #endregion 
 
                 if (obj.IsPlayer && obj is Player p)
                 {
@@ -379,9 +383,9 @@ namespace SZGUIFeleves.Logic
                     if (vecInDegrees < 45 || vecInDegrees > 315)
                     {
                         // Player is on the RIGHT side
-                        if (p.Position.X < r.Position.X + r.Size.X)
+                        if (p.Position.x < r.Position.x + r.Size.x)
                         {
-                            p.Position.X = r.Position.X + r.Size.X;
+                            p.Position.x = r.Position.x + r.Size.x;
                         }
                         r.Color = Color.Red;
                         left = false;
@@ -389,25 +393,25 @@ namespace SZGUIFeleves.Logic
                     else if (vecInDegrees >= 45 && vecInDegrees <= 135)
                     {
                         // Player is UNDER item
-                        if (p.Position.Y < r.Position.Y + r.Size.Y)
+                        if (p.Position.y < r.Position.y + r.Size.y)
                         {
-                            p.Position.Y = r.Position.Y + r.Size.Y;
+                            p.Position.y = r.Position.y + r.Size.y;
                         }
                         r.Color = Color.Yellow;
                         up = false;
 
                         if (p.IsGravity)
                         {
-                            p.Velocity.X = -p.Velocity.X;
-                            p.Velocity.Y = -p.Velocity.Y;
+                            p.Velocity.x = -p.Velocity.x;
+                            p.Velocity.y = -p.Velocity.y;
                         }
                     }
                     else if (vecInDegrees > 135 && vecInDegrees < 225)
                     {
                         // Player is on the LEFT side
-                        if (p.Right > r.Position.X)
+                        if (p.Right > r.Position.x)
                         {
-                            p.Position.X = r.Position.X - p.Size.X;
+                            p.Position.x = r.Position.x - p.Size.x;
                         }
                         r.Color = Color.Blue;
                         right = false;
@@ -415,9 +419,9 @@ namespace SZGUIFeleves.Logic
                     else
                     {
                         // Player is ABOVE item
-                        if (p.Bottom > r.Position.Y)
+                        if (p.Bottom > r.Position.y)
                         {
-                            p.Position.Y = r.Position.Y - p.Size.Y;
+                            p.Position.y = r.Position.y - p.Size.y;
                         }
                         r.Color = Color.Green;
                         down = false;

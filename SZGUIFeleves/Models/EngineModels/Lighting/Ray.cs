@@ -39,7 +39,7 @@ namespace SZGUIFeleves.Models
         {
             var v1 = Position - line.Position;
             var v2 = line.Position2 - line.Position;
-            var v3 = new Vec2d(-Direction.Y, Direction.X);
+            var v3 = new Vec2d(-Direction.y, Direction.x);
 
             var dot = Vec2d.DotProduct(v2,v3);
             if (Math.Abs(dot) < 0.000001)

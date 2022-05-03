@@ -102,11 +102,11 @@ namespace SZGUIFeleves.Models
             }
             else if(d is Rectangle r)
             {
-                double closestX = MathHelper.Clamp(r.Position.X, r.Right, Position.X);
-                double closestY = MathHelper.Clamp(r.Position.Y, r.Bottom, Position.Y);
+                double closestX = MathHelper.Clamp(r.Position.x, r.Right, Position.x);
+                double closestY = MathHelper.Clamp(r.Position.y, r.Bottom, Position.y);
 
-                double distanceX = Position.X - closestX;
-                double distanceY = Position.Y - closestY;
+                double distanceX = Position.x - closestX;
+                double distanceY = Position.y - closestY;
 
                 double distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
                 return distanceSquared < (Radius * Radius);

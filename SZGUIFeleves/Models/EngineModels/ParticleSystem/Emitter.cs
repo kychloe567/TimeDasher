@@ -33,8 +33,8 @@ namespace SZGUIFeleves.Models
                     for (int i = 0; i < ParticleProperty.EmittingMultiplier; i++)
                     {
                         double angle = ParticleProperty.EmittingAngle + rnd.Next(-ParticleProperty.EmittingAngleVariation, ParticleProperty.EmittingAngleVariation + 1);
-                        Vec2d position = ParticleProperty.Position + new Vec2d(rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.X, (int)ParticleProperty.EmittingPositionVariation.X),
-                                                                               rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.Y, (int)ParticleProperty.EmittingPositionVariation.Y));
+                        Vec2d position = ParticleProperty.Position + new Vec2d(rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.x, (int)ParticleProperty.EmittingPositionVariation.x),
+                                                                               rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.y, (int)ParticleProperty.EmittingPositionVariation.y));
                         double speed = ParticleProperty.SpeedStart + rnd.Next((int)-ParticleProperty.EmittingSpeedVariation, (int)ParticleProperty.EmittingSpeedVariation);
 
                         Particle p = new Particle(ParticleProperty, angle, position, speed);
@@ -60,8 +60,8 @@ namespace SZGUIFeleves.Models
             for (int i = 0; i < ParticleProperty.EmittingMultiplier; i++)
             {
                 double angle = ParticleProperty.EmittingAngle + rnd.Next(-ParticleProperty.EmittingAngleVariation, ParticleProperty.EmittingAngleVariation + 1);
-                Vec2d position = Position + new Vec2d(rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.X, (int)ParticleProperty.EmittingPositionVariation.X),
-                                                                       rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.Y, (int)ParticleProperty.EmittingPositionVariation.Y));
+                Vec2d position = Position + new Vec2d(rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.x, (int)ParticleProperty.EmittingPositionVariation.x),
+                                                                       rnd.Next(-(int)ParticleProperty.EmittingPositionVariation.y, (int)ParticleProperty.EmittingPositionVariation.y));
                 double speed = ParticleProperty.SpeedStart + rnd.Next((int)-ParticleProperty.EmittingSpeedVariation, (int)ParticleProperty.EmittingSpeedVariation);
 
                 Particle p = new Particle(ParticleProperty, angle, position, speed);

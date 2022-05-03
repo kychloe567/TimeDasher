@@ -15,12 +15,12 @@ namespace SZGUIFeleves.Models
 
         public double Right
         {
-            get { return Position.X + Size.X; }
+            get { return Position.x + Size.x; }
         }
         
         public double Bottom
         {
-            get { return Position.Y + Size.Y; }
+            get { return Position.y + Size.y; }
         }
 
         #region Constructors
@@ -86,11 +86,11 @@ namespace SZGUIFeleves.Models
         {
             if (d is Circle c)
             {
-                double closestX = MathHelper.Clamp(Position.X, Right, c.Position.X);
-                double closestY = MathHelper.Clamp(Position.Y, Bottom, c.Position.Y);
+                double closestX = MathHelper.Clamp(Position.x, Right, c.Position.x);
+                double closestY = MathHelper.Clamp(Position.y, Bottom, c.Position.y);
 
-                double distanceX = c.Position.X - closestX;
-                double distanceY = c.Position.Y - closestY;
+                double distanceX = c.Position.x - closestX;
+                double distanceY = c.Position.y - closestY;
 
                 double distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
                 return distanceSquared < (c.Radius * c.Radius);
@@ -99,10 +99,10 @@ namespace SZGUIFeleves.Models
             {
                 List<Line> lines = new List<Line>()
                 {
-                    new Line(Position, new Vec2d(Position.X + Size.X, Position.Y)),
-                    new Line(new Vec2d(Position.X + Size.X, Position.Y), new Vec2d(Position.X + Size.X, Position.Y + Size.Y)),
-                    new Line(new Vec2d(Position.X + Size.X, Position.Y + Size.Y), new Vec2d(Position.X, Position.Y + Size.Y)),
-                    new Line(new Vec2d(Position.X, Position.Y + Size.Y), new Vec2d(Position))
+                    new Line(Position, new Vec2d(Position.x + Size.x, Position.y)),
+                    new Line(new Vec2d(Position.x + Size.x, Position.y), new Vec2d(Position.x + Size.x, Position.y + Size.y)),
+                    new Line(new Vec2d(Position.x + Size.x, Position.y + Size.y), new Vec2d(Position.x, Position.y + Size.y)),
+                    new Line(new Vec2d(Position.x, Position.y + Size.y), new Vec2d(Position))
                 };
 
                 bool intersects = false;
