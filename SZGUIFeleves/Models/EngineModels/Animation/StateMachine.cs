@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,14 +10,23 @@ namespace SZGUIFeleves.Models
 {
     public class StateMachine
     {
+        [JsonProperty]
         private Dictionary<string, Animation> States { get; set; }
+        [JsonProperty]
         private string CurrentState { get; set; }
+
+        [JsonIgnore]
         public BitmapImage CurrentTexture
         {
             get
             {
                 return States[CurrentState].CurrentTexture;
             }
+        }
+
+        public StateMachine()
+        {
+            States = new Dictionary<string, Animation>();
         }
 
         public StateMachine(Dictionary<string, Animation> states)
@@ -31,6 +41,11 @@ namespace SZGUIFeleves.Models
             CurrentState = state.Title;
         }
 
+        public void LoadTextures()
+        {
+            foreach (KeyValuePair<string, Animation> pair in States)
+                pair.Value.LoadTextures();
+        }
         public void AddState(Animation an)
         {
             States.Add(an.Title, an);
@@ -52,7 +67,7 @@ namespace SZGUIFeleves.Models
         public StateMachine GetCopy()
         {
             Dictionary<string, Animation> states = new Dictionary<string, Animation>();
-            foreach(KeyValuePair<string, Animation> pair in states)
+            foreach(KeyValuePair<string, Animation> pair in States)
                 states.Add(pair.Key, pair.Value.GetCopy());
             return new StateMachine(states)
             {

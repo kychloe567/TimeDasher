@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,10 +11,16 @@ namespace SZGUIFeleves.Models
     public class Animation
     {
         public string Title { get; set; }
+        [JsonIgnore]
         private List<BitmapImage> Textures { get; set; }
+        [JsonProperty]
+        private List<string> TexturePaths { get; set; }
+        [JsonProperty]
         private List<double> Times { get; set; }    // Seconds
 
+        [JsonProperty]
         private int currentTexture;
+        [JsonIgnore]
         public BitmapImage CurrentTexture
         {
             get { return Textures[currentTexture]; }
@@ -21,10 +28,17 @@ namespace SZGUIFeleves.Models
 
         private DateTime Start { get; set; }
 
+        public Animation()
+        {
+            Textures = new List<BitmapImage>();
+            TexturePaths = new List<string>();
+            Times = new List<double>();
+        }
         public Animation(string title)
         {
             Title = title;
             Textures = new List<BitmapImage>();
+            TexturePaths = new List<string>();
             Times = new List<double>();
             Start = DateTime.Now;
         }
@@ -33,6 +47,7 @@ namespace SZGUIFeleves.Models
         {
             Title = title;
             Textures = textures;
+            TexturePaths = new List<string>();
             for (int i = 0; i < Textures.Count; i++)
                 Times.Add(time);
             Start = DateTime.Now;
@@ -41,13 +56,22 @@ namespace SZGUIFeleves.Models
         {
             Title = title;
             Textures = textures;
+            TexturePaths = new List<string>();
             Times = times;
             Start = DateTime.Now;
         }
 
-        public void AddTexture(BitmapImage bi, double time)
+        public void LoadTextures()
+        {
+            Textures = new List<BitmapImage>();
+            foreach(string tex in TexturePaths)
+                Textures.Add(new BitmapImage(new Uri(tex, UriKind.RelativeOrAbsolute)));
+        }
+
+        public void AddTexture(BitmapImage bi, string path, double time)
         {
             Textures.Add(bi);
+            TexturePaths.Add(path);
             Times.Add(time);
         }
 
@@ -77,6 +101,7 @@ namespace SZGUIFeleves.Models
             return new Animation(Title, textures, new List<double>(Times))
             {
                 currentTexture = currentTexture,
+                TexturePaths = new List<string>(TexturePaths)
             };
         }
     }

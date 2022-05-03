@@ -32,9 +32,8 @@ namespace SZGUIFeleves.Models
 
         public override bool IsVisible(Camera camera)
         {
-            Vec2d centeredPos = camera.CenteredPosition;
-            if (Position.x + Radius >= centeredPos.x && Position.x - Radius < centeredPos.x + camera.WindowSize.x &&
-               Position.y + Radius >= centeredPos.y && Position.y - Radius < centeredPos.y + camera.WindowSize.y)
+            if (Position.x + Radius > camera.CenteredPosition.x && Position.x < camera.CenteredPosition.x + camera.WindowSize.x &&
+               Position.y + Radius > camera.CenteredPosition.y && Position.y < camera.CenteredPosition.y + camera.WindowSize.y)
                 return true;
             else return false;
         }
@@ -49,11 +48,15 @@ namespace SZGUIFeleves.Models
                 IsFilled = IsFilled,
                 DrawPriority = DrawPriority,
                 IsAffectedByCamera = IsAffectedByCamera,
-                IsPlayer = IsPlayer
+                IsPlayer = IsPlayer,
+                ObjectType = ObjectType
             };
 
             if (Texture != null)
+            {
                 c.Texture = Texture.Clone();
+                c.TexturePath = TexturePath;
+            }
 
             if (StateMachine != null)
                 c.StateMachine = StateMachine.GetCopy();
@@ -119,11 +122,34 @@ namespace SZGUIFeleves.Models
 
             return false;
         }
+
+        public override bool Intersects(Vec2d v)
+        {
+            if ((v - Position).Length <= Radius)
+                return true;
+            return false;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is Circle c && c.Position == Position && c.Radius == Radius && c.Color == Color)
                 return true;
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Position);
+            hash.Add(Rotation);
+            hash.Add(OutLineThickness);
+            hash.Add(OutLineColor);
+            hash.Add(Color);
+            hash.Add(TexturePath);
+            hash.Add(DrawPriority);
+            hash.Add(ObjectType);
+            hash.Add(Radius);
+            return hash.ToHashCode();
         }
     }
 }

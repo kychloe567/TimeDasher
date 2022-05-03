@@ -97,7 +97,10 @@ namespace SZGUIFeleves.Models
             };
 
             if (Texture != null)
+            {
                 t.Texture = Texture.Clone();
+                t.TexturePath = TexturePath;
+            }
 
             if (StateMachine != null)
                 t.StateMachine = StateMachine.GetCopy();
@@ -110,9 +113,27 @@ namespace SZGUIFeleves.Models
             throw new NotImplementedException();
         }
 
+        public override bool Intersects(Vec2d v)
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool Equals(object obj)
         {
             throw new NotImplementedException();
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Position);
+            hash.Add(Rotation);
+            hash.Add(OutLineThickness);
+            hash.Add(OutLineColor);
+            hash.Add(Color);
+            hash.Add(Content);
+            hash.Add(FontSize);
+            return hash.ToHashCode();
         }
     }
 }

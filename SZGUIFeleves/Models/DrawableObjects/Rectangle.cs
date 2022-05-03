@@ -50,11 +50,10 @@ namespace SZGUIFeleves.Models
 
         public override bool IsVisible(Camera camera)
         {
-            Vec2d centeredPos = camera.CenteredPosition;
-            if (Position.x + Size.x >= centeredPos.x && Position.x < centeredPos.x + camera.WindowSize.x &&
-               Position.y + Size.y >= centeredPos.y && Position.y < centeredPos.y + camera.WindowSize.y)
+            if (Position.x + Size.x > camera.CenteredPosition.x && Position.x < camera.CenteredPosition.x + camera.WindowSize.x &&
+               Position.y + Size.y > camera.CenteredPosition.y && Position.y < camera.CenteredPosition.y + camera.WindowSize.y)
                 return true;
-            else return false;
+            return false;
         }
 
         public override Rectangle GetCopy()
@@ -67,11 +66,15 @@ namespace SZGUIFeleves.Models
                 IsFilled = IsFilled,
                 DrawPriority = DrawPriority,
                 IsAffectedByCamera = IsAffectedByCamera,
-                IsPlayer = IsPlayer
+                IsPlayer = IsPlayer,
+                ObjectType = ObjectType
             };
 
             if (Texture != null)
+            {
                 r.Texture = Texture.Clone();
+                r.TexturePath = TexturePath;
+            }
 
             if (StateMachine != null)
                 r.StateMachine = StateMachine.GetCopy();
@@ -116,7 +119,7 @@ namespace SZGUIFeleves.Models
             }
             else if (d is Rectangle r)
             {
-                return !(r.Position.x > Right || r.Right < Position.x || r.Position.y > Bottom || r.Bottom < Position.y);
+                return !(r.Position.x >= Right || r.Right <= Position.x || r.Position.y >= Bottom || r.Bottom <= Position.y);
             }
             else if (d is Polygon p)
             {
@@ -130,11 +133,33 @@ namespace SZGUIFeleves.Models
             return false;
         }
 
+        public override bool Intersects(Vec2d v)
+        {
+            if (v.x >= Position.x && v.x <= Right && v.y >= Position.y && v.y <= Bottom)
+                return true;
+            return false;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is Rectangle r && Position == r.Position && Size == r.Size && Color == r.Color)
                 return true;
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Position);
+            hash.Add(Rotation);
+            hash.Add(OutLineThickness);
+            hash.Add(OutLineColor);
+            hash.Add(Color);
+            hash.Add(TexturePath);
+            hash.Add(DrawPriority);
+            hash.Add(ObjectType);
+            hash.Add(Size);
+            return hash.ToHashCode();
         }
     }
 }

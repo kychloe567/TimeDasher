@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,11 @@ namespace SZGUIFeleves.Models
 {
     public abstract class DrawableObject : IComparable
     {
+        public enum ObjectTypes
+        {
+            Foreground, Background, Decoration
+        }
+
         /// <summary>
         /// Position in screen space
         /// </summary>
@@ -31,12 +38,19 @@ namespace SZGUIFeleves.Models
         /// <summary>
         /// If not null, Color is ignored
         /// </summary>
+        [JsonIgnore]
         public BitmapImage Texture { get; set; }
+        public string TexturePath { get; set; }
         public double TextureOpacity { get; set; }
+        [JsonIgnore]
+        public BitmapImage TempTexture { get; set; }
+        [JsonIgnore]
+        public Vec2d TempPosition { get; set; }
 
         /// <summary>
         /// This state machine manages animations
         /// </summary>
+        [JsonProperty]
         public StateMachine StateMachine { get; set; }
 
         /// <summary>
@@ -44,6 +58,12 @@ namespace SZGUIFeleves.Models
         /// <para>Bottom < Default < Custom < Top</para>
         /// </summary>
         public DrawPriority DrawPriority { get; set; }
+
+        /// <summary>
+        /// Object type for the lever editor placing rules
+        /// <para>(ie can place background behind everything)</para>
+        /// </summary>
+        public ObjectTypes ObjectType { get; set; }
 
         /// <summary>
         /// Necessary for lighting and shadow casting
@@ -126,6 +146,7 @@ namespace SZGUIFeleves.Models
         // TODO: Does not take rotation into account!!
         // TODO: Polygon, Text intersections
         public abstract bool Intersects(DrawableObject d);
+        public abstract bool Intersects(Vec2d v);
 
         public int CompareTo(object obj)
         {
@@ -137,5 +158,17 @@ namespace SZGUIFeleves.Models
             return DrawPriority.CompareTo((obj as DrawableObject).DrawPriority);
         }
 
+        public void LoadTexture()
+        {
+            if (StateMachine is null)
+            {
+                if(TexturePath != null && File.Exists(TexturePath))
+                    Texture = new BitmapImage(new Uri(TexturePath, UriKind.RelativeOrAbsolute));
+            }
+            else
+                StateMachine.LoadTextures();
+        }
+
+        public abstract override int GetHashCode();
     }
 }

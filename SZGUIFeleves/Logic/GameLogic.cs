@@ -110,7 +110,7 @@ namespace SZGUIFeleves.Logic
             //Scene s = new Scene("try1", new List<DrawableObject>(Objects), 0, new List<DynamicPointLight>());
             //SceneManager.SaveScene(s);
 
-            CurrentScene = SceneManager.GetScene("try1");
+            CurrentScene = SceneManager.GetSceneByName("try1");
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
 

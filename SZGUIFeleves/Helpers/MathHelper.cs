@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SZGUIFeleves.Models;
 
 namespace SZGUIFeleves.Helpers
 {
@@ -54,6 +55,26 @@ namespace SZGUIFeleves.Helpers
                 return low;
             else
                 return value;
+        }
+
+        public static Rectangle NormalizeSize(Rectangle rect)
+        {
+            if (rect.Size.x >= 0 && rect.Size.y >= 0)
+                return rect;
+
+            Rectangle toReturn = rect.GetCopy();
+            if(rect.Size.x < 0)
+            {
+                toReturn.Position.x += rect.Size.x;
+                toReturn.Size.x = Math.Abs(rect.Size.x);
+            }
+            if(rect.Size.y < 0)
+            {
+                toReturn.Position.y += rect.Size.y;
+                toReturn.Size.y = Math.Abs(rect.Size.y);
+            }
+
+            return toReturn;
         }
     }
 }

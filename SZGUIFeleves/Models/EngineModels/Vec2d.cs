@@ -84,7 +84,9 @@ namespace SZGUIFeleves.Models
 
         public static bool operator ==(Vec2d a, Vec2d b)
         {
-            if (a is null || b is null)
+            if (a is null && b is null)
+                return true;
+            else if (a is null || b is null)
                 return false;
 
             if (a.x == b.x && a.y == b.y)
@@ -94,7 +96,11 @@ namespace SZGUIFeleves.Models
 
         public static bool operator !=(Vec2d a, Vec2d b)
         {
-            if (a is null || b is null)
+            if (a is null && !(b is null))
+                return true;
+            else if (b is null && !(a is null))
+                return true;
+            else if (a is null || b is null)
                 return false;
 
             if (a.x != b.x || a.y != b.y)
@@ -149,6 +155,11 @@ namespace SZGUIFeleves.Models
         public static double CrossProduct(Vec2d a, Vec2d b)
         {
             return (a.x * b.y) - (a.y * b.x);
+        }
+
+        public static Vec2d Scale(Vec2d a, double zoom)
+        {
+            return a * zoom;
         }
         #endregion
 
