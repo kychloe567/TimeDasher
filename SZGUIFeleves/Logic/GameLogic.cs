@@ -128,43 +128,26 @@ namespace SZGUIFeleves.Logic
             //Objects.Add(new Player()
             //{
             //    IsPlayer = true,
-            //    Position = new Vec2d(200, 100),
-            //    Size = new Vec2d(35, 70),
+            //    Position = new Vec2d(500, 100),
+            //    Size = new Vec2d(32, 63),
             //    Color = Color.White
             //});
-            //for (int i = 1; i <= 4; i++)
+            //for (int i = 1; i <= 5; i++)
             //{
             //    Objects.Add(new Rectangle()
             //    {
-            //        Position = new Vec2d((3 + i) * 100, 100),
-            //        Size = new Vec2d(100, 100),
-            //    });
-            //    Objects.Add(new Rectangle()
-            //    {
-            //        Position = new Vec2d(i * 100, 300),
-            //        Size = new Vec2d(100, 100),
-            //    });
-            //    Objects.Add(new Rectangle()
-            //    {
-            //        Position = new Vec2d((3 + i) * 100, 500),
-            //        Size = new Vec2d(100, 100),
-            //    });
-            //    Objects.Add(new Rectangle()
-            //    {
-            //        Position = new Vec2d(i * 100, 700),
-            //        Size = new Vec2d(100, 100),
+            //        Position = new Vec2d(200 + i * 64, 600),
+            //        Size = new Vec2d(64, 64),
             //    });
             //}
-            //Objects.Add(new Rectangle()
+            //for (int i = 0; i < 8; i++)
             //{
-            //    Position = new Vec2d(600, 300),
-            //    Size = new Vec2d(100, 100),
-            //});
-            //Objects.Add(new Rectangle()
-            //{
-            //    Position = new Vec2d(200, 500),
-            //    Size = new Vec2d(100, 100),
-            //});
+            //    Objects.Add(new Rectangle()
+            //    {
+            //        Position = new Vec2d(200 + 5 * 64, 600 - (64 * i)),
+            //        Size = new Vec2d(64, 64),
+            //    });
+            //}
             //CurrentScene.Objects = Objects;
 
 
@@ -211,6 +194,12 @@ namespace SZGUIFeleves.Logic
         public void SetButtonFlag(ButtonKey key, bool isDown)
         {
             ButtonFlags[key] = isDown;
+
+            if (key == ButtonKey.E)
+            {
+                CurrentScene.Objects[CurrentScene.PlayerIndex].Position = new Vec2d(100, 100);
+                (CurrentScene.Objects[CurrentScene.PlayerIndex] as Player).Velocity = new Vec2d(0,0);
+            }
         }
 
         public void SetMousePosition(double x, double y)
@@ -316,7 +305,12 @@ namespace SZGUIFeleves.Logic
 
             // Left
             if (ButtonFlags[ButtonKey.A] && left)
+            {
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1, 0), 200.0f * Elapsed);
+                if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) && 
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runleft")
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("runleft");
+            }
 
             // Down
             if (ButtonFlags[ButtonKey.S] && down)
@@ -324,7 +318,17 @@ namespace SZGUIFeleves.Logic
 
             // Right
             if (ButtonFlags[ButtonKey.D] && right)
+            {
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1, 0), 200.0f * Elapsed);
+                if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) && 
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runright")
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("runright");
+            }
+
+            if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
+                !ButtonFlags[ButtonKey.A] && !ButtonFlags[ButtonKey.D] && 
+                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idle")
+                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idle");
 
             // If player is in the air, the Move() is called due to gravity.
             // --------------- WARNING: it affects only on Player object!! ----------------
@@ -376,12 +380,9 @@ namespace SZGUIFeleves.Logic
                     doesIntersect = true;
 
                     // Angle of Vector IO.
-                    double vecInDegrees = (p.GetMiddle() - r.GetMiddle()).Length >= (p.GetMiddle() - r.GetMiddle()).Length
-                        ? (p.GetMiddle() - r.GetMiddle()).Angle
-                        : (p.GetMiddle() - r.GetMiddle()).Angle;
-                    //double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
-                    //    ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
-                    //    : (p.GetMiddleRight() - r.GetMiddle()).Angle;
+                    double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
+                        ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
+                        : (p.GetMiddleRight() - r.GetMiddle()).Angle;
 
                     //double vecInDegrees = (obj.GetMiddle() - item.GetMiddle()).Angle;
                     if (vecInDegrees < 45 || vecInDegrees > 315)
@@ -439,10 +440,13 @@ namespace SZGUIFeleves.Logic
                     item.Color = Color.Gray;
                 }
             }
+
             if (!doesIntersect && !p.IsGravity)
                 IsGravitySet(p, true, new Vec2d(0, 0));
             else if (!doesIntersect && p.IsGravity)
                 up = false;
+            else if (!up && down && !p.IsGravity)
+                IsGravitySet(p, true, new Vec2d(0, 1));
         }
 
         private void IsGravitySet(DrawableObject obj, bool value, Vec2d newVelocity)

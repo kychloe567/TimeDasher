@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Media;
 using SZGUIFeleves.Logic;
 using SZGUIFeleves.Models;
+using SZGUIFeleves.Models.DrawableObjects;
 
 namespace SZGUIFeleves.Renderer
 {

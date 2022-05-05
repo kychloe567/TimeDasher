@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,7 +65,8 @@ namespace SZGUIFeleves.Models
         public void LoadTextures()
         {
             Textures = new List<BitmapImage>();
-            foreach(string tex in TexturePaths)
+
+            foreach (string tex in TexturePaths)
                 Textures.Add(new BitmapImage(new Uri(tex, UriKind.RelativeOrAbsolute)));
         }
 

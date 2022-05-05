@@ -101,9 +101,10 @@ namespace LevelEditor.Logic
             {
                 IsPlayer = true,
                 Position = new Vec2d(0, 0),
-                Size = new Vec2d(35, 70),
+                Size = new Vec2d(64, 128),
                 Color = Color.White,
-                DrawPriority = DrawPriority.Top
+                DrawPriority = DrawPriority.Top,
+                StateMachine = StateMachine.GetPlayerDefault()
             });
 
             // Creating main loop timer
@@ -147,7 +148,7 @@ namespace LevelEditor.Logic
         public void Start()
         {
             // Get all the sets in the Textures folder
-            var sets = Directory.GetDirectories("Textures\\").ToList();
+            var sets = Directory.GetDirectories("Textures\\").Where(x => x != "Textures\\Character").ToList();
             for (int i = 0; i < sets.Count; i++)
                 sets[i] = Path.GetFileName(sets[i]);
 
@@ -194,7 +195,7 @@ namespace LevelEditor.Logic
 
             // Static objects
             #region Textures
-            foreach (var image in new DirectoryInfo(objectsPath + "\\Background\\").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\Background\\").GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
@@ -204,7 +205,7 @@ namespace LevelEditor.Logic
                 r.ObjectType = DrawableObject.ObjectTypes.Background;
                 background.Add(r);
             }
-            foreach (var image in new DirectoryInfo(objectsPath + "\\Foreground\\").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\Foreground\\").GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
@@ -214,7 +215,7 @@ namespace LevelEditor.Logic
                 r.ObjectType = DrawableObject.ObjectTypes.Foreground;
                 foreground.Add(r);
             }
-            foreach (var image in new DirectoryInfo(objectsPath + "\\Decoration\\").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\Decoration\\").GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
@@ -235,7 +236,7 @@ namespace LevelEditor.Logic
                 Rectangle r = new Rectangle();
                 Animation a = new Animation(ani.Name);
 
-                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
                 {
                     BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                     if (first)
@@ -262,7 +263,7 @@ namespace LevelEditor.Logic
                 Rectangle r = new Rectangle();
                 Animation a = new Animation(ani.Name);
 
-                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
                 {
                     BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                     if (first)
@@ -289,7 +290,7 @@ namespace LevelEditor.Logic
                 Rectangle r = new Rectangle();
                 Animation a = new Animation(ani.Name);
 
-                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
                 {
                     BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                     if (first)
@@ -482,7 +483,7 @@ namespace LevelEditor.Logic
                         Rectangle selectionRect = MathHelper.NormalizeSize(new Rectangle(SelectionPos, SelectionSize));
 
                         AllSelectedIsDecor = true;
-                        for (int i = Objects.Count - 1; i >= 0; i--)
+                        for (int i = Objects.Count - 1; i >= 1; i--)
                         {
                             //Check for objects inside the selectionr rect
                             if (selectionRect.Intersects(Objects[i]))

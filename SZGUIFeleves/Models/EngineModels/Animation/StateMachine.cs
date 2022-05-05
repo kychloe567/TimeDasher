@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using SZGUIFeleves.Helpers;
 
 namespace SZGUIFeleves.Models
 {
@@ -13,7 +15,7 @@ namespace SZGUIFeleves.Models
         [JsonProperty]
         private Dictionary<string, Animation> States { get; set; }
         [JsonProperty]
-        private string CurrentState { get; set; }
+        public string CurrentState { get; set; }
 
         [JsonIgnore]
         public BitmapImage CurrentTexture
@@ -73,6 +75,40 @@ namespace SZGUIFeleves.Models
             {
                 CurrentState = CurrentState
             };
+        }
+
+        public static StateMachine GetPlayerDefault()
+        {
+            string objectsPath = "Textures\\Character";
+
+            StateMachine sm = new StateMachine();
+
+            Animation idle = new Animation("idle");
+            foreach (var image in new DirectoryInfo(objectsPath + "\\idle").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                idle.AddTexture(bi, image.FullName, 0.2);
+            }
+            sm.AddState(idle);
+
+            Animation runright = new Animation("runright");
+            foreach (var image in new DirectoryInfo(objectsPath + "\\runright").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                runright.AddTexture(bi, image.FullName, 0.15);
+            }
+            sm.AddState(runright);
+
+            Animation runleft = new Animation("runleft");
+            foreach (var image in new DirectoryInfo(objectsPath + "\\runleft").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                runleft.AddTexture(bi, image.FullName, 0.15);
+            }
+            sm.AddState(runleft);
+
+            sm.SetState("idle");
+            return sm;
         }
     }
 }

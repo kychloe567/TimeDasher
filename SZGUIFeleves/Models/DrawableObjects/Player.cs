@@ -38,5 +38,19 @@ namespace SZGUIFeleves.Models.DrawableObjects
         {
             return new Vec2d(Position.x + Size.x, (Position.y + Size.y / 2));
         }
+
+        public override Player GetCopy()
+        {
+            Player p = new Player();
+            var props = typeof(Rectangle).GetProperties().Where(p => !p.GetIndexParameters().Any());
+            foreach (var prop in props)
+            {
+                if (prop.CanWrite && prop.Name != "Position")
+                    prop.SetValue(p, prop.GetValue(this));
+            }
+            p.Position = new Vec2d(Position);
+
+            return p;
+        }
     }
 }

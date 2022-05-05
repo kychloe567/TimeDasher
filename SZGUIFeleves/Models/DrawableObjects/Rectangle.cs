@@ -67,7 +67,8 @@ namespace SZGUIFeleves.Models
                 DrawPriority = DrawPriority,
                 IsAffectedByCamera = IsAffectedByCamera,
                 IsPlayer = IsPlayer,
-                ObjectType = ObjectType
+                ObjectType = ObjectType,
+                Velocity = new Vec2d(Velocity)
             };
 
             if (Texture != null)
