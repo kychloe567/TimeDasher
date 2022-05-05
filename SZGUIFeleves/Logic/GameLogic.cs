@@ -63,6 +63,7 @@ namespace SZGUIFeleves.Logic
         }
         private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
         public Camera Camera { get; set; }
+        public MovingBackground Background { get; set; }
         public Scene CurrentScene { get; set; }
         public Vec2d MousePosition { get; set; }
 
@@ -107,6 +108,20 @@ namespace SZGUIFeleves.Logic
                 DeadZone = new Vec2d(5,5),
             };
 
+            Background = new MovingBackground()
+            {
+                Size = new Vec2d(400, 400),
+                Position = Camera.Position,
+                DrawPriority = DrawPriority.Top,
+                CameraDeadZone = new Vec2d(75, 20),
+                CameraDamping = new Vec2d(),
+                CameraOffset = new Vec2d(),
+                Color = Color.Purple,
+                OutLineColor = Color.Purple,
+                
+
+            };
+
             MousePosition = new Vec2d();
 
             CurrentScene = SceneManager.GetSceneByName("player");
@@ -118,45 +133,7 @@ namespace SZGUIFeleves.Logic
                 LastPressedDirection = ButtonKey.D;
             }
 
-            // This is an example for creating a scene/level
-            #region
-            //Objects.Add(new Circle(new Vec2d(500, 200), 25, Color.Green) { IsPlayer = true });
-            //Objects.Add(new Rectangle(new Vec2d(100, 100), new Vec2d(50, 50), Color.Red));
-
-
-            //Scene s = new Scene("movementTest", Objects, 0, new List<DynamicPointLight>());
-            //SceneManager.SaveScene(s);
-            #endregion
-
-            //CurrentScene = SceneManager.GetSceneByName("try1");
-            //if (CurrentScene is null)
-            //    CurrentScene = SceneManager.GetDefaultScene();
-
-            //Objects.Add(new Player()
-            //{
-            //    IsPlayer = true,
-            //    Position = new Vec2d(500, 100),
-            //    Size = new Vec2d(32, 63),
-            //    Color = Color.White
-            //});
-            //for (int i = 1; i <= 5; i++)
-            //{
-            //    Objects.Add(new Rectangle()
-            //    {
-            //        Position = new Vec2d(200 + i * 64, 600),
-            //        Size = new Vec2d(64, 64),
-            //    });
-            //}
-            //for (int i = 0; i < 8; i++)
-            //{
-            //    Objects.Add(new Rectangle()
-            //    {
-            //        Position = new Vec2d(200 + 5 * 64, 600 - (64 * i)),
-            //        Size = new Vec2d(64, 64),
-            //    });
-            //}
-            //CurrentScene.Objects = Objects;
-
+            
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
@@ -260,9 +237,11 @@ namespace SZGUIFeleves.Logic
 
             // Camera and objects sort
             #region
+            // Remove after player has been created 
             //Camera.UpdatePosition(WindowSize / 2, Elapsed);
             // Then uncomment this
             Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
+            //Background.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
 
             var ToDrawObjects = new List<DrawableObject>(CurrentScene.Objects);
             ToDrawObjects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
@@ -423,17 +402,17 @@ namespace SZGUIFeleves.Logic
         {
             bool doesIntersect = false;
 
-            foreach (var item in CurrentScene.Objects)
-            {
-                if (!p.Equals(item) && item is Rectangle r && p.Intersects(item) && item.ObjectType == DrawableObject.ObjectTypes.Foreground)
-                {
-                    doesIntersect = true;
-
-                    // Angle of Vector IO.
-                    double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
-                        ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
-                        : (p.GetMiddleRight() - r.GetMiddle()).Angle;
-
+                    foreach (var item in CurrentScene.Objects)
+                    foreach (var item in CurrentScene.Objects)
+                    {
+                        if (!obj.Equals(item) && item is Rectangle r && obj.Intersects(item))
+                        {
+                            doesIntersect = true;
+                            
+                            // Angle of Vector IO.
+                            double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
+                                ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
+                                : (p.GetMiddleRight() - r.GetMiddle()).Angle;
                     //double vecInDegrees = (obj.GetMiddle() - item.GetMiddle()).Angle;
                     if (vecInDegrees < 45 || vecInDegrees > 315)
                     {
@@ -481,38 +460,74 @@ namespace SZGUIFeleves.Logic
                         r.Color = Color.Green;
                         down = false;
 
-                        // Turn off gravity
-                        if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
-                                !ButtonFlags[ButtonKey.A] && !ButtonFlags[ButtonKey.D] &&
-                                !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
-                        {
-                            if (LastPressedDirection == ButtonKey.A &&
-                                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idleleft")
-                            {
-                                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleleft");
+                                // Turn off gravity
+                                // Turn off gravity
+                                IsGravitySet(p, false, null);
                             }
-                            else if (LastPressedDirection == ButtonKey.D &&
-                                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idleright")
-                            {
-                                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleright");
-                            }
+                            //ObjectsToDisplayWorldSpace.Add(new Text(new Vec2d(10, 10), Math.Round(vecInDegrees, 1) + "°", 25, new Color(255, 255, 255)));
                         }
-                        IsGravitySet(p, false, null);
+                        else if (!obj.Equals(item) && item.Color != Color.Gray)
+                        {
+                            item.Color = Color.Gray;
+                        }
                     }
-                }
-                else if (!p.Equals(item) && item.Color != Color.Gray)
-                {
-                    item.Color = Color.Gray;
+                    if (!doesIntersect && !p.IsGravity)
+                        IsGravitySet(p, true, new Vec2d(0, 0));
+                    else if (!doesIntersect && p.IsGravity)
+                        up = false;
                 }
             }
 
-            if (!doesIntersect && !p.IsGravity)
-                IsGravitySet(p, true, new Vec2d(0, 0));
-            else if (!doesIntersect && p.IsGravity)
-                up = false;
-            else if (!up && down && !p.IsGravity)
-                IsGravitySet(p, true, new Vec2d(0, 1));
+            Control(up, left, down, right);  // Keyboard/Mouse input
+            Update();   // Game logic update
+            
+            DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
         }
+
+        /// <summary>
+        /// Input checking
+        /// </summary>
+        private void Control(bool up = true, bool left = true, bool down = true, bool right = true)
+        {
+            //Button control checks
+            if (ButtonFlags[ButtonKey.W] && up)
+            {
+                IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -300));
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
+            }
+            if (ButtonFlags[ButtonKey.A] && left)
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1, 0), 200.0f * Elapsed);
+            if (ButtonFlags[ButtonKey.S] && down)
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(0, 1), 200.0f * Elapsed);
+            if (ButtonFlags[ButtonKey.D] && right)
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1, 0), 200.0f * Elapsed);
+            if (CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
+        }
+
+        /// <summary>
+        /// Logic Update
+        /// </summary>
+        private void Update()
+        {
+            // Game Logic Update
+
+            // Lighting
+            foreach (DynamicPointLight dpl in CurrentScene.PointLights)
+            {
+                Vec2d originalPos = new Vec2d(dpl.Position);
+                for (int i = 0; i < shadowPasses; i++)
+                {
+                    dpl.Position = originalPos + new Vec2d(i*shadowIntensity, i*shadowIntensity);
+                    var shadow = dpl.GetShadows(CurrentScene.Objects, WindowSize);
+                    if (shadow is null)
+                        continue;
+
+                    shadow.Color = LightColor;
+                    ObjectsToDisplayWorldSpace.Add(shadow);
+                }
+                dpl.Position = originalPos;
+            }
 
         private void IsGravitySet(DrawableObject obj, bool value, Vec2d newVelocity)
         {
