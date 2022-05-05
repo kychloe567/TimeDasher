@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using SZGUIFeleves.Controller;
 using SZGUIFeleves.Logic;
+using SZGUIFeleves.ViewModels;
 
 namespace SZGUIFeleves
 {
@@ -23,6 +24,8 @@ namespace SZGUIFeleves
     public partial class MainWindow : Window
     {
         GameController controller;
+        MainWindowViewModel ViewModel { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -31,6 +34,10 @@ namespace SZGUIFeleves
         {
             RenderOptions.SetBitmapScalingMode(MainGrid, BitmapScalingMode.NearestNeighbor);
             GameLogic logic = new GameLogic((int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
+
+            ViewModel = DataContext as MainWindowViewModel;
+            ViewModel.GameLogicPass(ref logic);
+
             display.SetupModel(logic, (int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
             controller = new GameController(logic);
             logic.Start();
@@ -44,19 +51,19 @@ namespace SZGUIFeleves
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (controller != null)
+            if (controller != null && ViewModel.GameState == GameStates.Game)
                 controller.KeyPressed(e.Key);
         }
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            if (controller != null)
+            if (controller != null && ViewModel.GameState == GameStates.Game)
                 controller.KeyReleased(e.Key);
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(controller != null)
+            if(controller != null && ViewModel.GameState == GameStates.Game)
             {
                 Point p = e.GetPosition(MainGrid);
                 if (e.ChangedButton == MouseButton.Left)
@@ -68,7 +75,7 @@ namespace SZGUIFeleves
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (controller != null)
+            if (controller != null && ViewModel.GameState == GameStates.Game)
             {
                 Point p = e.GetPosition(MainGrid);
                 if (e.ChangedButton == MouseButton.Left)
