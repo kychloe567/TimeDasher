@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SZGUIFeleves.Models.DrawableObjects;
+using SZGUIFeleves.Models.EngineModels.MovingBackground;
 
 namespace SZGUIFeleves.Models
 {
@@ -16,6 +17,8 @@ namespace SZGUIFeleves.Models
         public List<Rectangle> Rectangles { get; set; }
         public List<Text> Texts { get; set; }
         public List<DynamicPointLight> PointLights { get; set; }
+
+        public MovingBackground MovingBackground { get; set; }
         public Player Player { get; set; }
 
         public SceneJson()
@@ -25,6 +28,7 @@ namespace SZGUIFeleves.Models
             Polygons = new List<Polygon>();
             Rectangles = new List<Rectangle>();
             Texts = new List<Text>();
+            MovingBackground = new MovingBackground();
         }
     }
 }

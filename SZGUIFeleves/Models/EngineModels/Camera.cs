@@ -49,7 +49,7 @@ namespace SZGUIFeleves.Models
             LookAheadTime = 0.0f;
         }
 
-        public void UpdatePosition(Vec2d targetPosition, double elapsed)
+        public void UpdatePosition(Vec2d targetPosition, double elapsed, bool simple = false)
         {
             Vec2d nextPosition = targetPosition + Offset;
             Vec2d delta = new Vec2d();
@@ -82,28 +82,32 @@ namespace SZGUIFeleves.Models
             // TODO: Look ahead
             if (delta.x != 0 || delta.y != 0)
             {
-                Position = Position + delta*elapsed*5;
+                if (!simple)
+                {
+                    Position = Position + delta * elapsed * 5;
 
-                return;
-                //Vec2d vel = targetPosition - Position;
+                    return;
+                }
 
-                //if (Damping.x == 0)
-                //{
-                //    Position.x += delta.x;
-                //}
-                //else
-                //{
-                //    Position.x += (targetPosition.x - Position.x) * elapsed / Damping.x;
-                //}
+                Vec2d vel = targetPosition - Position;
 
-                //if (Damping.y == 0)
-                //{
-                //    Position.y += delta.y;
-                //}
-                //else
-                //{
-                //    Position.x += (targetPosition.y - Position.y) * elapsed / Damping.x;
-                //}
+                if (Damping.x == 0)
+                {
+                    Position.x += delta.x;
+                }
+                else
+                {
+                    Position.x += (targetPosition.x - Position.x) * elapsed / Damping.x;
+                }
+
+                if (Damping.y == 0)
+                {
+                    Position.y += delta.y;
+                }
+                else
+                {
+                    Position.x += (targetPosition.y - Position.y) * elapsed / Damping.x;
+                }
             }
         }
     }

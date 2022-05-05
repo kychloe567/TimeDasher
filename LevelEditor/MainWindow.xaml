@@ -46,6 +46,8 @@
                 <Separator/>
                 <MenuItem Header="Exit&#x09;&#x09;Ctrl+Q" Command="{Binding ExitCommand}"/>
             </MenuItem>
+            <TextBlock Text="Background" Foreground="White" Margin="20,0,0,0"/>
+            <ComboBox Width="200" Height="28" ItemsSource="{Binding Backgrounds}" SelectedItem="{Binding SelectedBackground}"/>
         </Menu>
 
         <Border Grid.Row="1" Grid.Column="0" Background="#1e1e1e" Panel.ZIndex="1000">

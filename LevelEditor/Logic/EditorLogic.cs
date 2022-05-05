@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using SZGUIFeleves.Helpers;
 using SZGUIFeleves.Models;
 using SZGUIFeleves.Models.DrawableObjects;
+using SZGUIFeleves.Models.EngineModels.MovingBackground;
 
 namespace LevelEditor.Logic
 {
@@ -55,6 +56,8 @@ namespace LevelEditor.Logic
         private Vec2d MousePositionWorldSpace { get; set; }
         private Vec2d MouseDrag { get; set; }
         private Vec2d CurrentCameraPosition { get; set; }
+        public List<DrawableObject> MovingBackground { get; set; }
+        private List<string> MovingBackgroundPaths { get; set; }
         #endregion
 
         #region Editor Variables
@@ -95,6 +98,9 @@ namespace LevelEditor.Logic
             CycleMilliseconds = 1.0f / FPSTarget * 1000.0f;
 
             ObjectsToDisplayWorldSpace = new List<DrawableObject>();
+            MovingBackground = new List<DrawableObject>();
+            MovingBackgroundPaths = new List<string>();
+
             Objects = new List<DrawableObject>();
             PlayerIndex = 0;
             Objects.Add(new Player()
@@ -323,6 +329,36 @@ namespace LevelEditor.Logic
         public void SetChanged(string currentSet)
         {
             LoadSet(currentSet);
+        }
+
+        public void BackgroundChanged(string set)
+        {
+            string objectsPath = "Textures\\" + set + "\\StaticBackground\\";
+            MovingBackground = new List<DrawableObject>();
+
+            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
+            {
+                Texture = new BitmapImage(new Uri(objectsPath + "background.png", UriKind.RelativeOrAbsolute))
+            });
+            MovingBackgroundPaths.Add(new DirectoryInfo(objectsPath + "\\").GetFiles("background.png").First().FullName);
+
+            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
+            {
+                Texture = new BitmapImage(new Uri(objectsPath + "far.png", UriKind.RelativeOrAbsolute))
+            });
+            MovingBackgroundPaths.Add(new DirectoryInfo(objectsPath + "\\").GetFiles("far.png").First().FullName);
+
+            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
+            {
+                Texture = new BitmapImage(new Uri(objectsPath + "middle.png", UriKind.RelativeOrAbsolute))
+            });
+            MovingBackgroundPaths.Add(new DirectoryInfo(objectsPath + "\\").GetFiles("middle.png").First().FullName);
+
+            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
+            {
+                Texture = new BitmapImage(new Uri(objectsPath + "close.png", UriKind.RelativeOrAbsolute))
+            });
+            MovingBackgroundPaths.Add(new DirectoryInfo(objectsPath + "\\").GetFiles("close.png").First().FullName);
         }
 
         /// <summary>
@@ -815,7 +851,7 @@ namespace LevelEditor.Logic
             //Button control checks
             if (ButtonFlags[ButtonKey.MouseMiddle])
             {
-                Camera.UpdatePosition(CurrentCameraPosition + (MouseDrag - MousePosition), Elapsed);
+                Camera.UpdatePosition(CurrentCameraPosition + (MouseDrag - MousePosition), Elapsed, true);
             }
         }
 
@@ -847,6 +883,32 @@ namespace LevelEditor.Logic
         public void LoadScene(Scene s)
         {
             ResetScene();
+            MovingBackground = new List<DrawableObject>();
+
+            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
+            {
+                Texture = s.MovingBackground.Background
+            });
+            MovingBackgroundPaths.Add(s.MovingBackground.BackgroundPath);
+
+            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
+            {
+                Texture = s.MovingBackground.Far
+            });
+            MovingBackgroundPaths.Add(s.MovingBackground.FarPath);
+
+            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
+            {
+                Texture = s.MovingBackground.Middle
+            });
+            MovingBackgroundPaths.Add(s.MovingBackground.MiddlePath);
+
+            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
+            {
+                Texture = s.MovingBackground.Close
+            });
+            MovingBackgroundPaths.Add(s.MovingBackground.ClosePath);
+
             foreach (var obj in s.Objects)
                 Objects.Add(obj);
         }
@@ -858,7 +920,23 @@ namespace LevelEditor.Logic
         /// <returns></returns>
         public Scene SaveScene(string title)
         {
-            return new Scene(title, Objects, -1, new List<DynamicPointLight>());
+            MovingBackground mb = new MovingBackground();
+            if (MovingBackground.Count > 0)
+            {
+                mb = new MovingBackground()
+                {
+                    Background = MovingBackground[0].Texture,
+                    BackgroundPath = MovingBackgroundPaths[0],
+                    Far = MovingBackground[1].Texture,
+                    FarPath = MovingBackgroundPaths[1],
+                    Middle = MovingBackground[2].Texture,
+                    MiddlePath = MovingBackgroundPaths[2],
+                    Close = MovingBackground[3].Texture,
+                    ClosePath = MovingBackgroundPaths[3]
+                };
+            }
+
+            return new Scene(title, Objects, -1, new List<DynamicPointLight>(), mb);
         }
     }
 }

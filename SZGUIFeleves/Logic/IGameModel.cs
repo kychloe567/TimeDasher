@@ -12,6 +12,7 @@ namespace SZGUIFeleves.Logic
         event DrawDelegate DrawEvent;
         List<DrawableObject> ObjectsToDisplayScreenSpace { get; set; }
         List<DrawableObject> ObjectsToDisplayWorldSpace { get; set; }
+        List<DrawableObject> MovingBackgrounds { get; set; }
         Camera Camera { get; set; }
     }
 }

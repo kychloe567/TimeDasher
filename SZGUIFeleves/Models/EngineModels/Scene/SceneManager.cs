@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SZGUIFeleves.Models.DrawableObjects;
+using SZGUIFeleves.Models.EngineModels.MovingBackground;
 
 namespace SZGUIFeleves.Models
 {
@@ -18,7 +19,7 @@ namespace SZGUIFeleves.Models
 
         public static Scene GetDefaultScene()
         {
-            return new Scene("default", new List<DrawableObject>(), 0, new List<DynamicPointLight>());
+            return new Scene("default", new List<DrawableObject>(), 0, new List<DynamicPointLight>(), new MovingBackground());
         }
 
         public static Scene GetSceneByName(string scene)
@@ -73,7 +74,8 @@ namespace SZGUIFeleves.Models
                 Objects.Add(sj.Texts[i]);
             }
 
-            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights);
+            sj.MovingBackground.LoadTextures();
+            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground);
             return s;
         }
 
@@ -129,7 +131,8 @@ namespace SZGUIFeleves.Models
                 Objects.Add(sj.Texts[i]);
             }
 
-            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights);
+            sj.MovingBackground.LoadTextures();
+            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground);
             return s;
         }
 
@@ -151,6 +154,7 @@ namespace SZGUIFeleves.Models
                 else if (obj is Text t)
                     sj.Texts.Add(t);
             }
+            sj.MovingBackground = scene.MovingBackground;
             sj.Title = scene.Title;
             sj.PointLights = scene.PointLights;
 
@@ -175,6 +179,7 @@ namespace SZGUIFeleves.Models
                 else if (obj is Text t)
                     sj.Texts.Add(t);
             }
+            sj.MovingBackground = scene.MovingBackground;
             sj.Title = scene.Title;
             sj.PointLights = scene.PointLights;
 

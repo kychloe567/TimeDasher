@@ -15,6 +15,7 @@ namespace LevelEditor.Logic
         void SetChanged(string currentSet);
         event SetsUpdatedDelegate SetsUpdated;
         event ItemsUpdatedDelegate ItemsUpdated;
+        void BackgroundChanged(string set);
         void ResetScene();
         void LoadScene(Scene s);
         Scene SaveScene(string title);

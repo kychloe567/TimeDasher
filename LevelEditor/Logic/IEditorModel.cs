@@ -11,6 +11,7 @@ namespace LevelEditor.Logic
     {
         event DrawDelegate DrawEvent;
         List<DrawableObject> ObjectsToDisplayWorldSpace { get; set; }
+        List<DrawableObject> MovingBackground { get; set; }
         Camera Camera { get; set; }
     }
 }

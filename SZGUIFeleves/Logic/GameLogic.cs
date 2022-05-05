@@ -63,7 +63,9 @@ namespace SZGUIFeleves.Logic
         }
         private Dictionary<ButtonKey, bool> ButtonFlags { get; set; }
         public Camera Camera { get; set; }
-        public MovingBackground Background { get; set; }
+        public List<DrawableObject> MovingBackgrounds { get; set; }
+        private double MovingBackgroundSpeed { get; set; }
+
         public Scene CurrentScene { get; set; }
         public Vec2d MousePosition { get; set; }
 
@@ -89,6 +91,8 @@ namespace SZGUIFeleves.Logic
 
             ObjectsToDisplayWorldSpace = new List<DrawableObject>();
             ObjectsToDisplayScreenSpace = new List<DrawableObject>();
+            MovingBackgrounds = new List<DrawableObject>();
+            MovingBackgroundSpeed = 1f;
 
             // Creating main loop timer
             MainLoopTimer = new DispatcherTimer();
@@ -108,19 +112,17 @@ namespace SZGUIFeleves.Logic
                 DeadZone = new Vec2d(5,5),
             };
 
-            Background = new MovingBackground()
-            {
-                Size = new Vec2d(400, 400),
-                Position = Camera.Position,
-                DrawPriority = DrawPriority.Top,
-                CameraDeadZone = new Vec2d(75, 20),
-                CameraDamping = new Vec2d(),
-                CameraOffset = new Vec2d(),
-                Color = Color.Purple,
-                OutLineColor = Color.Purple,
-                
-
-            };
+            //Background = new MovingBackground()
+            //{
+            //    Size = new Vec2d(400, 400),
+            //    Position = Camera.Position,
+            //    DrawPriority = DrawPriority.Top,
+            //    CameraDeadZone = new Vec2d(75, 20),
+            //    CameraDamping = new Vec2d(),
+            //    CameraOffset = new Vec2d(),
+            //    Color = Color.Purple,
+            //    OutLineColor = Color.Purple,
+            //};
 
             MousePosition = new Vec2d();
 
@@ -133,7 +135,7 @@ namespace SZGUIFeleves.Logic
                 LastPressedDirection = ButtonKey.D;
             }
 
-            
+            MovingBackgrounds = CurrentScene.MovingBackground.GetDefault(WindowSize);
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
@@ -265,6 +267,8 @@ namespace SZGUIFeleves.Logic
                 }
             }
 
+            MovingBackgrounds = CurrentScene.MovingBackground.UpdateBackground(WindowSize);
+
             Control(up, left, down, right);
             Update();
 
@@ -306,6 +310,11 @@ namespace SZGUIFeleves.Logic
             {
                 LastPressedDirection = ButtonKey.A;
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1.5, 0), 200.0f * Elapsed);
+                CurrentScene.MovingBackground.BackgroundPosition += 0.2 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.FarPosition += 0.75 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.MiddlePosition += 1.65 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.ClosePosition += 2.55 * MovingBackgroundSpeed;
+
                 if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runleft" &&
                     !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
@@ -329,6 +338,11 @@ namespace SZGUIFeleves.Logic
             {
                 LastPressedDirection = ButtonKey.D;
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1.5, 0), 200.0f * Elapsed);
+                CurrentScene.MovingBackground.BackgroundPosition -= 0.2 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.FarPosition -= 0.75 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.MiddlePosition -= 1.65 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.ClosePosition -= 2.55 * MovingBackgroundSpeed;
+
                 if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runright" &&
                     !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
@@ -378,7 +392,7 @@ namespace SZGUIFeleves.Logic
                 Vec2d originalPos = new Vec2d(dpl.Position);
                 for (int i = 0; i < shadowPasses; i++)
                 {
-                    dpl.Position = originalPos + new Vec2d(i*shadowIntensity, i*shadowIntensity);
+                    dpl.Position = originalPos + new Vec2d(i * shadowIntensity, i * shadowIntensity);
                     var shadow = dpl.GetShadows(CurrentScene.Objects, WindowSize);
                     if (shadow is null)
                         continue;
@@ -402,23 +416,32 @@ namespace SZGUIFeleves.Logic
         {
             bool doesIntersect = false;
 
-                    foreach (var item in CurrentScene.Objects)
-                    foreach (var item in CurrentScene.Objects)
-                    {
-                        if (!obj.Equals(item) && item is Rectangle r && obj.Intersects(item))
-                        {
-                            doesIntersect = true;
-                            
-                            // Angle of Vector IO.
-                            double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
-                                ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
-                                : (p.GetMiddleRight() - r.GetMiddle()).Angle;
+            // TEMP TODO
+            //IsGravitySet(p, false, null);
+
+            foreach (var item in CurrentScene.Objects)
+            {
+                if (!p.Equals(item) && item is Rectangle r && p.Intersects(item) && item.ObjectType == DrawableObject.ObjectTypes.Foreground)
+                {
+                    doesIntersect = true;
+
+                    // Angle of Vector IO.
+                    double vecInDegrees = (p.GetMiddleLeft() - r.GetMiddle()).Length >= (p.GetMiddleRight() - r.GetMiddle()).Length
+                        ? (p.GetMiddleLeft() - r.GetMiddle()).Angle
+                        : (p.GetMiddleRight() - r.GetMiddle()).Angle;
+
                     //double vecInDegrees = (obj.GetMiddle() - item.GetMiddle()).Angle;
                     if (vecInDegrees < 45 || vecInDegrees > 315)
                     {
                         // Player is on the RIGHT side
                         if (p.Position.x < r.Position.x + r.Size.x)
                         {
+                            double delta = r.Position.x + r.Size.x - p.Position.x;
+                            CurrentScene.MovingBackground.BackgroundPosition += delta / 6 * MovingBackgroundSpeed;
+                            CurrentScene.MovingBackground.FarPosition += delta / 2 * MovingBackgroundSpeed;
+                            CurrentScene.MovingBackground.MiddlePosition += delta * 1.1 * MovingBackgroundSpeed;
+                            CurrentScene.MovingBackground.ClosePosition += delta * 1.7 * MovingBackgroundSpeed;
+
                             p.Position.x = r.Position.x + r.Size.x;
                         }
                         r.Color = Color.Red;
@@ -445,6 +468,12 @@ namespace SZGUIFeleves.Logic
                         // Player is on the LEFT side
                         if (p.Right > r.Position.x)
                         {
+                            double delta = p.Right - r.Position.x;
+                            CurrentScene.MovingBackground.BackgroundPosition += delta / 6 * MovingBackgroundSpeed;
+                            CurrentScene.MovingBackground.FarPosition += delta / 2 * MovingBackgroundSpeed;
+                            CurrentScene.MovingBackground.MiddlePosition += delta * 1.1 * MovingBackgroundSpeed;
+                            CurrentScene.MovingBackground.ClosePosition += delta * 1.7 * MovingBackgroundSpeed;
+
                             p.Position.x = r.Position.x - p.Size.x;
                         }
                         r.Color = Color.Blue;
@@ -460,74 +489,38 @@ namespace SZGUIFeleves.Logic
                         r.Color = Color.Green;
                         down = false;
 
-                                // Turn off gravity
-                                // Turn off gravity
-                                IsGravitySet(p, false, null);
-                            }
-                            //ObjectsToDisplayWorldSpace.Add(new Text(new Vec2d(10, 10), Math.Round(vecInDegrees, 1) + "°", 25, new Color(255, 255, 255)));
-                        }
-                        else if (!obj.Equals(item) && item.Color != Color.Gray)
+                        // Turn off gravity
+                        if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
+                                !ButtonFlags[ButtonKey.A] && !ButtonFlags[ButtonKey.D] &&
+                                !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
                         {
-                            item.Color = Color.Gray;
+                            if (LastPressedDirection == ButtonKey.A &&
+                                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idleleft")
+                            {
+                                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleleft");
+                            }
+                            else if (LastPressedDirection == ButtonKey.D &&
+                                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idleright")
+                            {
+                                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleright");
+                            }
                         }
+                        IsGravitySet(p, false, null);
                     }
-                    if (!doesIntersect && !p.IsGravity)
-                        IsGravitySet(p, true, new Vec2d(0, 0));
-                    else if (!doesIntersect && p.IsGravity)
-                        up = false;
                 }
-            }
-
-            Control(up, left, down, right);  // Keyboard/Mouse input
-            Update();   // Game logic update
-            
-            DrawEvent.Invoke(); // Invoking the OnRender function in the Display class through event
-        }
-
-        /// <summary>
-        /// Input checking
-        /// </summary>
-        private void Control(bool up = true, bool left = true, bool down = true, bool right = true)
-        {
-            //Button control checks
-            if (ButtonFlags[ButtonKey.W] && up)
-            {
-                IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -300));
-                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
-            }
-            if (ButtonFlags[ButtonKey.A] && left)
-                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1, 0), 200.0f * Elapsed);
-            if (ButtonFlags[ButtonKey.S] && down)
-                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(0, 1), 200.0f * Elapsed);
-            if (ButtonFlags[ButtonKey.D] && right)
-                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1, 0), 200.0f * Elapsed);
-            if (CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
-                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
-        }
-
-        /// <summary>
-        /// Logic Update
-        /// </summary>
-        private void Update()
-        {
-            // Game Logic Update
-
-            // Lighting
-            foreach (DynamicPointLight dpl in CurrentScene.PointLights)
-            {
-                Vec2d originalPos = new Vec2d(dpl.Position);
-                for (int i = 0; i < shadowPasses; i++)
+                else if (!p.Equals(item) && item.Color != Color.Gray)
                 {
-                    dpl.Position = originalPos + new Vec2d(i*shadowIntensity, i*shadowIntensity);
-                    var shadow = dpl.GetShadows(CurrentScene.Objects, WindowSize);
-                    if (shadow is null)
-                        continue;
-
-                    shadow.Color = LightColor;
-                    ObjectsToDisplayWorldSpace.Add(shadow);
+                    item.Color = Color.Gray;
                 }
-                dpl.Position = originalPos;
             }
+
+            if (!doesIntersect && !p.IsGravity)
+                IsGravitySet(p, true, new Vec2d(0, 0));
+            else if (!doesIntersect && p.IsGravity)
+                up = false;
+            else if (!up && down && !p.IsGravity)
+                IsGravitySet(p, true, new Vec2d(0, 1));
+        }
 
         private void IsGravitySet(DrawableObject obj, bool value, Vec2d newVelocity)
         {

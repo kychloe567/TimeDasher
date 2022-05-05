@@ -33,6 +33,8 @@ namespace LevelEditor.Renderer
             // Clearing the screen
             dc.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1), new Rect(0, 0, WindowSize.x, WindowSize.y));
 
+            DrawObjects(ref dc, model.MovingBackground, true);
+
             dc.PushTransform(new TranslateTransform(-model.Camera.CenteredPosition.x, -model.Camera.CenteredPosition.y));
             //dc.PushTransform(new ScaleTransform(model.Camera.Zoom, model.Camera.Zoom, model.Camera.Position.x, model.Camera.Position.y));
             // Transforming objects by the camera
@@ -47,7 +49,7 @@ namespace LevelEditor.Renderer
             model.ObjectsToDisplayWorldSpace.Clear();
         }
 
-        private void DrawObjects(ref DrawingContext dc, List<DrawableObject> objects)
+        private void DrawObjects(ref DrawingContext dc, List<DrawableObject> objects, bool isBackground = false)
         {
             foreach (DrawableObject obj in objects)
             {
@@ -96,7 +98,7 @@ namespace LevelEditor.Renderer
 
                 if (obj is Rectangle r)
                 {
-                    if (!r.IsVisible(model.Camera))
+                    if (!r.IsVisible(model.Camera) && !isBackground)
                         continue;
 
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);

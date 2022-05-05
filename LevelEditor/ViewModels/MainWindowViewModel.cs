@@ -175,6 +175,21 @@ namespace LevelEditor.ViewModels
         }
         #endregion
 
+        #region Background
+        public ObservableCollection<string> Backgrounds { get; set; }
+        private string selectedBackground;
+        public string SelectedBackground
+        {
+            get { return selectedBackground; }
+            set
+            {
+                selectedBackground = value;
+                logic.BackgroundChanged(selectedBackground);
+                OnPropertyChanged();
+            }
+        }
+        #endregion
+
         public MainWindowViewModel(IEditorControl logic)
         {
             this.logic = logic;
@@ -182,6 +197,7 @@ namespace LevelEditor.ViewModels
             ForegroundObjects = new ObservableCollection<Image>();
             BackgroundObjects = new ObservableCollection<Image>();
             DecorationObjects = new ObservableCollection<Image>();
+            BackgroundObjects = new ObservableCollection<Image>();
 
             logic.SetsUpdated += Logic_SetsUpdated;
             logic.ItemsUpdated += Logic_ItemsUpdated;
@@ -268,6 +284,7 @@ namespace LevelEditor.ViewModels
 
         private void Logic_SetsUpdated(List<string> sets)
         {
+            Backgrounds = new ObservableCollection<string>(sets);
             Sets = new ObservableCollection<string>(sets);
             SelectedSet = Sets.First();
         }
