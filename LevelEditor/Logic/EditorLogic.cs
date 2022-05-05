@@ -101,7 +101,7 @@ namespace LevelEditor.Logic
             {
                 IsPlayer = true,
                 Position = new Vec2d(0, 0),
-                Size = new Vec2d(64, 128),
+                Size = new Vec2d(31.5, 63),
                 Color = Color.White,
                 DrawPriority = DrawPriority.Top,
                 StateMachine = StateMachine.GetPlayerDefault()

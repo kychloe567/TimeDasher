@@ -36,7 +36,7 @@ namespace SZGUIFeleves.Models
                 {
                     IsPlayer = true,
                     Position = new Vec2d(0, 0),
-                    Size = new Vec2d(32, 64),
+                    Size = new Vec2d(31.5, 63),
                     Color = Color.White,
                     DrawPriority = DrawPriority.Top
                 });
@@ -65,8 +65,6 @@ namespace SZGUIFeleves.Models
             for(int i = 0; i < sj.Rectangles.Count(); i++)
             {
                 sj.Rectangles[i].LoadTexture();
-                sj.Rectangles[i].OutLineColor = Color.Red;
-                sj.Rectangles[i].OutLineThickness = 1;
                 Objects.Add(sj.Rectangles[i]);
             }
             for(int i = 0; i < sj.Texts.Count(); i++)
@@ -94,7 +92,7 @@ namespace SZGUIFeleves.Models
                 {
                     IsPlayer = true,
                     Position = new Vec2d(0, 0),
-                    Size = new Vec2d(35, 70),
+                    Size = new Vec2d(31.5, 63),
                     Color = Color.White,
                     DrawPriority = DrawPriority.Top
                 });

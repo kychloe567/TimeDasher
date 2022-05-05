@@ -20,8 +20,14 @@ namespace SZGUIFeleves.Renderer
         public void SetupModel(IGameModel model, int windowWidth, int windowHeight)
         {
             this.model = model;
-            model.DrawEvent += InvalidateVisual;    // Subscribing to the logic's Draw event. Called after logic update
+            model.DrawEvent += WindowSizeChanged;    // Subscribing to the logic's Draw event. Called after logic update
             WindowSize = new Vec2d(windowWidth, windowHeight);
+        }
+
+        private void WindowSizeChanged(int WindowSizeWidth, int WindowSizeHeight)
+        {
+            WindowSize = new Vec2d(WindowSizeWidth, WindowSizeHeight);
+            InvalidateVisual();
         }
 
         protected override void OnRender(DrawingContext dc)

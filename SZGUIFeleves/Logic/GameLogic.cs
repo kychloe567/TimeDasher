@@ -11,7 +11,7 @@ using SZGUIFeleves.Models.DrawableObjects;
 
 namespace SZGUIFeleves.Logic
 {
-    public delegate void DrawDelegate();
+    public delegate void DrawDelegate(int WindowSizeWidth, int WindowSizeHeight);
 
     public enum ButtonKey // TODO: More buttons to add if needed
     {
@@ -283,7 +283,7 @@ namespace SZGUIFeleves.Logic
             Update();
 
             // Invoking the OnRender function in the Display class through event
-            DrawEvent.Invoke();
+            DrawEvent.Invoke((int)WindowSize.x, (int)WindowSize.y);
         }
 
         /// <summary>
@@ -306,7 +306,7 @@ namespace SZGUIFeleves.Logic
             // Left
             if (ButtonFlags[ButtonKey.A] && left)
             {
-                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1, 0), 200.0f * Elapsed);
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1.5, 0), 200.0f * Elapsed);
                 if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) && 
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runleft")
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("runleft");
@@ -319,7 +319,7 @@ namespace SZGUIFeleves.Logic
             // Right
             if (ButtonFlags[ButtonKey.D] && right)
             {
-                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1, 0), 200.0f * Elapsed);
+                MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1.5, 0), 200.0f * Elapsed);
                 if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) && 
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runright")
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("runright");
