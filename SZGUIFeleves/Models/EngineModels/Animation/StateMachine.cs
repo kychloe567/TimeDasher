@@ -53,11 +53,11 @@ namespace SZGUIFeleves.Models
             States.Add(an.Title, an);
         }
 
-        public void SetState(string state)
+        public void SetState(string state, int currentTexture = 0, bool fix = false, int stopOn = -1)
         {
             CurrentState = state;
             if(States.ContainsKey(CurrentState))
-                States[CurrentState].StartAnimation();
+                States[CurrentState].StartAnimation(currentTexture, fix, stopOn);
         }
 
         public void Update()
@@ -83,19 +83,27 @@ namespace SZGUIFeleves.Models
 
             StateMachine sm = new StateMachine();
 
-            Animation idle = new Animation("idle");
-            foreach (var image in new DirectoryInfo(objectsPath + "\\idle").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            Animation idleright = new Animation("idleright");
+            foreach (var image in new DirectoryInfo(objectsPath + "\\idleright").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
-                idle.AddTexture(bi, image.FullName, 0.2);
+                idleright.AddTexture(bi, image.FullName, 0.2);
             }
-            sm.AddState(idle);
+            sm.AddState(idleright);
+
+            Animation idleleft = new Animation("idleleft");
+            foreach (var image in new DirectoryInfo(objectsPath + "\\idleleft").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                idleleft.AddTexture(bi, image.FullName, 0.2);
+            }
+            sm.AddState(idleleft);
 
             Animation runright = new Animation("runright");
             foreach (var image in new DirectoryInfo(objectsPath + "\\runright").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
-                runright.AddTexture(bi, image.FullName, 0.15);
+                runright.AddTexture(bi, image.FullName, 0.08);
             }
             sm.AddState(runright);
 
@@ -103,11 +111,37 @@ namespace SZGUIFeleves.Models
             foreach (var image in new DirectoryInfo(objectsPath + "\\runleft").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
-                runleft.AddTexture(bi, image.FullName, 0.15);
+                runleft.AddTexture(bi, image.FullName, 0.08);
             }
             sm.AddState(runleft);
+            
+            Animation fallingright = new Animation("fallingright");
+            BitmapImage fallingrightb = new BitmapImage(new Uri(objectsPath + "\\fallingright.png", UriKind.RelativeOrAbsolute));
+            fallingright.AddTexture(fallingrightb, objectsPath + "\\fallingright.png", 1);
+            sm.AddState(fallingright);
+            
+            Animation fallingleft = new Animation("fallingleft");
+            BitmapImage fallingleftb = new BitmapImage(new Uri(objectsPath + "\\fallingleft.png", UriKind.RelativeOrAbsolute));
+            fallingleft.AddTexture(fallingleftb, objectsPath + "\\fallingleft.png", 1);
+            sm.AddState(fallingleft);
 
-            sm.SetState("idle");
+            Animation jumpingright = new Animation("jumpingright");
+            foreach (var image in new DirectoryInfo(objectsPath + "\\jumpingright").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                jumpingright.AddTexture(bi, image.FullName, 0.15);
+            }
+            sm.AddState(jumpingright);
+
+            Animation jumpingleft = new Animation("jumpingleft");
+            foreach (var image in new DirectoryInfo(objectsPath + "\\jumpingleft").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                jumpingleft.AddTexture(bi, image.FullName, 0.15);
+            }
+            sm.AddState(jumpingleft);
+
+            sm.SetState("idleright");
             return sm;
         }
     }

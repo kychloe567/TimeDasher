@@ -19,6 +19,9 @@ namespace SZGUIFeleves.Models
         [JsonProperty]
         private List<double> Times { get; set; }    // Seconds
 
+        private bool AnimationFixed { get; set; }
+        private int StopAnimationOnIndex { get; set; }
+
         [JsonProperty]
         private int currentTexture;
         [JsonIgnore]
@@ -34,6 +37,7 @@ namespace SZGUIFeleves.Models
             Textures = new List<BitmapImage>();
             TexturePaths = new List<string>();
             Times = new List<double>();
+            AnimationFixed = false;
         }
         public Animation(string title)
         {
@@ -42,6 +46,7 @@ namespace SZGUIFeleves.Models
             TexturePaths = new List<string>();
             Times = new List<double>();
             Start = DateTime.Now;
+            AnimationFixed = false;
         }
 
         public Animation(string title, List<BitmapImage> textures, double time)
@@ -52,6 +57,7 @@ namespace SZGUIFeleves.Models
             for (int i = 0; i < Textures.Count; i++)
                 Times.Add(time);
             Start = DateTime.Now;
+            AnimationFixed = false;
         }
         public Animation(string title, List<BitmapImage> textures, List<double> times)
         {
@@ -60,6 +66,7 @@ namespace SZGUIFeleves.Models
             TexturePaths = new List<string>();
             Times = times;
             Start = DateTime.Now;
+            AnimationFixed = false;
         }
 
         public void LoadTextures()
@@ -77,15 +84,18 @@ namespace SZGUIFeleves.Models
             Times.Add(time);
         }
 
-        public void StartAnimation()
+        public void StartAnimation(int currentTexture, bool fix, int stopOn)
         {
-            currentTexture = 0;
+            this.currentTexture = currentTexture;
+            StopAnimationOnIndex = stopOn;
+
+            AnimationFixed = fix;
             Start = DateTime.Now;
         }
 
         public void UpdateAnimation()
         {
-            if((DateTime.Now-Start).TotalSeconds >= Times[currentTexture])
+            if(!AnimationFixed && StopAnimationOnIndex != currentTexture && (DateTime.Now-Start).TotalSeconds >= Times[currentTexture])
             {
                 currentTexture++;
                 if (currentTexture == Times.Count)

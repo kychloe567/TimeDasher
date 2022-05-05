@@ -65,6 +65,8 @@ namespace SZGUIFeleves.Logic
         public Camera Camera { get; set; }
         public Scene CurrentScene { get; set; }
         public Vec2d MousePosition { get; set; }
+
+        public ButtonKey LastPressedDirection { get; set; }
         #endregion
 
         #region Lighting Variables
@@ -102,7 +104,7 @@ namespace SZGUIFeleves.Logic
             LightColor = new Color(255, 234, 176, lightBlendingAlpha);
             Camera = new Camera(WindowSize)
             {
-                DeadZone = new Vec2d(75, 20),
+                DeadZone = new Vec2d(5,5),
             };
 
             MousePosition = new Vec2d();
@@ -110,6 +112,11 @@ namespace SZGUIFeleves.Logic
             CurrentScene = SceneManager.GetSceneByName("player");
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
+            if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null))
+            {
+                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleright");
+                LastPressedDirection = ButtonKey.D;
+            }
 
             // This is an example for creating a scene/level
             #region
@@ -253,9 +260,9 @@ namespace SZGUIFeleves.Logic
 
             // Camera and objects sort
             #region
-            Camera.UpdatePosition(WindowSize / 2, Elapsed);
+            //Camera.UpdatePosition(WindowSize / 2, Elapsed);
             // Then uncomment this
-            //Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
+            Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
 
             var ToDrawObjects = new List<DrawableObject>(CurrentScene.Objects);
             ToDrawObjects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
@@ -297,38 +304,81 @@ namespace SZGUIFeleves.Logic
                 IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -300));
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
                 CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = false;
+
+                if (ButtonFlags[ButtonKey.A] && left)
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("jumpingleft", stopOn: 3);
+                else if (ButtonFlags[ButtonKey.D] && right)
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("jumpingright", stopOn: 3);
+                else if (LastPressedDirection == ButtonKey.D)
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("jumpingright", stopOn: 3);
+                else if (LastPressedDirection == ButtonKey.A)
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("jumpingleft", stopOn: 3);
+
             }
 
             // Reset the IsOnGround property if key 'W' isn't pressed to avoid infinite jumping.
-            if (!ButtonFlags[ButtonKey.W] && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
+            else if (!ButtonFlags[ButtonKey.W] && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
+            {
                 CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = true;
+            }
 
             // Left
-            if (ButtonFlags[ButtonKey.A] && left)
+            else if (ButtonFlags[ButtonKey.A] && left)
             {
+                LastPressedDirection = ButtonKey.A;
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1.5, 0), 200.0f * Elapsed);
-                if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) && 
-                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runleft")
+                if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runleft" &&
+                    !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+                {
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("runleft");
+                }
+                else if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "jumpingleft" &&
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+                {
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("jumpingleft");
+                }
             }
 
             // Down
-            if (ButtonFlags[ButtonKey.S] && down)
+            else if (ButtonFlags[ButtonKey.S] && down)
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(0, 1), 200.0f * Elapsed);
 
             // Right
-            if (ButtonFlags[ButtonKey.D] && right)
+            else if (ButtonFlags[ButtonKey.D] && right)
             {
+                LastPressedDirection = ButtonKey.D;
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1.5, 0), 200.0f * Elapsed);
-                if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) && 
-                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runright")
+                if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runright" &&
+                    !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+                {
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("runright");
+                }
+                else if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "jumpingright" &&
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+                {
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("jumpingright");
+                }
             }
 
-            if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
-                !ButtonFlags[ButtonKey.A] && !ButtonFlags[ButtonKey.D] && 
-                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idle")
-                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idle");
+            else if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
+                !ButtonFlags[ButtonKey.A] && !ButtonFlags[ButtonKey.D] &&
+                !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+            {
+                if (LastPressedDirection == ButtonKey.A &&
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idleleft")
+                {
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleleft");
+                }
+                else if (LastPressedDirection == ButtonKey.D &&
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idleright")
+                {
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleright");
+                }
+            }
 
             // If player is in the air, the Move() is called due to gravity.
             // --------------- WARNING: it affects only on Player object!! ----------------
@@ -432,6 +482,21 @@ namespace SZGUIFeleves.Logic
                         down = false;
 
                         // Turn off gravity
+                        if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
+                                !ButtonFlags[ButtonKey.A] && !ButtonFlags[ButtonKey.D] &&
+                                !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+                        {
+                            if (LastPressedDirection == ButtonKey.A &&
+                                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idleleft")
+                            {
+                                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleleft");
+                            }
+                            else if (LastPressedDirection == ButtonKey.D &&
+                                    CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "idleright")
+                            {
+                                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleright");
+                            }
+                        }
                         IsGravitySet(p, false, null);
                     }
                 }

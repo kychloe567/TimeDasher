@@ -69,7 +69,7 @@ namespace SZGUIFeleves.Models
 
             }
 
-            if(nextPosition.y <= Position.y - DeadZone.y / 2 || nextPosition.y > Position.y + DeadZone.y / 2)
+            if (nextPosition.y <= Position.y - DeadZone.y / 2 || nextPosition.y > Position.y + DeadZone.y / 2)
             {
                 if (nextPosition.y > Position.y)
                     delta.y = targetPosition.y - (Position.y + DeadZone.y / 2);
@@ -80,29 +80,30 @@ namespace SZGUIFeleves.Models
 
             // TODO: Better damping
             // TODO: Look ahead
-            if(delta.x != 0 || delta.y != 0)
+            if (delta.x != 0 || delta.y != 0)
             {
-                TargetPosition = Position + delta;
+                Position = Position + delta*elapsed*5;
 
-                Vec2d vel = targetPosition - Position;
+                return;
+                //Vec2d vel = targetPosition - Position;
 
-                if (Damping.x == 0)
-                {
-                    Position.x += delta.x;
-                }
-                else
-                {
-                    Position.x += (targetPosition.x - Position.x) * elapsed / Damping.x;
-                }
+                //if (Damping.x == 0)
+                //{
+                //    Position.x += delta.x;
+                //}
+                //else
+                //{
+                //    Position.x += (targetPosition.x - Position.x) * elapsed / Damping.x;
+                //}
 
-                if (Damping.y == 0)
-                {
-                    Position.y += delta.y;
-                }
-                else
-                {
-                    Position.x += (targetPosition.y - Position.y) * elapsed / Damping.x;
-                }
+                //if (Damping.y == 0)
+                //{
+                //    Position.y += delta.y;
+                //}
+                //else
+                //{
+                //    Position.x += (targetPosition.y - Position.y) * elapsed / Damping.x;
+                //}
             }
         }
     }
