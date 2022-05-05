@@ -70,6 +70,8 @@ namespace SZGUIFeleves.Logic
         public Vec2d MousePosition { get; set; }
 
         public ButtonKey LastPressedDirection { get; set; }
+
+        public Stopwatch SceneTimer { get; set; }
         #endregion
 
         #region Lighting Variables
@@ -136,6 +138,9 @@ namespace SZGUIFeleves.Logic
             }
 
             MovingBackgrounds = CurrentScene.MovingBackground.GetDefault(WindowSize);
+
+            SceneTimer = new Stopwatch();
+            SceneTimer.Start();
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
@@ -266,6 +271,15 @@ namespace SZGUIFeleves.Logic
                     PlayerMovement(p, ref up, ref left, ref down, ref right);
                 }
             }
+
+            #region TimerText
+            Text timerText = new Text(new Vec2d(WindowSize.x / 2 - 90, 10), SceneTimer.Elapsed.ToString(@"mm\:ss\.fff"), 40, Color.White)
+            {
+                OutLineColor = Color.Black,
+                OutLineThickness = 2
+            };
+            ObjectsToDisplayScreenSpace.Add(timerText);
+            #endregion
 
             MovingBackgrounds = CurrentScene.MovingBackground.UpdateBackground(WindowSize);
 

@@ -168,7 +168,12 @@ namespace SZGUIFeleves.Renderer
                     FormattedText formattedText = new FormattedText(t.Content, System.Globalization.CultureInfo.CurrentCulture,
                         FlowDirection.LeftToRight, new Typeface(t.FontFamily, t.FontStyle, t.FontWeight, FontStretches.Normal), t.FontSize,
                         brush, 10);
+
+                    Geometry geometry = formattedText.BuildGeometry(new Point(t.Position.x, t.Position.y));
                     dc.DrawText(formattedText, new Point(t.Position.x, t.Position.y));
+
+                    dc.DrawGeometry(null, pen, geometry);
+
                 }
 
                 if (obj.Rotation != 0 && !(obj is Text))
