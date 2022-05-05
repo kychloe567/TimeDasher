@@ -429,12 +429,9 @@ namespace SZGUIFeleves.Logic
                 }
             }
             if (!doesIntersect && !p.IsGravity)
-            {
                 IsGravitySet(p, true, new Vec2d(0, 0));
+            else if (!doesIntersect && p.IsGravity)
                 up = false;
-            }
-            else if (!up && down && !p.IsGravity)
-                IsGravitySet(p, true, new Vec2d(0, 0));
         }
 
         private void IsGravitySet(DrawableObject obj, bool value, Vec2d newVelocity)
