@@ -14,7 +14,6 @@ namespace SZGUIFeleves.Controller
 {
     internal class LeaderboardController
     {
-        // READ allowed ONLY with this key
         const string masterkey = "$2b$10$s/e8i//Enfog.N2UHxFVDenE2MJtNujAkmzy.qAXTo0rqcwMgo6jW";
         const string binId = "625dc6cf80883c3054e31eb2";
 
