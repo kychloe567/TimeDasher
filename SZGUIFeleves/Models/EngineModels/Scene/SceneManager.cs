@@ -74,6 +74,14 @@ namespace SZGUIFeleves.Models
                 Objects.Add(sj.Texts[i]);
             }
 
+            foreach(DrawableObject d in Objects)
+            {
+                if(!(d.StateMachine is null))
+                {
+                    d.StateMachine.Start();
+                }
+            }
+
             sj.MovingBackground.LoadTextures();
             Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground);
             return s;

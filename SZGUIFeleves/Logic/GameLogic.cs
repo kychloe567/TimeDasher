@@ -126,7 +126,7 @@ namespace SZGUIFeleves.Logic
 
             MousePosition = new Vec2d();
 
-            CurrentScene = SceneManager.GetSceneByName("player");
+            CurrentScene = SceneManager.GetSceneByName("tree");
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
             if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null))

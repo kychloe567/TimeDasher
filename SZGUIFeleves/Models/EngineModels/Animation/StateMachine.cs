@@ -60,6 +60,15 @@ namespace SZGUIFeleves.Models
                 States[CurrentState].StartAnimation(currentTexture, fix, stopOn);
         }
 
+        public void Start()
+        {
+            if(States.Count > 0)
+            {
+                CurrentState = States.Keys.First();
+                States[CurrentState].StartAnimation(0, false, -1);
+            }
+        }
+
         public void Update()
         {
             if (States.ContainsKey(CurrentState))
