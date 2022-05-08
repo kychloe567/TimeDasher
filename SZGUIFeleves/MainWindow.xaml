@@ -21,6 +21,41 @@
     </Window.DataContext>
     <Window.Resources>
         <conv:GameStateToVisibility x:Key="GameStateToVisibility"/>
+
+        <Style TargetType="{x:Type TabControl}">
+            <Setter Property="TabStripPlacement" Value="Top" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="BorderBrush" Value="Pink"/>
+            <Setter Property="BorderThickness" Value="10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabItem}">
+                        <Border x:Name="PART_Border" Background="LightGray" BorderThickness="1,1,1,0"
+                            BorderBrush="Black" Margin="0,0,0,0" CornerRadius="2,2,0,0" Padding="50,0,50,0">
+                            <ContentPresenter ContentSource="Header" Margin="5" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#363636"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+
+                            <Trigger Property="IsSelected" Value="false">
+                                <Setter Property="Background" Value="LightGray"/>
+                                <Setter Property="Foreground" Value="Black"/>
+
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -45,7 +80,8 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/> <!-- Start 3 -->
                 <RowDefinition Height="*"/> <!-- Leaderboard 4 -->
-                <RowDefinition Height="*"/> <!-- Exit 5 -->
+                <RowDefinition Height="*"/> <!-- Level Editor 5 -->
+                <RowDefinition Height="*"/> <!-- Exit 6 -->
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -66,13 +102,89 @@
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Grid.Row="5" Grid.Column="1" Content="EXIT" FontSize="40" Margin="0,10" Command="{Binding ExitButtonCommand}">
+            <Button Grid.Row="5" Grid.Column="1" Content="LEVEL EDITOR" FontSize="40" Margin="0,10" Command="{Binding LevelEditorButtonCommand}">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
                     </Style>
                 </Button.Resources>
             </Button>
+            <Button Grid.Row="6" Grid.Column="1" Content="EXIT" FontSize="40" Margin="0,10" Command="{Binding ExitButtonCommand}">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="20"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Grid>
+
+        <Grid Visibility="{Binding GameState, Converter={StaticResource GameStateToVisibility}, ConverterParameter=leaderboard}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <TabControl ItemsSource="{Binding LeaderBoard}" Background="#1e1e1e" SelectedIndex="{Binding SelectedLeaderboardTab}">
+                <TabControl.Resources>
+                    <Style TargetType="{x:Type Grid}">
+                        <Setter Property="Background" Value="#1e1e1e"/>
+                    </Style>
+                </TabControl.Resources>
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Path=Key}"/>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock FontSize="50" FontWeight="Bold" HorizontalAlignment="Center"
+                                       Foreground="White">
+                                <TextBlock.Text>
+                                    <Binding Path="Key">
+                                        <Binding.StringFormat>
+                                            {0} TOP 15
+                                        </Binding.StringFormat>
+                                    </Binding>
+                                </TextBlock.Text>
+                            </TextBlock>
+
+                            <ListView ItemsSource="{Binding Path=Value}" Grid.Row="1" Background="#1e1e1e"
+                                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Focusable" Value="False"/>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="5" Background="LightBlue" Height="30" HorizontalAlignment="Stretch">
+                                            <TextBlock Text="{Binding}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                           FontSize="20"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Grid>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+            </TabControl>
+
+            <Border Background="#1e1e1e" Grid.Row="1" HorizontalAlignment="Stretch">
+                <Button Content="Back" FontSize="20" Margin="0,10" Command="{Binding BackButtonCommand}"
+                    Width="150" HorizontalAlignment="Center">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="20"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Border>
         </Grid>
     </Grid>
 

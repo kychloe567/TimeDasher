@@ -18,7 +18,8 @@ namespace SZGUIFeleves.Converters
             string p = (string)parameter;
 
             if ((b == GameStates.Menu && p == "menu") ||
-                (b == GameStates.Game && p == "game"))
+                (b == GameStates.Game && p == "game") ||
+                (b == GameStates.Leaderboard && p == "leaderboard"))
                 return Visibility.Visible;
             else
                 return Visibility.Hidden;
