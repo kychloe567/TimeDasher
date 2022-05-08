@@ -14,6 +14,7 @@ namespace SZGUIFeleves.Models
         public List<Circle> Circles { get; set; }
         public List<Line> Lines { get; set; }
         public List<Polygon> Polygons { get; set; }
+        public List<Trap> Traps { get; set; }
         public List<Rectangle> Rectangles { get; set; }
         public List<Text> Texts { get; set; }
         public List<DynamicPointLight> PointLights { get; set; }
@@ -26,6 +27,7 @@ namespace SZGUIFeleves.Models
             Circles = new List<Circle>();
             Lines = new List<Line>();
             Polygons = new List<Polygon>();
+            Traps = new List<Trap>();
             Rectangles = new List<Rectangle>();
             Texts = new List<Text>();
             MovingBackground = new MovingBackground();

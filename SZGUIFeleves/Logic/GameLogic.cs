@@ -114,28 +114,21 @@ namespace SZGUIFeleves.Logic
                 DeadZone = new Vec2d(5,5),
             };
 
-            //Background = new MovingBackground()
-            //{
-            //    Size = new Vec2d(400, 400),
-            //    Position = Camera.Position,
-            //    DrawPriority = DrawPriority.Top,
-            //    CameraDeadZone = new Vec2d(75, 20),
-            //    CameraDamping = new Vec2d(),
-            //    CameraOffset = new Vec2d(),
-            //    Color = Color.Purple,
-            //    OutLineColor = Color.Purple,
-            //};
+            LastPressedDirection = ButtonKey.D;
 
             MousePosition = new Vec2d();
 
             CurrentScene = SceneManager.GetSceneByName("tree");
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
-            if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null))
+
+            CurrentScene.Objects.Add(new Trap()
             {
-                CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("idleright");
-                LastPressedDirection = ButtonKey.D;
-            }
+                Position = new Vec2d(700,500),
+                Size = new Vec2d(50,50),
+                Color = Color.Red,
+                ObjectType = DrawableObject.ObjectTypes.Decoration
+            });
 
             MovingBackgrounds = CurrentScene.MovingBackground.GetDefault(WindowSize);
 
@@ -239,23 +232,49 @@ namespace SZGUIFeleves.Logic
             //RecentFPS.Add(currentFps);
             //if (RecentFPS.Count > 20)
             //    RecentFPS.Remove(RecentFPS.First());
-            //ObjectsToDisplayWorldSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+            //ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
             #endregion
 
             // Camera and objects sort
             #region
-            // Remove after player has been created 
-            //Camera.UpdatePosition(WindowSize / 2, Elapsed);
-            // Then uncomment this
             Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
-            //Background.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
 
             var ToDrawObjects = new List<DrawableObject>(CurrentScene.Objects);
             ToDrawObjects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             #endregion
 
+            MovingBackgrounds = CurrentScene.MovingBackground.UpdateBackground(WindowSize);
+
+            Control(up, left, down, right);
+            Update();
+
             foreach (var obj in ToDrawObjects)
             {
+                if (obj.IsPlayer && obj is Player p)
+                {
+                    PlayerMovement(p, ref up, ref left, ref down, ref right);
+                }
+
+                if(obj is Trap t)
+                {
+                    if(t.Intersects(CurrentScene.Objects[CurrentScene.PlayerIndex]))
+                    {
+
+                        CurrentScene = SceneManager.GetSceneByName(CurrentScene.Title);
+                        
+                        CurrentScene.Objects.Add(new Trap()
+                        {
+                            Position = new Vec2d(700, 520),
+                            Size = new Vec2d(50, 50),
+                            Color = Color.Red,
+                            ObjectType = DrawableObject.ObjectTypes.Decoration
+                        });
+
+                        MovingBackgrounds = CurrentScene.MovingBackground.GetDefault(WindowSize);
+                        SceneTimer.Restart();
+                    }
+                }
+
                 #region StateMachine and IsAffectedByCamera
                 if (!(obj.StateMachine is null))
                     obj.StateMachine.Update();
@@ -265,11 +284,6 @@ namespace SZGUIFeleves.Logic
                 else
                     ObjectsToDisplayScreenSpace.Add(obj);
                 #endregion 
-
-                if (obj.IsPlayer && obj is Player p)
-                {
-                    PlayerMovement(p, ref up, ref left, ref down, ref right);
-                }
             }
 
             #region TimerText
@@ -281,10 +295,6 @@ namespace SZGUIFeleves.Logic
             ObjectsToDisplayScreenSpace.Add(timerText);
             #endregion
 
-            MovingBackgrounds = CurrentScene.MovingBackground.UpdateBackground(WindowSize);
-
-            Control(up, left, down, right);
-            Update();
 
             // Invoking the OnRender function in the Display class through event
             DrawEvent.Invoke((int)WindowSize.x, (int)WindowSize.y);
@@ -458,7 +468,7 @@ namespace SZGUIFeleves.Logic
 
                             p.Position.x = r.Position.x + r.Size.x;
                         }
-                        r.Color = Color.Red;
+                        //r.Color = Color.Red;
                         left = false;
                     }
                     else if (vecInDegrees >= 45 && vecInDegrees <= 135)
@@ -468,7 +478,7 @@ namespace SZGUIFeleves.Logic
                         {
                             p.Position.y = r.Position.y + r.Size.y;
                         }
-                        r.Color = Color.Yellow;
+                        //r.Color = Color.Yellow;
                         up = false;
 
                         if (p.IsGravity)
@@ -490,7 +500,7 @@ namespace SZGUIFeleves.Logic
 
                             p.Position.x = r.Position.x - p.Size.x;
                         }
-                        r.Color = Color.Blue;
+                        //r.Color = Color.Blue;
                         right = false;
                     }
                     else
@@ -500,7 +510,7 @@ namespace SZGUIFeleves.Logic
                         {
                             p.Position.y = r.Position.y - p.Size.y;
                         }
-                        r.Color = Color.Green;
+                        //r.Color = Color.Green;
                         down = false;
 
                         // Turn off gravity
@@ -522,10 +532,10 @@ namespace SZGUIFeleves.Logic
                         IsGravitySet(p, false, null);
                     }
                 }
-                else if (!p.Equals(item) && item.Color != Color.Gray)
-                {
-                    item.Color = Color.Gray;
-                }
+                //else if (!p.Equals(item) && item.Color != Color.Gray)
+                //{
+                //    item.Color = Color.Gray;
+                //}
             }
 
             if (!doesIntersect && !p.IsGravity)

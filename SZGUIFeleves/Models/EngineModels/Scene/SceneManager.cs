@@ -63,7 +63,12 @@ namespace SZGUIFeleves.Models
                 sj.Polygons[i].LoadTexture();
                 Objects.Add(sj.Polygons[i]);
             }
-            for(int i = 0; i < sj.Rectangles.Count(); i++)
+            for (int i = 0; i < sj.Traps.Count(); i++)
+            {
+                sj.Traps[i].LoadTexture();
+                Objects.Add(sj.Traps[i]);
+            }
+            for (int i = 0; i < sj.Rectangles.Count(); i++)
             {
                 sj.Rectangles[i].LoadTexture();
                 Objects.Add(sj.Rectangles[i]);
@@ -84,6 +89,12 @@ namespace SZGUIFeleves.Models
 
             sj.MovingBackground.LoadTextures();
             Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground);
+
+            if (!(s.Objects[s.PlayerIndex].StateMachine is null))
+            {
+                s.Objects[s.PlayerIndex].StateMachine.SetState("idleright");
+            }
+
             return s;
         }
 
@@ -128,6 +139,11 @@ namespace SZGUIFeleves.Models
                 sj.Polygons[i].LoadTexture();
                 Objects.Add(sj.Polygons[i]);
             }
+            for (int i = 0; i < sj.Traps.Count(); i++)
+            {
+                sj.Traps[i].LoadTexture();
+                Objects.Add(sj.Traps[i]);
+            }
             for (int i = 0; i < sj.Rectangles.Count(); i++)
             {
                 sj.Rectangles[i].LoadTexture();
@@ -141,6 +157,12 @@ namespace SZGUIFeleves.Models
 
             sj.MovingBackground.LoadTextures();
             Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground);
+
+            if (!(s.Objects[s.PlayerIndex].StateMachine is null))
+            {
+                s.Objects[s.PlayerIndex].StateMachine.SetState("idleright");
+            }
+
             return s;
         }
 
@@ -157,6 +179,8 @@ namespace SZGUIFeleves.Models
                     sj.Lines.Add(l);
                 else if (obj is Polygon p)
                     sj.Polygons.Add(p);
+                else if (obj is Trap trap)
+                    sj.Traps.Add(trap);
                 else if (obj is Rectangle r)
                     sj.Rectangles.Add(r);
                 else if (obj is Text t)
@@ -182,6 +206,8 @@ namespace SZGUIFeleves.Models
                     sj.Lines.Add(l);
                 else if (obj is Polygon p)
                     sj.Polygons.Add(p);
+                else if (obj is Trap trap)
+                    sj.Traps.Add(trap);
                 else if (obj is Rectangle r)
                     sj.Rectangles.Add(r);
                 else if (obj is Text t)
