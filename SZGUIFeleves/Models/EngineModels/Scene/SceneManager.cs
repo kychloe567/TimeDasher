@@ -14,9 +14,6 @@ namespace SZGUIFeleves.Models
     {
         private const string ScenePath = "Scenes/";
 
-        // Get MainMenu
-        // Get HubArea
-
         public static Scene GetDefaultScene()
         {
             return new Scene("default", new List<DrawableObject>(), 0, new List<DynamicPointLight>(), new MovingBackground());
@@ -29,6 +26,8 @@ namespace SZGUIFeleves.Models
 
             SceneJson sj = JsonConvert.DeserializeObject<SceneJson>(File.ReadAllText(ScenePath + scene + ".json"));
             List<DrawableObject> Objects = new List<DrawableObject>();
+
+            double lowestPoint = 0;
 
             int playerIndex = 0;
             if (sj.Player is null)
@@ -52,6 +51,8 @@ namespace SZGUIFeleves.Models
             {
                 sj.Circles[i].LoadTexture();
                 Objects.Add(sj.Circles[i]);
+                if (sj.Circles[i].Position.y > lowestPoint)
+                    lowestPoint = sj.Circles[i].Position.y;
             }
             for(int i = 0; i < sj.Lines.Count(); i++)
             {
@@ -67,11 +68,22 @@ namespace SZGUIFeleves.Models
             {
                 sj.Traps[i].LoadTexture();
                 Objects.Add(sj.Traps[i]);
+                if (sj.Traps[i].Position.y > lowestPoint)
+                    lowestPoint = sj.Traps[i].Position.y;
+            }
+            for (int i = 0; i < sj.Checkpoints.Count(); i++)
+            {
+                sj.Checkpoints[i].LoadTexture();
+                Objects.Add(sj.Checkpoints[i]);
+                if (sj.Checkpoints[i].Position.y > lowestPoint)
+                    lowestPoint = sj.Checkpoints[i].Position.y;
             }
             for (int i = 0; i < sj.Rectangles.Count(); i++)
             {
                 sj.Rectangles[i].LoadTexture();
                 Objects.Add(sj.Rectangles[i]);
+                if (sj.Rectangles[i].Position.y > lowestPoint)
+                    lowestPoint = sj.Rectangles[i].Position.y;
             }
             for(int i = 0; i < sj.Texts.Count(); i++)
             {
@@ -88,7 +100,10 @@ namespace SZGUIFeleves.Models
             }
 
             sj.MovingBackground.LoadTextures();
-            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground);
+            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground)
+            {
+                LowestPoint = lowestPoint
+            };
 
             if (!(s.Objects[s.PlayerIndex].StateMachine is null))
             {
@@ -106,6 +121,8 @@ namespace SZGUIFeleves.Models
             SceneJson sj = JsonConvert.DeserializeObject<SceneJson>(File.ReadAllText(path));
             List<DrawableObject> Objects = new List<DrawableObject>();
 
+            double lowestPoint = 0;
+
             int playerIndex = 0;
             if (sj.Player is null)
             {
@@ -128,6 +145,8 @@ namespace SZGUIFeleves.Models
             {
                 sj.Circles[i].LoadTexture();
                 Objects.Add(sj.Circles[i]);
+                if (sj.Circles[i].Position.y > lowestPoint)
+                    lowestPoint = sj.Circles[i].Position.y;
             }
             for (int i = 0; i < sj.Lines.Count(); i++)
             {
@@ -143,11 +162,22 @@ namespace SZGUIFeleves.Models
             {
                 sj.Traps[i].LoadTexture();
                 Objects.Add(sj.Traps[i]);
+                if (sj.Traps[i].Position.y > lowestPoint)
+                    lowestPoint = sj.Traps[i].Position.y;
+            }
+            for (int i = 0; i < sj.Checkpoints.Count(); i++)
+            {
+                sj.Checkpoints[i].LoadTexture();
+                Objects.Add(sj.Checkpoints[i]);
+                if (sj.Checkpoints[i].Position.y > lowestPoint)
+                    lowestPoint = sj.Checkpoints[i].Position.y;
             }
             for (int i = 0; i < sj.Rectangles.Count(); i++)
             {
                 sj.Rectangles[i].LoadTexture();
                 Objects.Add(sj.Rectangles[i]);
+                if (sj.Rectangles[i].Position.y > lowestPoint)
+                    lowestPoint = sj.Rectangles[i].Position.y;
             }
             for (int i = 0; i < sj.Texts.Count(); i++)
             {
@@ -181,6 +211,8 @@ namespace SZGUIFeleves.Models
                     sj.Polygons.Add(p);
                 else if (obj is Trap trap)
                     sj.Traps.Add(trap);
+                else if (obj is Checkpoint cp)
+                    sj.Checkpoints.Add(cp);
                 else if (obj is Rectangle r)
                     sj.Rectangles.Add(r);
                 else if (obj is Text t)
@@ -208,6 +240,8 @@ namespace SZGUIFeleves.Models
                     sj.Polygons.Add(p);
                 else if (obj is Trap trap)
                     sj.Traps.Add(trap);
+                else if (obj is Checkpoint cp)
+                    sj.Checkpoints.Add(cp);
                 else if (obj is Rectangle r)
                     sj.Rectangles.Add(r);
                 else if (obj is Text t)

@@ -16,6 +16,7 @@ using SZGUIFeleves.Models;
 using Ookii.Dialogs.Wpf;
 using System.IO;
 using LevelEditor.Models;
+using SZGUIFeleves.Models.DrawableObjects;
 
 namespace LevelEditor.ViewModels
 {
@@ -40,6 +41,7 @@ namespace LevelEditor.ViewModels
         public ObservableCollection<Image> ForegroundObjects { get; set; }
         public ObservableCollection<Image> BackgroundObjects { get; set; }
         public ObservableCollection<Image> DecorationObjects { get; set; }
+        public ObservableCollection<Image> TrapObjects { get; set; }
 
         #region Selection Management
         private int selectedTab;
@@ -89,6 +91,16 @@ namespace LevelEditor.ViewModels
                 SelectionChanged();
             }
         }
+        private Image selectedImageTrap;
+        public Image SelectedImageTrap
+        {
+            get { return selectedImageTrap; }
+            set
+            {
+                selectedImageTrap = value;
+                SelectionChanged();
+            }
+        }
         private DrawableObject SelectedDrawable
         {
             get
@@ -105,11 +117,17 @@ namespace LevelEditor.ViewModels
                         return null;
                     return SelectedImageBackground.Tag as DrawableObject;
                 }
-                else
+                else if(SelectedTab == 2)
                 {
                     if (SelectedImageDecoration is null)
                         return null;
                     return SelectedImageDecoration.Tag as DrawableObject;
+                }
+                else
+                {
+                    if (SelectedImageTrap is null)
+                        return null;
+                    return SelectedImageTrap.Tag as DrawableObject;
                 }
             }
         }
@@ -162,6 +180,7 @@ namespace LevelEditor.ViewModels
         public ICommand MoveToolCommand { get; set; }
         public ICommand SelectionToolCommand { get; set; }
         public ICommand PlayerToolCommand { get; set; }
+        public ICommand CheckpointToolCommand { get; set; }
 
         private Tool currentTool;
         public Tool CurrentTool
@@ -197,7 +216,7 @@ namespace LevelEditor.ViewModels
             ForegroundObjects = new ObservableCollection<Image>();
             BackgroundObjects = new ObservableCollection<Image>();
             DecorationObjects = new ObservableCollection<Image>();
-            BackgroundObjects = new ObservableCollection<Image>();
+            TrapObjects = new ObservableCollection<Image>();
 
             logic.SetsUpdated += Logic_SetsUpdated;
             logic.ItemsUpdated += Logic_ItemsUpdated;
@@ -232,6 +251,9 @@ namespace LevelEditor.ViewModels
 
             PlayerToolCommand = new RelayCommand(
                 () => SetCurrentTool(Tool.Player));
+
+            CheckpointToolCommand = new RelayCommand(
+                () => SetCurrentTool(Tool.Checkpoint));
 
             DrawLevel = DrawPriority.Default;
             CurrentCustomLayer = -2;
@@ -278,7 +300,13 @@ namespace LevelEditor.ViewModels
                 logic.CurrentTool = Tool.Place;
                 CurrentTool = Tool.Place;
                 d.DrawPriority = DrawLevel;
-                logic.SetCurrentTexture(d);
+
+                if (SelectedTab == 3)
+                {
+                    logic.SetCurrentTexture(new Trap(d));
+                }
+                else
+                    logic.SetCurrentTexture(d);
             }
         }
 
@@ -289,11 +317,13 @@ namespace LevelEditor.ViewModels
             SelectedSet = Sets.First();
         }
 
-        private void Logic_ItemsUpdated(List<DrawableObject> background, List<DrawableObject> foreground, List<DrawableObject> decoration)
+        private void Logic_ItemsUpdated(List<DrawableObject> background, List<DrawableObject> foreground, 
+                                        List<DrawableObject> decoration, List<DrawableObject> traps)
         {
             BackgroundObjects.Clear();
             ForegroundObjects.Clear();
             DecorationObjects.Clear();
+            TrapObjects.Clear();
 
             foreach (var obj in background)
             {
@@ -335,6 +365,20 @@ namespace LevelEditor.ViewModels
                 };
 
                 DecorationObjects.Add(i);
+            }
+
+            foreach (var obj in traps)
+            {
+                obj.Position = new Vec2d(-200, -200);
+                Image i = new Image()
+                {
+                    Source = obj.Texture,
+                    Height = ObjectSize,
+                    Width = ObjectSize,
+                    Tag = obj
+                };
+
+                TrapObjects.Add(i);
             }
         }
     }

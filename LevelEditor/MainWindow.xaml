@@ -63,6 +63,9 @@
                 <Button Width="30" Height="30" Margin="0,5" Command="{Binding PlayerToolCommand}" BorderBrush="#1e1e1e" Foreground="White"
                         FontSize="20" Content="P"
                     Background="{Binding CurrentTool, Converter={StaticResource ToolToOutline}, ConverterParameter=player}"/>
+                <Button Width="30" Height="30" Margin="0,5" Command="{Binding CheckpointToolCommand}" BorderBrush="#1e1e1e" Foreground="White"
+                        FontSize="20" Content="CP"
+                    Background="{Binding CurrentTool, Converter={StaticResource ToolToOutline}, ConverterParameter=checkpoint}"/>
             </StackPanel>
         </Border>
 
@@ -111,6 +114,17 @@
                     <TabItem Header="Decoration">
                         <ListBox ItemsSource="{Binding DecorationObjects}" Background="#1e1e1e"
                      SelectedItem="{Binding SelectedImageDecoration}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Visible">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel IsItemsHost="True" Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </TabItem>
+                    <TabItem Header="Traps">
+                        <ListBox ItemsSource="{Binding TrapObjects}" Background="#1e1e1e" 
+                     SelectedItem="{Binding SelectedImageTrap}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.VerticalScrollBarVisibility="Visible">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>

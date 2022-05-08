@@ -15,11 +15,13 @@ namespace SZGUIFeleves.ViewModels
 {
     public enum GameStates
     {
-        Menu, Leaderboard, Game
+        Menu, Leaderboard, Game, Pause
     }
 
     public class MainWindowViewModel : ObservableRecipient
     {
+
+        #region GameLogic
         private GameStates gameState;
         public GameStates GameState
         {
@@ -33,12 +35,30 @@ namespace SZGUIFeleves.ViewModels
 
         private GameLogic GameLogic { get; set; }
 
+        private string currentScene;
+        public string CurrentScene
+        {
+            get { return currentScene; }
+            set
+            {
+                currentScene = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion
+
+        #region Buttons
         public ICommand StartButtonCommand { get; set; }
         public ICommand LeaderboardButtonCommand { get; set; }
         public ICommand BackButtonCommand { get; set; }
         public ICommand LevelEditorButtonCommand { get; set; }
         public ICommand ExitButtonCommand { get; set; }
 
+        public ICommand MenuButtonCommand { get; set; }
+        public ICommand ResumeButtonCommand { get; set; }
+        #endregion
+
+        #region Leaderboard
         private Dictionary<string, List<LeaderboardScore>> leaderBoard;
         public Dictionary<string, List<LeaderboardScore>> LeaderBoard
         {
@@ -60,6 +80,7 @@ namespace SZGUIFeleves.ViewModels
                 OnPropertyChanged();
             }
         }
+        #endregion
 
         public MainWindowViewModel()
         {
@@ -76,16 +97,49 @@ namespace SZGUIFeleves.ViewModels
             LevelEditorButtonCommand = new RelayCommand(() => StartLevelEditor());
             BackButtonCommand = new RelayCommand(() => GameState = GameStates.Menu);
             ExitButtonCommand = new RelayCommand(() => ExitGame());
+
+            ResumeButtonCommand = new RelayCommand(() => ResumeGame());
+            MenuButtonCommand = new RelayCommand(() => Menu());
         }
+
 
         public void GameLogicPass(ref GameLogic gameLogic)
         {
             GameLogic = gameLogic;
+            GameLogic.ChangeState += ChangeState;
+        }
+        public void ChangeState(GameStates state)
+        {
+            GameState = state;
+            if(state == GameStates.Game)
+            {
+                GameLogic.SceneTimer.Start();
+            }
+        }
+
+        private void Menu()
+        {
+            GameState = GameStates.Menu;
+            GameLogic.CurrentState = GameStates.Pause;
+            GameLogic.SceneTimer.Stop();
+        }
+
+        private void ResumeGame()
+        {
+            GameState = GameStates.Game;
+            GameLogic.CurrentState = GameState;
+            GameLogic.SceneTimer.Start();
         }
 
         private void StartGame()
         {
             GameState = GameStates.Game;
+            CurrentScene = "tree";
+
+            GameLogic.SetScene(CurrentScene);
+            GameLogic.CurrentState = GameState;
+            GameLogic.Start();
+            GameLogic.SceneTimer.Start();
         }
 
         private void Leaderboard()

@@ -8,10 +8,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using SZGUIFeleves.Models;
 using SZGUIFeleves.Models.DrawableObjects;
+using SZGUIFeleves.ViewModels;
 
 namespace SZGUIFeleves.Logic
 {
     public delegate void DrawDelegate(int WindowSizeWidth, int WindowSizeHeight);
+    public delegate void ChangeState(GameStates state);
 
     public enum ButtonKey // TODO: More buttons to add if needed
     {
@@ -19,7 +21,8 @@ namespace SZGUIFeleves.Logic
         Up, Down, Left, Right,
         Space, C, LeftCtrl,
         Q, E,
-        MouseLeft, MouseRight
+        MouseLeft, MouseRight,
+        Escape
     }
 
     public class GameLogic : IGameModel, IGameControl
@@ -43,6 +46,8 @@ namespace SZGUIFeleves.Logic
         public Vec2d WindowSize { get; set; }
 
         public event DrawDelegate DrawEvent;
+        public event ChangeState ChangeState;
+        public GameStates CurrentState { get; set; }
         private DispatcherTimer MainLoopTimer { get; set; }
         private MovementLogic MovementLogic { get; set; }
         private DateTime ElapsedTime { get; set; }
@@ -66,12 +71,23 @@ namespace SZGUIFeleves.Logic
         public List<DrawableObject> MovingBackgrounds { get; set; }
         private double MovingBackgroundSpeed { get; set; }
 
+        private List<Emitter> Emitters { get; set; }
+        private Emitter BloodEmitter { get; set; }
+
         public Scene CurrentScene { get; set; }
         public Vec2d MousePosition { get; set; }
 
         public ButtonKey LastPressedDirection { get; set; }
 
         public Stopwatch SceneTimer { get; set; }
+
+        #endregion
+
+        #region Checkpoint
+        private Checkpoint LastCheckpoint { get; set; }
+        private int MaxLives { get; set; }
+        private int Lives { get; set; }
+        private List<Rectangle> LivesUI { get; set; }
         #endregion
 
         #region Lighting Variables
@@ -85,6 +101,7 @@ namespace SZGUIFeleves.Logic
         {
             WindowSize = new Vec2d(WindowSizeWidth, WindowSizeHeight);
             MovementLogic = new MovementLogic();
+            CurrentState = GameStates.Pause;
 
             // Calculating frame interval with the given FPS target
             CycleMilliseconds = 1.0f / FPSTarget * 1000.0f;
@@ -95,6 +112,7 @@ namespace SZGUIFeleves.Logic
             ObjectsToDisplayScreenSpace = new List<DrawableObject>();
             MovingBackgrounds = new List<DrawableObject>();
             MovingBackgroundSpeed = 1f;
+            Emitters = new List<Emitter>();
 
             // Creating main loop timer
             MainLoopTimer = new DispatcherTimer();
@@ -118,22 +136,32 @@ namespace SZGUIFeleves.Logic
 
             MousePosition = new Vec2d();
 
-            CurrentScene = SceneManager.GetSceneByName("tree");
-            if (CurrentScene is null)
-                CurrentScene = SceneManager.GetDefaultScene();
+            MaxLives = 3;
+            LivesUI = new List<Rectangle>();
 
-            CurrentScene.Objects.Add(new Trap()
+            ParticleProperty bloodParticleProperty = new ParticleProperty()
             {
-                Position = new Vec2d(700,500),
-                Size = new Vec2d(50,50),
-                Color = Color.Red,
-                ObjectType = DrawableObject.ObjectTypes.Decoration
-            });
-
-            MovingBackgrounds = CurrentScene.MovingBackground.GetDefault(WindowSize);
-
-            SceneTimer = new Stopwatch();
-            SceneTimer.Start();
+                Shape = new Circle(new Vec2d(), 2) { DrawPriority = DrawPriority.Top },
+                Position = new Vec2d(0,0),
+                SpeedStart = 100,
+                SpeedEnd = 200,
+                SpeedLimit = 250,
+                ColorStart = new Color(255, 0, 0, 255),
+                ColorEnd = new Color(255, 0, 0, 0),
+                RotationStart = 0,
+                RotationEnd = 0,
+                LifeTime = 1,
+                EmittingDelay = 0.2,
+                EmittingMultiplier = 100,
+                EmittingAngle = 0,
+                EmittingAngleVariation = 360,
+                EmittingPositionVariation = new Vec2d(0, 0),
+                EmittingSpeedVariation = 100,
+                Gravity = 12,
+                EmittingOnlyByUser = true
+            };
+            BloodEmitter = new Emitter(bloodParticleProperty);
+            Emitters.Add(BloodEmitter);
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
@@ -184,6 +212,37 @@ namespace SZGUIFeleves.Logic
                 CurrentScene.Objects[CurrentScene.PlayerIndex].Position = new Vec2d(100, 100);
                 (CurrentScene.Objects[CurrentScene.PlayerIndex] as Player).Velocity = new Vec2d(0,0);
             }
+            if(key == ButtonKey.Escape && !isDown)
+            {
+                if(CurrentState == GameStates.Pause)
+                {
+                    SceneTimer.Start();
+                    ChangeState.Invoke(GameStates.Game);
+                    CurrentState = GameStates.Game;
+                }
+                else if(CurrentState == GameStates.Game)
+                {
+                    SceneTimer.Stop();
+                    ChangeState.Invoke(GameStates.Pause);
+                    CurrentState = GameStates.Pause;
+                }
+                
+            }
+        }
+
+        public void SetScene(string title)
+        {
+            CurrentScene = SceneManager.GetSceneByName(title);
+            if (CurrentScene is null)
+                CurrentScene = SceneManager.GetDefaultScene();
+
+            LastCheckpoint = null;
+            Lives = MaxLives;
+            SetLivesUI();
+
+            SceneTimer = new Stopwatch();
+            SceneTimer.Start();
+            MovingBackgrounds = CurrentScene.MovingBackground.GetDefault(WindowSize);
         }
 
         public void SetMousePosition(double x, double y)
@@ -248,6 +307,9 @@ namespace SZGUIFeleves.Logic
             Control(up, left, down, right);
             Update();
 
+            if (CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y > CurrentScene.LowestPoint+100)
+                PlayerDies();
+
             foreach (var obj in ToDrawObjects)
             {
                 if (obj.IsPlayer && obj is Player p)
@@ -255,28 +317,27 @@ namespace SZGUIFeleves.Logic
                     PlayerMovement(p, ref up, ref left, ref down, ref right);
                 }
 
-                if(obj is Trap t)
+                if (obj is Checkpoint cp)
+                {
+                    if (cp.Intersects(CurrentScene.Objects[CurrentScene.PlayerIndex]))
+                    {
+                        if (!(LastCheckpoint is null))
+                            LastCheckpoint.Texture = new BitmapImage(new Uri("Textures\\checkpoint.png", UriKind.RelativeOrAbsolute));
+                        LastCheckpoint = cp;
+                        LastCheckpoint.Texture = new BitmapImage(new Uri("Textures\\checkpointChecked.png", UriKind.RelativeOrAbsolute));
+                    }
+                }
+
+                if (obj is Trap t)
                 {
                     if(t.Intersects(CurrentScene.Objects[CurrentScene.PlayerIndex]))
                     {
-
-                        CurrentScene = SceneManager.GetSceneByName(CurrentScene.Title);
-                        
-                        CurrentScene.Objects.Add(new Trap()
-                        {
-                            Position = new Vec2d(700, 520),
-                            Size = new Vec2d(50, 50),
-                            Color = Color.Red,
-                            ObjectType = DrawableObject.ObjectTypes.Decoration
-                        });
-
-                        MovingBackgrounds = CurrentScene.MovingBackground.GetDefault(WindowSize);
-                        SceneTimer.Restart();
+                        PlayerDies();
                     }
                 }
 
                 #region StateMachine and IsAffectedByCamera
-                if (!(obj.StateMachine is null))
+                if (!(obj.StateMachine is null) && CurrentState != GameStates.Pause)
                     obj.StateMachine.Update();
 
                 if (obj.IsAffectedByCamera)
@@ -285,6 +346,22 @@ namespace SZGUIFeleves.Logic
                     ObjectsToDisplayScreenSpace.Add(obj);
                 #endregion 
             }
+
+            #region Emitter
+            for (int i = Emitters.Count()-1; i >= 0; i--)
+            {
+                Emitters[i].Update(Elapsed);
+                if (Emitters[i].EmittingTime <= 0)
+                    Emitters.Remove(Emitters[i]);
+                else
+                {
+                    foreach (Particle p in Emitters[i].Particles)
+                    {
+                        ObjectsToDisplayWorldSpace.Add(p.Shape);
+                    }
+                }
+            }
+            #endregion
 
             #region TimerText
             Text timerText = new Text(new Vec2d(WindowSize.x / 2 - 90, 10), SceneTimer.Elapsed.ToString(@"mm\:ss\.fff"), 40, Color.White)
@@ -295,9 +372,50 @@ namespace SZGUIFeleves.Logic
             ObjectsToDisplayScreenSpace.Add(timerText);
             #endregion
 
+            #region Lives
+            foreach(DrawableObject d in LivesUI)
+            {
+                ObjectsToDisplayScreenSpace.Add(d);
+            }
+            #endregion
+
 
             // Invoking the OnRender function in the Display class through event
             DrawEvent.Invoke((int)WindowSize.x, (int)WindowSize.y);
+        }
+
+        private void SetLivesUI()
+        {
+            LivesUI = new List<Rectangle>();
+            for (int i = 0; i < 3; i++)
+            {
+                LivesUI.Add(new Rectangle(new Vec2d(25 + (i * 40), 25), new Vec2d(40, 40)));
+                if (Lives >= (i + 1))
+                    LivesUI.Last().Texture = new BitmapImage(new Uri("UITextures\\heart.png", UriKind.RelativeOrAbsolute));
+                else
+                    LivesUI.Last().Texture = new BitmapImage(new Uri("UITextures\\heartempty.png", UriKind.RelativeOrAbsolute));
+            }
+        }
+
+        private void PlayerDies()
+        {
+            BloodEmitter.Emit(CurrentScene.Objects[CurrentScene.PlayerIndex].Position);
+
+            if (LastCheckpoint is null)
+            {
+                SetScene(CurrentScene.Title);
+            }
+            else
+            {
+                Lives--;
+                if(Lives <= 0)
+                    SetScene(CurrentScene.Title);
+                else
+                {
+                    CurrentScene.Objects[CurrentScene.PlayerIndex].Position = new Vec2d(LastCheckpoint.Position);
+                    SetLivesUI();
+                }
+            }
         }
 
         /// <summary>
@@ -308,7 +426,7 @@ namespace SZGUIFeleves.Logic
             // Up
             if (ButtonFlags[ButtonKey.W] && up && CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
             {
-                IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -300));
+                IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -375));
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
                 CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = false;
 
@@ -334,10 +452,10 @@ namespace SZGUIFeleves.Logic
             {
                 LastPressedDirection = ButtonKey.A;
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1.5, 0), 200.0f * Elapsed);
-                CurrentScene.MovingBackground.BackgroundPosition += 0.2 * MovingBackgroundSpeed;
-                CurrentScene.MovingBackground.FarPosition += 0.75 * MovingBackgroundSpeed;
-                CurrentScene.MovingBackground.MiddlePosition += 1.65 * MovingBackgroundSpeed;
-                CurrentScene.MovingBackground.ClosePosition += 2.55 * MovingBackgroundSpeed;
+                //CurrentScene.MovingBackground.BackgroundPosition += 0.2 * MovingBackgroundSpeed;
+                //CurrentScene.MovingBackground.FarPosition += 0.75 * MovingBackgroundSpeed;
+                //CurrentScene.MovingBackground.MiddlePosition += 1.65 * MovingBackgroundSpeed;
+                //CurrentScene.MovingBackground.ClosePosition += 2.55 * MovingBackgroundSpeed;
 
                 if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runleft" &&
@@ -362,10 +480,10 @@ namespace SZGUIFeleves.Logic
             {
                 LastPressedDirection = ButtonKey.D;
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1.5, 0), 200.0f * Elapsed);
-                CurrentScene.MovingBackground.BackgroundPosition -= 0.2 * MovingBackgroundSpeed;
-                CurrentScene.MovingBackground.FarPosition -= 0.75 * MovingBackgroundSpeed;
-                CurrentScene.MovingBackground.MiddlePosition -= 1.65 * MovingBackgroundSpeed;
-                CurrentScene.MovingBackground.ClosePosition -= 2.55 * MovingBackgroundSpeed;
+                //CurrentScene.MovingBackground.BackgroundPosition -= 0.2 * MovingBackgroundSpeed;
+                //CurrentScene.MovingBackground.FarPosition -= 0.75 * MovingBackgroundSpeed;
+                //CurrentScene.MovingBackground.MiddlePosition -= 1.65 * MovingBackgroundSpeed;
+                //CurrentScene.MovingBackground.ClosePosition -= 2.55 * MovingBackgroundSpeed;
 
                 if (!(CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine is null) &&
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.CurrentState != "runright" &&
@@ -439,6 +557,8 @@ namespace SZGUIFeleves.Logic
         private void PlayerMovement(Player p, ref bool up, ref bool left, ref bool down, ref bool right)
         {
             bool doesIntersect = false;
+            bool leftWall = false;
+            bool rightWall = false;
 
             // TEMP TODO
             //IsGravitySet(p, false, null);
@@ -457,14 +577,15 @@ namespace SZGUIFeleves.Logic
                     //double vecInDegrees = (obj.GetMiddle() - item.GetMiddle()).Angle;
                     if (vecInDegrees < 45 || vecInDegrees > 315)
                     {
+                        leftWall = true;
                         // Player is on the RIGHT side
                         if (p.Position.x < r.Position.x + r.Size.x)
                         {
                             double delta = r.Position.x + r.Size.x - p.Position.x;
-                            CurrentScene.MovingBackground.BackgroundPosition += delta / 6 * MovingBackgroundSpeed;
-                            CurrentScene.MovingBackground.FarPosition += delta / 2 * MovingBackgroundSpeed;
-                            CurrentScene.MovingBackground.MiddlePosition += delta * 1.1 * MovingBackgroundSpeed;
-                            CurrentScene.MovingBackground.ClosePosition += delta * 1.7 * MovingBackgroundSpeed;
+                            //CurrentScene.MovingBackground.BackgroundPosition += delta / 6 * MovingBackgroundSpeed;
+                            //CurrentScene.MovingBackground.FarPosition += delta / 2 * MovingBackgroundSpeed;
+                            //CurrentScene.MovingBackground.MiddlePosition += delta * 1.1 * MovingBackgroundSpeed;
+                            //CurrentScene.MovingBackground.ClosePosition += delta * 1.7 * MovingBackgroundSpeed;
 
                             p.Position.x = r.Position.x + r.Size.x;
                         }
@@ -489,14 +610,15 @@ namespace SZGUIFeleves.Logic
                     }
                     else if (vecInDegrees > 135 && vecInDegrees < 225)
                     {
+                        rightWall = true;
                         // Player is on the LEFT side
                         if (p.Right > r.Position.x)
                         {
                             double delta = p.Right - r.Position.x;
-                            CurrentScene.MovingBackground.BackgroundPosition += delta / 6 * MovingBackgroundSpeed;
-                            CurrentScene.MovingBackground.FarPosition += delta / 2 * MovingBackgroundSpeed;
-                            CurrentScene.MovingBackground.MiddlePosition += delta * 1.1 * MovingBackgroundSpeed;
-                            CurrentScene.MovingBackground.ClosePosition += delta * 1.7 * MovingBackgroundSpeed;
+                            //CurrentScene.MovingBackground.BackgroundPosition -= delta / 6 * MovingBackgroundSpeed;
+                            //CurrentScene.MovingBackground.FarPosition -= delta / 2 * MovingBackgroundSpeed;
+                            //CurrentScene.MovingBackground.MiddlePosition -= delta * 1.1 * MovingBackgroundSpeed;
+                            //CurrentScene.MovingBackground.ClosePosition -= delta * 1.7 * MovingBackgroundSpeed;
 
                             p.Position.x = r.Position.x - p.Size.x;
                         }
@@ -536,6 +658,21 @@ namespace SZGUIFeleves.Logic
                 //{
                 //    item.Color = Color.Gray;
                 //}
+            }
+
+            if(ButtonFlags[ButtonKey.D] && !rightWall)
+            {
+                CurrentScene.MovingBackground.BackgroundPosition -= 0.2 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.FarPosition -= 0.75 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.MiddlePosition -= 1.65 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.ClosePosition -= 2.55 * MovingBackgroundSpeed;
+            }
+            else if(ButtonFlags[ButtonKey.A] && !leftWall)
+            {
+                CurrentScene.MovingBackground.BackgroundPosition += 0.2 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.FarPosition += 0.75 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.MiddlePosition += 1.65 * MovingBackgroundSpeed;
+                CurrentScene.MovingBackground.ClosePosition += 2.55 * MovingBackgroundSpeed;
             }
 
             if (!doesIntersect && !p.IsGravity)

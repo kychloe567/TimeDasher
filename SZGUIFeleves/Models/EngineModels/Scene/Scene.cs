@@ -17,6 +17,7 @@ namespace SZGUIFeleves.Models
 
         public int PlayerIndex { get; set; }
         public List<DynamicPointLight> PointLights { get; set; }
+        public double LowestPoint { get; set; }
 
         public Scene(string title, List<DrawableObject> objects, int playerIndex, List<DynamicPointLight> pointLights, MovingBackground movingBackground)
         {

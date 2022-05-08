@@ -14,9 +14,11 @@ namespace SZGUIFeleves.Models
         public List<Particle> Particles { get; private set; }
         private ParticleProperty ParticleProperty { get; set; }
         private double LastEmitted { get; set; }
+        public double EmittingTime { get; set; }
 
         public Emitter(ParticleProperty particleProperty)
         {
+            EmittingTime = particleProperty.EmittingTime;
             ParticleProperty = particleProperty;
             LastEmitted = particleProperty.EmittingDelay;
 
@@ -27,6 +29,7 @@ namespace SZGUIFeleves.Models
         {
             if (!ParticleProperty.EmittingOnlyByUser)
             {
+                EmittingTime -= Elapsed;
                 LastEmitted += Elapsed;
                 if (LastEmitted >= ParticleProperty.EmittingDelay)
                 {

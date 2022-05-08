@@ -41,6 +41,8 @@ namespace SZGUIFeleves.Models
         /// </summary>
         public double EmittingAngle { get; set; }
 
+        public double EmittingTime { get; set; }
+
         /// <summary>
         /// I.e EmittingAngleVariation = 5
         /// <para>Angle then can be x-5 < x < x+5</para>
@@ -65,6 +67,7 @@ namespace SZGUIFeleves.Models
             EmittingMultiplier = 1;
             EmittingPositionVariation = new Vec2d();
             EmittingOnlyByUser = false;
+            EmittingTime = 1;
             Gravity = -1;
         }
     }

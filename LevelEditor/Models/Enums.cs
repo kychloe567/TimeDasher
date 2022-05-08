@@ -8,7 +8,7 @@ namespace LevelEditor.Models
 {
     public enum Tool
     {
-        Place, Move, Selection, Player
+        Place, Move, Selection, Player, Checkpoint
     }
 
     public enum ButtonKey // TODO: More buttons to add if needed

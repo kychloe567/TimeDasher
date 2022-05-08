@@ -93,7 +93,7 @@ namespace SZGUIFeleves.Models
             StateMachine sm = new StateMachine();
 
             Animation idleright = new Animation("idleright");
-            foreach (var image in new DirectoryInfo(objectsPath + "\\idleright").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\idleright-0_2").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 idleright.AddTexture(bi, image.FullName, 0.2);
@@ -101,7 +101,7 @@ namespace SZGUIFeleves.Models
             sm.AddState(idleright);
 
             Animation idleleft = new Animation("idleleft");
-            foreach (var image in new DirectoryInfo(objectsPath + "\\idleleft").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\idleleft-0_2").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 idleleft.AddTexture(bi, image.FullName, 0.2);
@@ -109,7 +109,7 @@ namespace SZGUIFeleves.Models
             sm.AddState(idleleft);
 
             Animation runright = new Animation("runright");
-            foreach (var image in new DirectoryInfo(objectsPath + "\\runright").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\runright-0_08").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 runright.AddTexture(bi, image.FullName, 0.08);
@@ -117,7 +117,7 @@ namespace SZGUIFeleves.Models
             sm.AddState(runright);
 
             Animation runleft = new Animation("runleft");
-            foreach (var image in new DirectoryInfo(objectsPath + "\\runleft").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\runleft-0_08").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 runleft.AddTexture(bi, image.FullName, 0.08);
@@ -135,7 +135,7 @@ namespace SZGUIFeleves.Models
             sm.AddState(fallingleft);
 
             Animation jumpingright = new Animation("jumpingright");
-            foreach (var image in new DirectoryInfo(objectsPath + "\\jumpingright").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\jumpingright-0_15").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 jumpingright.AddTexture(bi, image.FullName, 0.15);
@@ -143,7 +143,7 @@ namespace SZGUIFeleves.Models
             sm.AddState(jumpingright);
 
             Animation jumpingleft = new Animation("jumpingleft");
-            foreach (var image in new DirectoryInfo(objectsPath + "\\jumpingleft").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
+            foreach (var image in new DirectoryInfo(objectsPath + "\\jumpingleft-0_15").GetFiles("*.png").OrderBy(x => x.Name, new TextureComparer()))
             {
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 jumpingleft.AddTexture(bi, image.FullName, 0.15);

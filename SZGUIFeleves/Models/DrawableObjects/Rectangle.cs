@@ -68,7 +68,7 @@ namespace SZGUIFeleves.Models
                 IsAffectedByCamera = IsAffectedByCamera,
                 IsPlayer = IsPlayer,
                 ObjectType = ObjectType,
-                Velocity = new Vec2d(Velocity)
+                Velocity = Velocity
             };
 
             if (Texture != null)

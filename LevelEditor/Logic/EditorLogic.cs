@@ -18,7 +18,8 @@ using SZGUIFeleves.Models.EngineModels.MovingBackground;
 namespace LevelEditor.Logic
 {
     public delegate void DrawDelegate();
-    public delegate void ItemsUpdatedDelegate(List<DrawableObject> background, List<DrawableObject> foreground, List<DrawableObject> decoration);
+    public delegate void ItemsUpdatedDelegate(List<DrawableObject> background, List<DrawableObject> foreground, 
+                                              List<DrawableObject> decoration, List<DrawableObject> traps);
     public delegate void SetsUpdatedDelegate(List<string> sets);
     public delegate void ToolChangedDelegate(Tool tool);
 
@@ -88,6 +89,7 @@ namespace LevelEditor.Logic
         private DrawableObject SelectedPlacedItemsCenter { get; set; }
         private Vec2d SelectedPlacedItemsMove { get; set; }
         private bool AllSelectedIsDecor { get; set; }
+        private Checkpoint Checkpoint { get; set; }
         #endregion
 
         public EditorLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -146,6 +148,11 @@ namespace LevelEditor.Logic
             SelectionPos = new Vec2d();
             SelectionSize = new Vec2d();
             SelectedPlacedItems = new List<DrawableObject>();
+
+            Checkpoint = new Checkpoint(new Vec2d(-200, -200), new Vec2d(64,80))
+            {
+                Texture = new BitmapImage(new Uri("Textures\\checkpoint.png", UriKind.RelativeOrAbsolute))
+            };
         }
 
         /// <summary>
@@ -179,7 +186,11 @@ namespace LevelEditor.Logic
             SelectedItem.SelectedTextureGreen = ImageColoring.SetColor(obj.Texture, ImageColoring.ColorFilters.Green);
 
             // Copy the selected object
-            SelectedItem.Object = (obj as Rectangle).GetCopy();
+            if (obj is Trap t)
+                SelectedItem.Object = t.GetCopy();
+            else
+                SelectedItem.Object = (obj as Rectangle).GetCopy();
+
             SelectedItem.Object.Texture = obj.Texture;
 
             ClearSelections();
@@ -198,6 +209,7 @@ namespace LevelEditor.Logic
             List<DrawableObject> background = new List<DrawableObject>();
             List<DrawableObject> foreground = new List<DrawableObject>();
             List<DrawableObject> decoration = new List<DrawableObject>();
+            List<DrawableObject> traps = new List<DrawableObject>();
 
             // Static objects
             #region Textures
@@ -231,6 +243,16 @@ namespace LevelEditor.Logic
                 r.ObjectType = DrawableObject.ObjectTypes.Decoration;
                 decoration.Add(r);
             }
+            foreach (var image in new DirectoryInfo(objectsPath + "\\Traps\\").GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
+            {
+                BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                Rectangle r = new Rectangle();
+                r.Texture = bi;
+                r.TexturePath = image.FullName;
+                r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
+                r.ObjectType = DrawableObject.ObjectTypes.Background;
+                traps.Add(r);
+            }
             #endregion
 
             // Animated objects
@@ -240,7 +262,23 @@ namespace LevelEditor.Logic
                 bool first = true;
 
                 Rectangle r = new Rectangle();
-                Animation a = new Animation(ani.Name);
+
+                string name = ani.Name.Split('-')[0];
+                double animSpeed = 0.2;
+                try
+                {
+                    animSpeed = double.Parse(ani.Name.Split('-')[1].Replace('_', ','));
+                }
+                catch
+                {
+                    try
+                    {
+                        animSpeed = double.Parse(ani.Name.Split('-')[1].Replace('_', '.'));
+                    }
+                    catch { }
+                }
+
+                Animation a = new Animation(name);
 
                 foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
                 {
@@ -267,7 +305,23 @@ namespace LevelEditor.Logic
                 bool first = true;
 
                 Rectangle r = new Rectangle();
-                Animation a = new Animation(ani.Name);
+
+                string name = ani.Name.Split('-')[0];
+                double animSpeed = 0.2;
+                try
+                {
+                    animSpeed = double.Parse(ani.Name.Split('-')[1].Replace('_', ','));
+                }
+                catch
+                {
+                    try
+                    {
+                        animSpeed = double.Parse(ani.Name.Split('-')[1].Replace('_', '.'));
+                    }
+                    catch { }
+                }
+
+                Animation a = new Animation(name);
 
                 foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
                 {
@@ -294,7 +348,23 @@ namespace LevelEditor.Logic
                 bool first = true;
 
                 Rectangle r = new Rectangle();
-                Animation a = new Animation(ani.Name);
+
+                string name = ani.Name.Split('-')[0];
+                double animSpeed = 0.2;
+                try
+                {
+                    animSpeed = double.Parse(ani.Name.Split('-')[1].Replace('_', ','));
+                }
+                catch
+                {
+                    try
+                    {
+                        animSpeed = double.Parse(ani.Name.Split('-')[1].Replace('_', '.'));
+                    }
+                    catch { }
+                }
+
+                Animation a = new Animation(name);
 
                 foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
                 {
@@ -316,10 +386,53 @@ namespace LevelEditor.Logic
 
                 decoration.Add(r);
             }
+            foreach (var ani in new DirectoryInfo(objectsPath + "\\Traps\\").GetDirectories())
+            {
+                bool first = true;
+
+                Rectangle r = new Rectangle();
+
+                string name = ani.Name.Split('-')[0];
+                double animSpeed = 0.2;
+                try
+                {
+                    animSpeed = double.Parse(ani.Name.Split('-')[1].Replace('_', ','));
+                }
+                catch
+                {
+                    try
+                    {
+                        animSpeed = double.Parse(ani.Name.Split('-')[1].Replace('_', '.'));
+                    }
+                    catch { }
+                }
+
+                Animation a = new Animation(name);
+
+                foreach (var image in new DirectoryInfo(ani.FullName).GetFiles("*.png").OrderBy(x => x.Name, new Helpers.TextureComparer()))
+                {
+                    BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
+                    if (first)
+                    {
+                        first = false;
+                        r.Texture = bi;
+                        r.TexturePath = image.FullName;
+                        r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
+                        r.ObjectType = DrawableObject.ObjectTypes.Background;
+                    }
+
+                    // TODO: animation time in file?
+                    a.AddTexture(bi, image.FullName, animSpeed);
+                }
+
+                r.StateMachine = new StateMachine(a);
+
+                traps.Add(r);
+            }
             #endregion
 
             // Send textures to the viewmodel
-            ItemsUpdated.Invoke(background, foreground, decoration);
+            ItemsUpdated.Invoke(background, foreground, decoration, traps);
         }
 
         /// <summary>
@@ -608,12 +721,22 @@ namespace LevelEditor.Logic
                 }
 
                 if (!already)
+                {
                     Objects.Add(toPlace);
+                    if(!(Objects.Last().StateMachine == null))
+                        Objects.Last().StateMachine.Start();
+                }
             }
             else if(CurrentTool == Tool.Player && key == ButtonKey.MouseLeft && isDown)
             {
                 Objects[PlayerIndex].Position = new Vec2d(MousePositionWorldSpace.x - (Objects[PlayerIndex] as Rectangle).Size.x / 2,
                                                           MousePositionWorldSpace.y - (Objects[PlayerIndex] as Rectangle).Size.y / 2);
+            }
+            else if(CurrentTool == Tool.Checkpoint && key == ButtonKey.MouseLeft && !isDown)
+            {
+                Checkpoint cp = Checkpoint.GetCopy();
+                cp.ObjectType = DrawableObject.ObjectTypes.Decoration;
+                Objects.Add(cp);
             }
 
             ButtonFlags[key] = isDown;
@@ -788,6 +911,15 @@ namespace LevelEditor.Logic
                         SelectedItem.Object.Texture = SelectedItem.SelectedTextureGreen;
                 }
             }
+            else if(!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.Checkpoint)
+            {
+                Checkpoint.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                                                MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize)-16);
+
+                // Y angle is offset by -1 gridunit
+                if (MousePositionWorldSpace.x < 0) { Checkpoint.Position.x -= GridSize; }
+                if (MousePositionWorldSpace.y < 0) { Checkpoint.Position.y -= GridSize; }
+            }
         }
 
         /// <summary>
@@ -826,10 +958,12 @@ namespace LevelEditor.Logic
             }
 
             // Passing placeable item to the display
-            if(CurrentTool == Tool.Place)
+            if (CurrentTool == Tool.Place)
                 ObjectsToDisplayWorldSpace.Add(SelectedItem.Object);
+            else if (CurrentTool == Tool.Checkpoint)
+                ObjectsToDisplayWorldSpace.Add(Checkpoint);
             // Passing selection rect to the display
-            else if(CurrentTool == Tool.Selection && ButtonFlags[ButtonKey.MouseLeft])
+            else if (CurrentTool == Tool.Selection && ButtonFlags[ButtonKey.MouseLeft])
             {
                 Rectangle selectionRect = new Rectangle(SelectionPos, SelectionSize)
                 {

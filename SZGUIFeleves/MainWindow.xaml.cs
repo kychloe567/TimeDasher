@@ -40,7 +40,6 @@ namespace SZGUIFeleves
 
             display.SetupModel(logic, (int)MainGrid.ActualWidth, (int)MainGrid.ActualHeight);
             controller = new GameController(logic);
-            logic.Start();
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -57,7 +56,8 @@ namespace SZGUIFeleves
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            if (controller != null && ViewModel.GameState == GameStates.Game)
+            if (controller != null && (ViewModel.GameState == GameStates.Game || 
+                (ViewModel.GameState == GameStates.Pause && e.Key == Key.Escape)))
                 controller.KeyReleased(e.Key);
         }
 

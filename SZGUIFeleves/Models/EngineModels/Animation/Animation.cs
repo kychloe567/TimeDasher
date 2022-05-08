@@ -95,6 +95,9 @@ namespace SZGUIFeleves.Models
 
         public void UpdateAnimation()
         {
+            if (Times is null || Times.Count == 0)
+                return;
+
             if(!AnimationFixed && StopAnimationOnIndex != currentTexture && (DateTime.Now-Start).TotalSeconds >= Times[currentTexture])
             {
                 currentTexture++;

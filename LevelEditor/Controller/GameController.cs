@@ -54,7 +54,7 @@ namespace LevelEditor.Controller
             {
                 controller.SetButtonFlag(ButtonKey.MouseLeft, isDown);
             }
-            catch (Exception) { }
+            catch (Exception exc) { }
         }
 
         public void SetMouseRightButton(bool isDown)

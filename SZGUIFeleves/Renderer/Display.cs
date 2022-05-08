@@ -50,13 +50,13 @@ namespace SZGUIFeleves.Renderer
             dc.Pop();
 
             // Drawing the UI (or screen fixed objects)
-            DrawObjects(ref dc, model.ObjectsToDisplayScreenSpace);
+            DrawObjects(ref dc, model.ObjectsToDisplayScreenSpace, isUI:true);
 
             model.ObjectsToDisplayWorldSpace.Clear();
             model.ObjectsToDisplayScreenSpace.Clear();
         }
 
-        private void DrawObjects(ref DrawingContext dc, List<DrawableObject> objects, bool isBackground = false)
+        private void DrawObjects(ref DrawingContext dc, List<DrawableObject> objects, bool isBackground = false, bool isUI = false)
         {
             foreach (DrawableObject obj in objects)
             {
@@ -105,7 +105,7 @@ namespace SZGUIFeleves.Renderer
 
                 if (obj is Rectangle r)
                 {
-                    if (!r.IsVisible(model.Camera) && !isBackground)
+                    if (!r.IsVisible(model.Camera) && !isBackground && !isUI)
                         continue;
 
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
@@ -127,7 +127,7 @@ namespace SZGUIFeleves.Renderer
                 }
                 else if (obj is Circle e)
                 {
-                    if (!e.IsVisible(model.Camera))
+                    if (!e.IsVisible(model.Camera) && !isUI)
                         continue;
 
                     if (obj.IsFilled)
@@ -137,14 +137,14 @@ namespace SZGUIFeleves.Renderer
                 }
                 else if (obj is Line line)
                 {
-                    if (!line.IsVisible(model.Camera))
+                    if (!line.IsVisible(model.Camera) && !isUI)
                         continue;
 
                     dc.DrawLine(pen, new Point(line.Position.x, line.Position.y), new Point(line.Position2.x, line.Position2.y));
                 }
                 else if (obj is Polygon p)
                 {
-                    if (!p.IsVisible(model.Camera))
+                    if (!p.IsVisible(model.Camera) && !isUI)
                         continue;
 
                     var geometry = new StreamGeometry();
