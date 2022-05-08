@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SZGUIFeleves.Models
 {
-    internal class LeaderboardScore
+    public class LeaderboardScore
     {
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -15,7 +15,15 @@ namespace SZGUIFeleves.Models
         [JsonProperty("date")]
         public DateTime Date { get; set; }
 
-        [JsonProperty("score")]
-        public double Score { get; set; }
+        [JsonProperty("seconds")]
+        public double Seconds { get; set; }
+
+        [JsonProperty("scenetitle")]
+        public string SceneTitle { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " - " + Date.ToString("d") + " - " + TimeSpan.FromSeconds(Seconds).ToString(@"mm\:ss\.fff");
+        }
     }
 }

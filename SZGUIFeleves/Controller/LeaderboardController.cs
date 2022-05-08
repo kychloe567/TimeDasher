@@ -16,7 +16,7 @@ namespace SZGUIFeleves.Controller
     {
         // READ allowed ONLY with this key
         const string masterkey = "$2b$10$s/e8i//Enfog.N2UHxFVDenE2MJtNujAkmzy.qAXTo0rqcwMgo6jW";
-        const string binId = "625dc6cf80883c3054e31eb2";
+        const string binId = "6277cf50019db4679697a695";
 
         static HttpClient client = new HttpClient();
 
@@ -28,30 +28,57 @@ namespace SZGUIFeleves.Controller
             // Tells the server to send data in JSON format
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Add("X-Master-Key", masterkey);
+
+            //DeleteAll();
         }
 
-        public static IList<LeaderboardScore> GetAll(string path)
+        public static void DeleteAll()
         {
-            HttpResponseMessage response = client.GetAsync(path).Result;
-            IList<LeaderboardScore> output = new List<LeaderboardScore>();
+            List<LeaderboardScore> helperList = new List<LeaderboardScore>()
+            {
+                new LeaderboardScore() { Date = DateTime.Now, Name="Teszt", Seconds = 1}
+            };
+
+            HttpResponseMessage response = client.PutAsJsonAsync("https://api.jsonbin.io/v3/b/" + binId, helperList).Result;
+        }
+
+        public static Dictionary<string, List<LeaderboardScore>> GetAll()
+        {
+            HttpResponseMessage response = client.GetAsync(binId).Result;
+
+            Dictionary<string, List<LeaderboardScore>> scores = new Dictionary<string, List<LeaderboardScore>>();
 
             if (response.IsSuccessStatusCode)
             {
                 JObject parsed = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                IList<JToken> tokened = parsed["record"]["records"].Children().ToList();
+
+                IList<JToken> tokened = parsed["record"].ToList();
 
                 foreach (JToken item in tokened)
                 {
                     LeaderboardScore one = item.ToObject<LeaderboardScore>();
-                    output.Add(one);
+
+                    if (one.SceneTitle is null || one.SceneTitle == "")
+                        continue;
+
+                    if (!scores.ContainsKey(one.SceneTitle))
+                        scores[one.SceneTitle] = new List<LeaderboardScore>();
+
+                    scores[one.SceneTitle].Add(one);
                 }
             }
-            return output;
+
+            return scores;
         }
 
         public static void AddNew(LeaderboardScore itemToAdd)
         {
-            IList<LeaderboardScore> helperList = GetAll(binId);
+            List<LeaderboardScore> helperList = new List<LeaderboardScore>();
+            foreach(List<LeaderboardScore> ls in GetAll().Values)
+            {
+                helperList.AddRange(ls);
+            }
+            
             helperList.Add(itemToAdd);
 
             HttpResponseMessage response = client.PutAsJsonAsync("https://api.jsonbin.io/v3/b/" + binId, helperList).Result;
