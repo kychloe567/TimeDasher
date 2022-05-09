@@ -560,6 +560,8 @@ namespace SZGUIFeleves.Logic
                 Rectangle testRectangle = new Rectangle(new Vec2d(CurrentScene.Objects[CurrentScene.PlayerIndex].Position),
                                                         new Vec2d((CurrentScene.Objects[CurrentScene.PlayerIndex] as Rectangle).Size));
                 testRectangle.Position.y -= testRectangle.Size.y;
+                testRectangle.Size.x /= 2;
+                testRectangle.Position.x += testRectangle.Size.x / 2;
 
                 bool hitCeiling = false;
                 foreach (DrawableObject d in CurrentScene.Objects)

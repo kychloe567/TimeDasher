@@ -15,7 +15,7 @@
         MouseUp="Window_MouseUp"
         Loaded="Window_Loaded"
         MinWidth="680" MinHeight="570"
-        Title="MainWindow" Width="1280" Height="768">
+        Title="Time-Dasher" Width="1280" Height="768">
     
     <Window.DataContext>
         <vms:MainWindowViewModel/>
