@@ -21,7 +21,8 @@ namespace SZGUIFeleves.Converters
                 return Visibility.Visible;
             else if ((b == GameStates.Menu && p == "menu") ||
                 (b == GameStates.Game && p == "game") ||
-                (b == GameStates.Leaderboard && p == "leaderboard"))
+                (b == GameStates.Leaderboard && p == "leaderboard") ||
+                (b == GameStates.LevelSelection && p == "levelselection"))
                 return Visibility.Visible;
             else
                 return Visibility.Hidden;

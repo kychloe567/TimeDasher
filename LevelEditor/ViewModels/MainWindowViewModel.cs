@@ -117,7 +117,7 @@ namespace LevelEditor.ViewModels
                         return null;
                     return SelectedImageBackground.Tag as DrawableObject;
                 }
-                else if(SelectedTab == 2)
+                else if (SelectedTab == 2)
                 {
                     if (SelectedImageDecoration is null)
                         return null;
@@ -170,6 +170,7 @@ namespace LevelEditor.ViewModels
         public ICommand LoadCommand { get; set; }
         public ICommand SaveCommand { get; set; }
         public ICommand ExitCommand { get; set; }
+        public ICommand ExportToGameCommand { get; set; }
         #endregion
 
         #region EditorSettings
@@ -232,7 +233,7 @@ namespace LevelEditor.ViewModels
                 () => CurrentCustomLayer--);
 
             NewCommand = new RelayCommand(
-                () => logic.ResetScene());
+                () => logic.ResetScene(true));
 
             LoadCommand = new RelayCommand(
                 () => Load());
@@ -255,6 +256,9 @@ namespace LevelEditor.ViewModels
             CheckpointToolCommand = new RelayCommand(
                 () => SetCurrentTool(Tool.Checkpoint));
 
+            ExportToGameCommand = new RelayCommand(
+                () => ExportToGame());
+
             DrawLevel = DrawPriority.Default;
             CurrentCustomLayer = -2;
         }
@@ -268,6 +272,9 @@ namespace LevelEditor.ViewModels
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "Json files|*.json";
+            if (Directory.Exists(Directory.GetCurrentDirectory() + "\\Scenes\\CustomScenes"))
+                ofd.InitialDirectory = Directory.GetCurrentDirectory() + "\\Scenes\\CustomScenes";
+
             if (ofd.ShowDialog() == true)
             {
                 Scene s = SceneManager.GetSceneByFullPath(ofd.FileName);
@@ -279,6 +286,26 @@ namespace LevelEditor.ViewModels
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "Json files|*.json";
+            if (Directory.Exists(Directory.GetCurrentDirectory() + "\\Scenes\\CustomScenes"))
+                sfd.InitialDirectory = Directory.GetCurrentDirectory() + "\\Scenes\\CustomScenes";
+
+            if (sfd.ShowDialog() == true)
+            {
+                string title = Path.GetFileNameWithoutExtension(sfd.FileName);
+                SceneManager.SaveScene(logic.SaveScene(title), sfd.FileName);
+            }
+        }
+
+        private void ExportToGame()
+        {
+            if (!Directory.Exists(Directory.GetCurrentDirectory() + "\\Scenes\\CustomScenes"))
+                return;
+
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Json files|*.json";
+            
+            sfd.InitialDirectory = Directory.GetCurrentDirectory() + "\\Scenes\\CustomScenes";
+
             if (sfd.ShowDialog() == true)
             {
                 string title = Path.GetFileNameWithoutExtension(sfd.FileName);

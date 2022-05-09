@@ -21,10 +21,15 @@ namespace SZGUIFeleves.Models
 
         public static Scene GetSceneByName(string scene)
         {
-            if (!File.Exists(ScenePath + scene + ".json"))
-                return null;
+            string file = ScenePath + scene + ".json";
+            if (!File.Exists(file))
+            {
+                file = ScenePath + "\\CustomScenes\\" + scene + ".json";
+                if (!File.Exists(file))
+                    return null;
+            }
 
-            SceneJson sj = JsonConvert.DeserializeObject<SceneJson>(File.ReadAllText(ScenePath + scene + ".json"));
+            SceneJson sj = JsonConvert.DeserializeObject<SceneJson>(File.ReadAllText(file));
             List<DrawableObject> Objects = new List<DrawableObject>();
 
             double lowestPoint = 0;

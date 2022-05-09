@@ -80,7 +80,7 @@ namespace SZGUIFeleves.Models
         public void AddTexture(BitmapImage bi, string path, double time)
         {
             Textures.Add(bi);
-            TexturePaths.Add(path);
+            TexturePaths.Add(path.Substring(path.IndexOf("Textures")));
             Times.Add(time);
         }
 

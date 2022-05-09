@@ -218,7 +218,7 @@ namespace LevelEditor.Logic
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
                 r.Texture = bi;
-                r.TexturePath = image.FullName;
+                r.TexturePath = image.FullName.Substring(image.FullName.IndexOf("Textures"));
                 r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
                 r.ObjectType = DrawableObject.ObjectTypes.Background;
                 background.Add(r);
@@ -228,7 +228,7 @@ namespace LevelEditor.Logic
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
                 r.Texture = bi;
-                r.TexturePath = image.FullName;
+                r.TexturePath = image.FullName.Substring(image.FullName.IndexOf("Textures"));
                 r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
                 r.ObjectType = DrawableObject.ObjectTypes.Foreground;
                 foreground.Add(r);
@@ -238,7 +238,7 @@ namespace LevelEditor.Logic
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
                 r.Texture = bi;
-                r.TexturePath = image.FullName;
+                r.TexturePath = image.FullName.Substring(image.FullName.IndexOf("Textures"));
                 r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
                 r.ObjectType = DrawableObject.ObjectTypes.Decoration;
                 decoration.Add(r);
@@ -248,7 +248,7 @@ namespace LevelEditor.Logic
                 BitmapImage bi = new BitmapImage(new Uri(image.FullName, UriKind.RelativeOrAbsolute));
                 Rectangle r = new Rectangle();
                 r.Texture = bi;
-                r.TexturePath = image.FullName;
+                r.TexturePath = image.FullName.Substring(image.FullName.IndexOf("Textures"));
                 r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
                 r.ObjectType = DrawableObject.ObjectTypes.Background;
                 traps.Add(r);
@@ -287,7 +287,7 @@ namespace LevelEditor.Logic
                     {
                         first = false;
                         r.Texture = bi;
-                        r.TexturePath = image.FullName;
+                        r.TexturePath = image.FullName.Substring(image.FullName.IndexOf("Textures"));
                         r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
                         r.ObjectType = DrawableObject.ObjectTypes.Background;
                     }
@@ -330,7 +330,7 @@ namespace LevelEditor.Logic
                     {
                         first = false;
                         r.Texture = bi;
-                        r.TexturePath = image.FullName;
+                        r.TexturePath = image.FullName.Substring(image.FullName.IndexOf("Textures"));
                         r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
                         r.ObjectType = DrawableObject.ObjectTypes.Foreground;
                     }
@@ -373,7 +373,7 @@ namespace LevelEditor.Logic
                     {
                         first = false;
                         r.Texture = bi;
-                        r.TexturePath = image.FullName;
+                        r.TexturePath = image.FullName.Substring(image.FullName.IndexOf("Textures"));
                         r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
                         r.ObjectType = DrawableObject.ObjectTypes.Decoration;
                     }
@@ -416,7 +416,7 @@ namespace LevelEditor.Logic
                     {
                         first = false;
                         r.Texture = bi;
-                        r.TexturePath = image.FullName;
+                        r.TexturePath = image.FullName.Substring(image.FullName.IndexOf("Textures"));
                         r.Size = new Vec2d(bi.PixelWidth * ObjectSizeMult, bi.PixelHeight * ObjectSizeMult);
                         r.ObjectType = DrawableObject.ObjectTypes.Background;
                     }
@@ -453,25 +453,29 @@ namespace LevelEditor.Logic
             {
                 Texture = new BitmapImage(new Uri(objectsPath + "background.png", UriKind.RelativeOrAbsolute))
             });
-            MovingBackgroundPaths.Add(new DirectoryInfo(objectsPath + "\\").GetFiles("background.png").First().FullName);
+            string path = new DirectoryInfo(objectsPath + "\\").GetFiles("background.png").First().FullName;
+            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
 
             MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
             {
                 Texture = new BitmapImage(new Uri(objectsPath + "far.png", UriKind.RelativeOrAbsolute))
             });
-            MovingBackgroundPaths.Add(new DirectoryInfo(objectsPath + "\\").GetFiles("far.png").First().FullName);
+            path = new DirectoryInfo(objectsPath + "\\").GetFiles("far.png").First().FullName;
+            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
 
             MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
             {
                 Texture = new BitmapImage(new Uri(objectsPath + "middle.png", UriKind.RelativeOrAbsolute))
             });
-            MovingBackgroundPaths.Add(new DirectoryInfo(objectsPath + "\\").GetFiles("middle.png").First().FullName);
+            path = new DirectoryInfo(objectsPath + "\\").GetFiles("middle.png").First().FullName;
+            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
 
             MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
             {
                 Texture = new BitmapImage(new Uri(objectsPath + "close.png", UriKind.RelativeOrAbsolute))
             });
-            MovingBackgroundPaths.Add(new DirectoryInfo(objectsPath + "\\").GetFiles("close.png").First().FullName);
+            path = new DirectoryInfo(objectsPath + "\\").GetFiles("close.png").First().FullName;
+            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
         }
 
         /// <summary>
@@ -1008,9 +1012,22 @@ namespace LevelEditor.Logic
         /// <summary>
         /// Clear scene and reset the camera.
         /// </summary>
-        public void ResetScene()
+        public void ResetScene(bool addPlayer = false)
         {
             Objects.Clear();
+
+            if (addPlayer)
+            {
+                Objects.Add(new Player()
+                {
+                    IsPlayer = true,
+                    Position = new Vec2d(0, 0),
+                    Size = new Vec2d(31.5, 63),
+                    Color = Color.White,
+                    DrawPriority = DrawPriority.Top,
+                    StateMachine = StateMachine.GetPlayerDefault()
+                });
+            }
 
             CurrentCameraPosition = WindowSize / 2;
             Camera.UpdatePosition(CurrentCameraPosition, 0);

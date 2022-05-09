@@ -76,52 +76,230 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
                 <!-- Title 1 -->
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <!-- Start 3 -->
-                <RowDefinition Height="*"/>
-                <!-- Leaderboard 4 -->
-                <RowDefinition Height="*"/>
-                <!-- Level Editor 5 -->
-                <RowDefinition Height="*"/>
-                <!-- Exit 6 -->
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <TextBlock Text="Time-Dasher" Grid.Row="1" Grid.Column="1" Foreground="White" HorizontalAlignment="Center"
                        VerticalAlignment="Center" FontSize="55" FontFamily="Algerian"/>
 
-            <Button Grid.Row="3" Grid.Column="1" Content="START" FontSize="40" Margin="0,10" Command="{Binding StartButtonCommand}">
+            <StackPanel Grid.Row="3" Grid.Column="1">
+                <TextBlock Text="Name" HorizontalAlignment="Center" Foreground="White" FontWeight="Bold" FontSize="25"/>
+                <TextBox HorizontalAlignment="Stretch" Height="50" Text="{Binding Username}" FontSize="30" FontWeight="Black"
+                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                    <TextBox.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="20"/>
+                        </Style>
+                    </TextBox.Resources>
+                </TextBox>
+            </StackPanel>
+
+            <Button Grid.Row="4" Grid.Column="1" Content="START" FontSize="40" Margin="0,10" Command="{Binding StartButtonCommand}">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Grid.Row="4" Grid.Column="1" Content="LEADERBOARD" FontSize="40" Margin="0,10" Command="{Binding LeaderboardButtonCommand}">
+            <Button Grid.Row="5" Grid.Column="1" Content="LEADERBOARD" FontSize="40" Margin="0,10" Command="{Binding LeaderboardButtonCommand}">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Grid.Row="5" Grid.Column="1" Content="LEVEL EDITOR" FontSize="40" Margin="0,10" Command="{Binding LevelEditorButtonCommand}">
+            <Button Grid.Row="6" Grid.Column="1" Content="LEVEL EDITOR" FontSize="40" Margin="0,10" Command="{Binding LevelEditorButtonCommand}">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Grid.Row="6" Grid.Column="1" Content="EXIT" FontSize="40" Margin="0,10" Command="{Binding ExitButtonCommand}">
+            <Button Grid.Row="7" Grid.Column="1" Content="EXIT" FontSize="40" Margin="0,10" Command="{Binding ExitButtonCommand}">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
                     </Style>
                 </Button.Resources>
             </Button>
+        </Grid>
+
+        <Grid Visibility="{Binding GameState, Converter={StaticResource GameStateToVisibility}, ConverterParameter=levelselection}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="100"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="#1e1e1e">
+                <Button Content="Start Custom Scene" FontSize="30" HorizontalAlignment="Right" VerticalAlignment="Center" 
+                        Padding="5" Command="{Binding StartCustomSceneCommand}">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="10"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Border>
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Row="0" Grid.Column="0" Background="LightGray">
+                    <StackPanel>
+                        <TextBlock Text="Streets" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Best Time: " FontSize="32"/>
+                            <TextBlock Text="{Binding BestTimeStreet1}" FontSize="32"/>
+                        </StackPanel>
+                        <Button Content="Street 1" FontSize="40" Margin="0,10" Width="300" 
+                                Command="{Binding StartSceneCommand}" CommandParameter="street1"
+                                Background="Gray" BorderBrush="Black" BorderThickness="2">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="20"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Best Time: " FontSize="32"/>
+                            <TextBlock Text="{Binding BestTimeStreet2}" FontSize="32"/>
+                        </StackPanel>
+                        <Button Content="Street 2" FontSize="40" Margin="0,10" Width="300" 
+                                Command="{Binding StartSceneCommand}" CommandParameter="street2"
+                                Background="Gray" BorderBrush="Black" BorderThickness="2">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="20"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="0" Background="LightSalmon">
+                    <StackPanel>
+                        <TextBlock Text="Asia" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Best Time: " FontSize="32"/>
+                            <TextBlock Text="{Binding BestTimeAsia1}" FontSize="32"/>
+                        </StackPanel>
+                        <Button Content="Asia 1" FontSize="40" Margin="0,10" Width="300"
+                                Command="{Binding StartSceneCommand}" CommandParameter="asia1"
+                                Background="Gray" BorderBrush="Black" BorderThickness="2">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="20"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Best Time: " FontSize="32"/>
+                            <TextBlock Text="{Binding BestTimeAsia2}" FontSize="32"/>
+                        </StackPanel>
+                        <Button Content="Asia 2" FontSize="40" Margin="0,10" Width="300"
+                                Command="{Binding StartSceneCommand}" CommandParameter="asia2"
+                                Background="Gray" BorderBrush="Black" BorderThickness="2">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="20"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="1" Background="LightBlue">
+                    <StackPanel>
+                        <TextBlock Text="Market" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Best Time: " FontSize="32"/>
+                            <TextBlock Text="{Binding BestTimeMarket1}" FontSize="32"/>
+                        </StackPanel>
+                        <Button Content="Market 1" FontSize="40" Margin="0,10" Width="300"
+                                Command="{Binding StartSceneCommand}" CommandParameter="market1"
+                                Background="Gray" BorderBrush="Black" BorderThickness="2">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="20"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Best Time: " FontSize="32"/>
+                            <TextBlock Text="{Binding BestTimeMarket2}" FontSize="32"/>
+                        </StackPanel>
+                        <Button Content="Market 2" FontSize="40" Margin="0,10" Width="300"
+                                Command="{Binding StartSceneCommand}" CommandParameter="market2"
+                                Background="Gray" BorderBrush="Black" BorderThickness="2">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="20"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="1" Background="LightGreen">
+                    <StackPanel>
+                        <TextBlock Text="Jungle" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Best Time: " FontSize="32"/>
+                            <TextBlock Text="{Binding BestTimeJungle1}" FontSize="32"/>
+                        </StackPanel>
+                        <Button Content="Jungle 1" FontSize="40" Margin="0,10" Width="300"
+                                Command="{Binding StartSceneCommand}" CommandParameter="jungle1"
+                                Background="Gray" BorderBrush="Black" BorderThickness="2">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="20"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="Best Time: " FontSize="32"/>
+                            <TextBlock Text="{Binding BestTimeJungle2}" FontSize="32"/>
+                        </StackPanel>
+                        <Button Content="Jungle 2" FontSize="40" Margin="0,10" Width="300"
+                                Command="{Binding StartSceneCommand}" CommandParameter="jungle2"
+                                Background="Gray" BorderBrush="Black" BorderThickness="2">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="20"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Background="#1e1e1e" Grid.Row="2" HorizontalAlignment="Stretch">
+                <Button Content="Back" FontSize="20" Margin="0,10" Command="{Binding BackToMenuCommand}"
+                    Width="150" HorizontalAlignment="Center">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="20"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Border>
         </Grid>
 
         <Grid Visibility="{Binding GameState, Converter={StaticResource GameStateToVisibility}, ConverterParameter=leaderboard}">

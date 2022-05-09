@@ -25,5 +25,14 @@ namespace SZGUIFeleves.Models
         {
             return Name + " - " + Date.ToString("d") + " - " + TimeSpan.FromSeconds(Seconds).ToString(@"mm\:ss\.fff");
         }
+
+        [JsonIgnore]
+        public string Timespan
+        {
+            get
+            {
+                return TimeSpan.FromSeconds(Seconds).ToString(@"mm\:ss\.fff");
+            }
+        }
     }
 }

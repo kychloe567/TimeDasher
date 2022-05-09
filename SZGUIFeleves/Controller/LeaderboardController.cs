@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -61,6 +62,10 @@ namespace SZGUIFeleves.Controller
                     if (one.SceneTitle is null || one.SceneTitle == "")
                         continue;
 
+                    //TODO Custom scenes
+                    if (!File.Exists(Directory.GetCurrentDirectory() + "\\Scenes\\" + one.SceneTitle + ".json"))
+                        continue;
+
                     if (!scores.ContainsKey(one.SceneTitle))
                         scores[one.SceneTitle] = new List<LeaderboardScore>();
 
@@ -69,6 +74,49 @@ namespace SZGUIFeleves.Controller
             }
 
             return scores;
+        }
+
+        public static Dictionary<string, LeaderboardScore> GetAll(string username)
+        {
+            HttpResponseMessage response = client.GetAsync(binId).Result;
+
+            Dictionary<string, List<LeaderboardScore>> scores = new Dictionary<string, List<LeaderboardScore>>();
+
+            if (response.IsSuccessStatusCode)
+            {
+                JObject parsed = JObject.Parse(response.Content.ReadAsStringAsync().Result);
+
+                IList<JToken> tokened = parsed["record"].ToList();
+
+                foreach (JToken item in tokened)
+                {
+                    LeaderboardScore one = item.ToObject<LeaderboardScore>();
+
+                    if (one.SceneTitle is null || one.SceneTitle == "")
+                        continue;
+
+                    if (one.Name != username)
+                        continue;
+
+                    //TODO Custom scenes
+                    if (!File.Exists(Directory.GetCurrentDirectory() + "\\Scenes\\" + one.SceneTitle + ".json"))
+                        continue;
+
+                    if (!scores.ContainsKey(one.SceneTitle))
+                        scores[one.SceneTitle] = new List<LeaderboardScore>();
+
+                    scores[one.SceneTitle].Add(one);
+                }
+            }
+
+            Dictionary<string, LeaderboardScore> bestScores = new Dictionary<string, LeaderboardScore>();
+            foreach(KeyValuePair<string, List<LeaderboardScore>> scenescores in scores)
+            {
+                LeaderboardScore scenescore = scenescores.Value.OrderBy(x => x.Seconds).First();
+                bestScores.Add(scenescore.SceneTitle, scenescore);
+            }
+
+            return bestScores;
         }
 
         public static void AddNew(LeaderboardScore itemToAdd)

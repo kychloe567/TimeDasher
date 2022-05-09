@@ -48,7 +48,7 @@ namespace SZGUIFeleves.Logic
         public event DrawDelegate DrawEvent;
         public event ChangeState ChangeState;
         public GameStates CurrentState { get; set; }
-        private DispatcherTimer MainLoopTimer { get; set; }
+        public DispatcherTimer MainLoopTimer { get; set; }
         private MovementLogic MovementLogic { get; set; }
         private DateTime ElapsedTime { get; set; }
         private double Elapsed { get; set; }
@@ -95,6 +95,10 @@ namespace SZGUIFeleves.Logic
         private const int shadowIntensity = 4;
         private const int lightBlendingAlpha = 150;
         private Color LightColor { get; set; }
+        #endregion
+
+        #region Sounds and Music
+        private System.Windows.Media.MediaPlayer MediaPlayer { get; set; }
         #endregion
 
         public GameLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -163,6 +167,10 @@ namespace SZGUIFeleves.Logic
             BloodEmitter = new Emitter(bloodParticleProperty);
             Emitters.Add(BloodEmitter);
 
+            MediaPlayer = new System.Windows.Media.MediaPlayer();
+            MediaPlayer.Open(new Uri("Sounds\\jump.wav", UriKind.RelativeOrAbsolute));
+            MediaPlayer.Volume = 0.5;
+
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
             //{
@@ -216,15 +224,17 @@ namespace SZGUIFeleves.Logic
             {
                 if(CurrentState == GameStates.Pause)
                 {
-                    SceneTimer.Start();
                     ChangeState.Invoke(GameStates.Game);
                     CurrentState = GameStates.Game;
+                    SceneTimer.Start();
+                    MainLoopTimer.Start();
                 }
                 else if(CurrentState == GameStates.Game)
                 {
-                    SceneTimer.Stop();
                     ChangeState.Invoke(GameStates.Pause);
                     CurrentState = GameStates.Pause;
+                    SceneTimer.Stop();
+                    MainLoopTimer.Stop();
                 }
                 
             }
@@ -274,8 +284,8 @@ namespace SZGUIFeleves.Logic
             ElapsedTime = DateTime.Now;
 
             // To avoid 'teleporting' objects in case of a FPS drop.
-            if (Elapsed > 0.3)
-                Elapsed = 0.3;
+            if (Elapsed > 0.5)
+                Elapsed = FPSTarget/1000.0f;
 
             // Which directions are allowed at this frame.
             #region
@@ -426,6 +436,8 @@ namespace SZGUIFeleves.Logic
             // Up
             if (ButtonFlags[ButtonKey.W] && up && CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
             {
+                //MediaPlayer.Position = TimeSpan.Zero;
+                //MediaPlayer.Play();
                 IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -375));
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
                 CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = false;
@@ -440,9 +452,8 @@ namespace SZGUIFeleves.Logic
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("jumpingleft", stopOn: 3);
 
             }
-
             // Reset the IsOnGround property if key 'W' isn't pressed to avoid infinite jumping.
-            else if (!ButtonFlags[ButtonKey.W] && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
+            if (!ButtonFlags[ButtonKey.W] && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
             {
                 CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = true;
             }
