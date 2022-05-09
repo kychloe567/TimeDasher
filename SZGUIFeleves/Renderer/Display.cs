@@ -109,6 +109,8 @@ namespace SZGUIFeleves.Renderer
                         continue;
 
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
+                    if (r.ObjectType != DrawableObject.ObjectTypes.Decoration)
+                        rect.Size = new Size(r.Size.x + 1, r.Size.y + 1);
 
                     if (r.IsRounded)
                     {

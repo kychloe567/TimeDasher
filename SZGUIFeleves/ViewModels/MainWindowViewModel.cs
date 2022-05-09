@@ -4,12 +4,14 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using SZGUIFeleves.Controller;
 using SZGUIFeleves.Logic;
 using SZGUIFeleves.Models;
@@ -23,7 +25,6 @@ namespace SZGUIFeleves.ViewModels
 
     public class MainWindowViewModel : ObservableRecipient
     {
-
         #region GameLogic
         private GameStates gameState;
         public GameStates GameState
@@ -164,6 +165,39 @@ namespace SZGUIFeleves.ViewModels
         }
         #endregion
 
+        #region Backgrounds
+        private string menuBackground;
+        public string MenuBackground
+        {
+            get { return menuBackground; }
+            set { menuBackground = value; OnPropertyChanged(); }
+        }
+        private string streetBackground;
+        public string StreetBackground
+        {
+            get { return streetBackground; }
+            set { streetBackground = value; OnPropertyChanged(); }
+        }
+        private string marketBackground;
+        public string MarketBackground
+        {
+            get { return marketBackground; }
+            set { marketBackground = value; OnPropertyChanged(); }
+        }
+        private string asiaBackground;
+        public string AsiaBackground
+        {
+            get { return asiaBackground; }
+            set { asiaBackground = value; OnPropertyChanged(); }
+        }
+        private string jungleBackground;
+        public string JungleBackground
+        {
+            get { return jungleBackground; }
+            set { jungleBackground = value; OnPropertyChanged(); }
+        }
+        #endregion
+
         public MainWindowViewModel()
         {
             GameState = GameStates.Menu;
@@ -174,6 +208,12 @@ namespace SZGUIFeleves.ViewModels
         public void Init()
         {
             LeaderboardController.Run();
+
+            MenuBackground = Path.GetFullPath("Textures\\background.png");
+            StreetBackground = Path.GetFullPath("Textures\\streetbackground.png");
+            MarketBackground = Path.GetFullPath("Textures\\marketbackground.png");
+            AsiaBackground = Path.GetFullPath("Textures\\asiabackground.png");
+            JungleBackground = Path.GetFullPath("Textures\\junglebackground.png");
 
             StartButtonCommand = new RelayCommand(() => StartGame());
             LeaderboardButtonCommand = new RelayCommand(() => Leaderboard());
