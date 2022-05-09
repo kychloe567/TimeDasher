@@ -81,6 +81,8 @@ namespace SZGUIFeleves.Logic
 
         public Stopwatch SceneTimer { get; set; }
 
+        public Random rnd { get; set; }
+
         #endregion
 
         #region Checkpoint
@@ -98,7 +100,11 @@ namespace SZGUIFeleves.Logic
         #endregion
 
         #region Sounds and Music
-        private System.Windows.Media.MediaPlayer MediaPlayer { get; set; }
+        private System.Windows.Media.MediaPlayer RunSound { get; set; }
+        private System.Windows.Media.MediaPlayer JumpSound { get; set; }
+        private System.Windows.Media.MediaPlayer DeathSound { get; set; }
+        private System.Windows.Media.MediaPlayer BackgroundSound { get; set; }
+        private bool IsRunning { get; set; }
         #endregion
 
         public GameLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -106,6 +112,8 @@ namespace SZGUIFeleves.Logic
             WindowSize = new Vec2d(WindowSizeWidth, WindowSizeHeight);
             MovementLogic = new MovementLogic();
             CurrentState = GameStates.Pause;
+
+            rnd = new Random((int)DateTime.Now.Ticks);
 
             // Calculating frame interval with the given FPS target
             CycleMilliseconds = 1.0f / FPSTarget * 1000.0f;
@@ -167,9 +175,21 @@ namespace SZGUIFeleves.Logic
             BloodEmitter = new Emitter(bloodParticleProperty);
             Emitters.Add(BloodEmitter);
 
-            MediaPlayer = new System.Windows.Media.MediaPlayer();
-            MediaPlayer.Open(new Uri("Sounds\\jump.wav", UriKind.RelativeOrAbsolute));
-            MediaPlayer.Volume = 0.5;
+            #region Sounds
+            RunSound = new System.Windows.Media.MediaPlayer();
+
+            JumpSound = new System.Windows.Media.MediaPlayer();
+
+            DeathSound = new System.Windows.Media.MediaPlayer();
+
+            BackgroundSound = new System.Windows.Media.MediaPlayer();
+            BackgroundSound.Open(new Uri("Sounds\\bgmusic1.wav", UriKind.RelativeOrAbsolute));
+            BackgroundSound.SpeedRatio = 1.0f;
+            BackgroundSound.Position = TimeSpan.Zero;
+            BackgroundSound.Volume = 0.05f;
+            BackgroundSound.Play();
+            #endregion
+
 
             // Emitter example settings
             //ParticleProperty particleProperty = new ParticleProperty()
@@ -272,6 +292,42 @@ namespace SZGUIFeleves.Logic
             WindowSize.y = WindowSizeHeight;
         }
 
+        private void PlaySound(string sound, double speed = 1.0f, double volume = 0.25f, double position = 0.0f)
+        {
+            if(sound == "run")
+            {
+                RunSound = new System.Windows.Media.MediaPlayer();
+                RunSound.Open(new Uri("Sounds\\run.wav", UriKind.RelativeOrAbsolute));
+                RunSound.SpeedRatio = 1.0f;
+                RunSound.Position = TimeSpan.FromSeconds(position);
+                //RunSound.Position = TimeSpan.Zero;
+                RunSound.Volume = 0.2f;
+                RunSound.Play();
+            }
+            else if(sound == "jump")
+            {
+                JumpSound.Open(new Uri("Sounds\\jump.wav", UriKind.RelativeOrAbsolute));
+                JumpSound.SpeedRatio = speed;
+                JumpSound.Position = TimeSpan.FromSeconds(position);
+                JumpSound.Volume = volume;
+                JumpSound.Play();
+            }
+            else if(sound == "death")
+            {
+                DeathSound.Open(new Uri("Sounds\\death.wav", UriKind.RelativeOrAbsolute));
+                DeathSound.SpeedRatio = speed;
+                DeathSound.Position = TimeSpan.FromSeconds(position);
+                DeathSound.Volume = volume;
+                DeathSound.Play();
+            }
+
+            //MediaPlayer.Open(new Uri("Sounds\\" + sound + ".wav", UriKind.RelativeOrAbsolute));
+            //MediaPlayer.Volume = volume;
+            //MediaPlayer.SpeedRatio = speed;
+            //MediaPlayer.Position = TimeSpan.FromSeconds(position);
+            //MediaPlayer.Play();
+        }
+
         /// <summary>
         /// Main game logic loop
         /// </summary>
@@ -297,11 +353,11 @@ namespace SZGUIFeleves.Logic
 
             // Uncomment to get FPS property -> To display averaged FPS
             #region
-            //double currentFps = 1.0f / Elapsed;
-            //RecentFPS.Add(currentFps);
-            //if (RecentFPS.Count > 20)
-            //    RecentFPS.Remove(RecentFPS.First());
-            //ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+            double currentFps = 1.0f / Elapsed;
+            RecentFPS.Add(currentFps);
+            if (RecentFPS.Count > 20)
+                RecentFPS.Remove(RecentFPS.First());
+            ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
             #endregion
 
             // Camera and objects sort
@@ -312,13 +368,6 @@ namespace SZGUIFeleves.Logic
             ToDrawObjects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
             #endregion
 
-            MovingBackgrounds = CurrentScene.MovingBackground.UpdateBackground(WindowSize);
-
-            Control(up, left, down, right);
-            Update();
-
-            if (CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y > CurrentScene.LowestPoint+100)
-                PlayerDies();
 
             foreach (var obj in ToDrawObjects)
             {
@@ -357,6 +406,14 @@ namespace SZGUIFeleves.Logic
                 #endregion 
             }
 
+            MovingBackgrounds = CurrentScene.MovingBackground.UpdateBackground(WindowSize);
+
+            Control(up, left, down, right);
+            Update();
+
+            if (CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y > CurrentScene.LowestPoint+100)
+                PlayerDies();
+
             #region Emitter
             for (int i = Emitters.Count()-1; i >= 0; i--)
             {
@@ -389,6 +446,13 @@ namespace SZGUIFeleves.Logic
             }
             #endregion
 
+            #region BackgroundMusic
+            if(BackgroundSound.Position == BackgroundSound.NaturalDuration)
+            {
+                BackgroundSound.Position = TimeSpan.Zero;
+            }
+            #endregion
+
 
             // Invoking the OnRender function in the Display class through event
             DrawEvent.Invoke((int)WindowSize.x, (int)WindowSize.y);
@@ -409,6 +473,8 @@ namespace SZGUIFeleves.Logic
 
         private void PlayerDies()
         {
+            PlaySound("death");
+
             BloodEmitter.Emit(CurrentScene.Objects[CurrentScene.PlayerIndex].Position);
 
             if (LastCheckpoint is null)
@@ -433,11 +499,25 @@ namespace SZGUIFeleves.Logic
         /// </summary>
         private void Control(bool up = true, bool left = true, bool down = true, bool right = true)
         {
+            if (!ButtonFlags[ButtonKey.A] && !ButtonFlags[ButtonKey.D] &&
+                IsRunning)
+            {
+                RunSound.Stop();
+                IsRunning = false;
+            }
+            if ((ButtonFlags[ButtonKey.A] || ButtonFlags[ButtonKey.D]) &&
+                RunSound.Position == RunSound.NaturalDuration && IsRunning)
+            {
+                PlaySound("run", speed:1.0f, position: 0);
+            }
+
             // Up
             if (ButtonFlags[ButtonKey.W] && up && CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
             {
-                //MediaPlayer.Position = TimeSpan.Zero;
-                //MediaPlayer.Play();
+                PlaySound("jump");
+                RunSound.Stop();
+                IsRunning = false;
+
                 IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -375));
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
                 CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = false;
@@ -461,6 +541,12 @@ namespace SZGUIFeleves.Logic
             // Left
             else if (ButtonFlags[ButtonKey.A] && left)
             {
+                if (!IsRunning && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+                {
+                    IsRunning = true;
+                    PlaySound("run", speed: 1.0f, position:rnd.Next(10,60)/10.0f);
+                }
+
                 LastPressedDirection = ButtonKey.A;
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(-1.5, 0), 200.0f * Elapsed);
                 //CurrentScene.MovingBackground.BackgroundPosition += 0.2 * MovingBackgroundSpeed;
@@ -489,6 +575,12 @@ namespace SZGUIFeleves.Logic
             // Right
             else if (ButtonFlags[ButtonKey.D] && right)
             {
+                if (!IsRunning && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsGravity)
+                {
+                    IsRunning = true;
+                    PlaySound("run", speed: 1.0f, position: rnd.Next(10, 60) / 10.0f);
+                }
+
                 LastPressedDirection = ButtonKey.D;
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], new Vec2d(1.5, 0), 200.0f * Elapsed);
                 //CurrentScene.MovingBackground.BackgroundPosition -= 0.2 * MovingBackgroundSpeed;
@@ -592,7 +684,7 @@ namespace SZGUIFeleves.Logic
                         // Player is on the RIGHT side
                         if (p.Position.x < r.Position.x + r.Size.x)
                         {
-                            double delta = r.Position.x + r.Size.x - p.Position.x;
+                            //double delta = r.Position.x + r.Size.x - p.Position.x;
                             //CurrentScene.MovingBackground.BackgroundPosition += delta / 6 * MovingBackgroundSpeed;
                             //CurrentScene.MovingBackground.FarPosition += delta / 2 * MovingBackgroundSpeed;
                             //CurrentScene.MovingBackground.MiddlePosition += delta * 1.1 * MovingBackgroundSpeed;
@@ -625,7 +717,7 @@ namespace SZGUIFeleves.Logic
                         // Player is on the LEFT side
                         if (p.Right > r.Position.x)
                         {
-                            double delta = p.Right - r.Position.x;
+                            //double delta = p.Right - r.Position.x;
                             //CurrentScene.MovingBackground.BackgroundPosition -= delta / 6 * MovingBackgroundSpeed;
                             //CurrentScene.MovingBackground.FarPosition -= delta / 2 * MovingBackgroundSpeed;
                             //CurrentScene.MovingBackground.MiddlePosition -= delta * 1.1 * MovingBackgroundSpeed;
