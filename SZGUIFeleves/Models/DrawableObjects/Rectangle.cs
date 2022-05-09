@@ -64,12 +64,16 @@ namespace SZGUIFeleves.Models
                 OutLineThickness = OutLineThickness,
                 OutLineColor = new Color(OutLineColor),
                 IsFilled = IsFilled,
-                DrawPriority = DrawPriority,
                 IsAffectedByCamera = IsAffectedByCamera,
                 IsPlayer = IsPlayer,
                 ObjectType = ObjectType,
                 Velocity = Velocity
             };
+
+            if(DrawPriority.Type == DrawPriority.PriorityType.Custom)
+            {
+                r.DrawPriority = DrawPriority.Custom(DrawPriority.CustomPriority);
+            }
 
             if (Texture != null)
             {

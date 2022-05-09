@@ -11,6 +11,7 @@ namespace SZGUIFeleves.Models
     class SceneJson
     {
         public string Title { get; set; }
+        public End End { get; set; }
         public List<Circle> Circles { get; set; }
         public List<Line> Lines { get; set; }
         public List<Polygon> Polygons { get; set; }
@@ -25,6 +26,7 @@ namespace SZGUIFeleves.Models
 
         public SceneJson()
         {
+            End = new End(new Vec2d(0, 0), new Vec2d(1, 1));
             Circles = new List<Circle>();
             Lines = new List<Line>();
             Polygons = new List<Polygon>();

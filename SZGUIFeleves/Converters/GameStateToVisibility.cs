@@ -19,6 +19,8 @@ namespace SZGUIFeleves.Converters
 
             if (b == GameStates.Pause && (p == "game" || p == "pause"))
                 return Visibility.Visible;
+            else if (b == GameStates.End && (p == "game" || p == "end"))
+                return Visibility.Visible;
             else if ((b == GameStates.Menu && p == "menu") ||
                 (b == GameStates.Game && p == "game") ||
                 (b == GameStates.Leaderboard && p == "leaderboard") ||

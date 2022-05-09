@@ -20,7 +20,8 @@ namespace LevelEditor.Converters
             if ((parameter.ToString() == "checkpoint" && tool == Tool.Checkpoint) ||
                 (parameter.ToString() == "move" && tool == Tool.Move) ||
                 (parameter.ToString() == "selection" && tool == Tool.Selection) ||
-                (parameter.ToString() == "player" && tool == Tool.Player))
+                (parameter.ToString() == "player" && tool == Tool.Player) ||
+                (parameter.ToString() == "end" && tool == Tool.End))
                 return Brushes.Gray;
 
             return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1e1e1e"));

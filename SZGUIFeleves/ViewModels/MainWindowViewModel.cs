@@ -18,7 +18,7 @@ namespace SZGUIFeleves.ViewModels
 {
     public enum GameStates
     {
-        Menu, LevelSelection, Leaderboard, Game, Pause
+        Menu, LevelSelection, Leaderboard, Game, Pause, End
     }
 
     public class MainWindowViewModel : ObservableRecipient
@@ -59,12 +59,11 @@ namespace SZGUIFeleves.ViewModels
 
         public ICommand MenuButtonCommand { get; set; }
         public ICommand ResumeButtonCommand { get; set; }
-
         public ICommand BackToMenuCommand { get; set; }
+
+        public ICommand MuteButtonCommand { get; set; }
         #endregion
-
         public ICommand StartSceneCommand { get; set; }
-
         public ICommand StartCustomSceneCommand { get; set; }
 
         private string username;
@@ -126,6 +125,22 @@ namespace SZGUIFeleves.ViewModels
         #endregion
 
         #region Leaderboard
+        private string bestScore;
+        public string BestScore
+        {
+            get { return bestScore; }
+            set { bestScore = value; OnPropertyChanged(); }
+        }
+
+        private string currentScore;
+        public string CurrentScore
+        {
+            get { return currentScore; }
+            set { currentScore = value; OnPropertyChanged(); }
+        }
+
+        private Dictionary<string, LeaderboardScore> LastScores { get; set; }
+
         private Dictionary<string, List<LeaderboardScore>> leaderBoard;
         public Dictionary<string, List<LeaderboardScore>> LeaderBoard
         {
@@ -152,6 +167,7 @@ namespace SZGUIFeleves.ViewModels
         public MainWindowViewModel()
         {
             GameState = GameStates.Menu;
+            LastScores = new Dictionary<string, LeaderboardScore>();
             Init();
         }
 
@@ -172,6 +188,8 @@ namespace SZGUIFeleves.ViewModels
 
             StartSceneCommand = new RelayCommand<string>((string scene) => StartLevel(scene));
             StartCustomSceneCommand = new RelayCommand<string>((string scene) => StartCustomLevel());
+
+            MuteButtonCommand = new RelayCommand(() => GameLogic.Mute());
         }
 
 
@@ -186,6 +204,30 @@ namespace SZGUIFeleves.ViewModels
             if(state == GameStates.Game)
             {
                 GameLogic.SceneTimer.Start();
+            }
+            else if(state == GameStates.End)
+            {
+                double bScore = -1;
+                if (LastScores.ContainsKey(CurrentScene))
+                    bScore = LastScores[CurrentScene].Seconds;
+                if (bScore == -1)
+                    BestScore = " - ";
+                else
+                    BestScore = TimeSpan.FromSeconds(bScore).ToString(@"mm\:ss\.fff");
+
+                CurrentScore = GameLogic.SceneTimer.Elapsed.ToString(@"mm\:ss\.fff");
+
+                if((bScore == -1 || bScore > GameLogic.SceneTimer.ElapsedMilliseconds/1000.0) && 
+                    !(Username is null) && Username != "")
+                {
+                    LeaderboardController.AddNew(new LeaderboardScore()
+                    {
+                        Date = DateTime.Now,
+                        Name = Username,
+                        SceneTitle = CurrentScene,
+                        Seconds = GameLogic.SceneTimer.ElapsedMilliseconds/1000.0
+                    });
+                }
             }
         }
 
@@ -213,41 +255,41 @@ namespace SZGUIFeleves.ViewModels
             
             if(!(Username is null) && Username != "")
             {
-                var scores = LeaderboardController.GetAll(Username);
+                LastScores = LeaderboardController.GetAll(Username);
 
-                if (scores.ContainsKey("street1"))
-                    BestTimeStreet1 = scores["street1"].Timespan;
+                if (LastScores.ContainsKey("street1"))
+                    BestTimeStreet1 = LastScores["street1"].Timespan;
                 else
                     BestTimeStreet1 = "-";
-                if (scores.ContainsKey("street2"))
-                    BestTimeStreet2 = scores["street2"].Timespan;
+                if (LastScores.ContainsKey("street2"))
+                    BestTimeStreet2 = LastScores["street2"].Timespan;
                 else
                     BestTimeStreet2 = "-";
 
-                if (scores.ContainsKey("asia1"))
-                    BestTimeAsia1 = scores["asia1"].Timespan;
+                if (LastScores.ContainsKey("asia1"))
+                    BestTimeAsia1 = LastScores["asia1"].Timespan;
                 else
                     BestTimeAsia1 = "-";
-                if (scores.ContainsKey("asia2"))
-                    BestTimeAsia2 = scores["asia2"].Timespan;
+                if (LastScores.ContainsKey("asia2"))
+                    BestTimeAsia2 = LastScores["asia2"].Timespan;
                 else
                     BestTimeAsia2 = "-";
 
-                if (scores.ContainsKey("market1"))
-                    BestTimeMarket1 = scores["market1"].Timespan;
+                if (LastScores.ContainsKey("market1"))
+                    BestTimeMarket1 = LastScores["market1"].Timespan;
                 else
                     BestTimeMarket1 = "-";
-                if (scores.ContainsKey("market2"))
-                    BestTimeMarket2 = scores["market2"].Timespan;
+                if (LastScores.ContainsKey("market2"))
+                    BestTimeMarket2 = LastScores["market2"].Timespan;
                 else
                     BestTimeMarket2 = "-";
 
-                if (scores.ContainsKey("jungle1"))
-                    BestTimeJungle1 = scores["jungle1"].Timespan;
+                if (LastScores.ContainsKey("jungle1"))
+                    BestTimeJungle1 = LastScores["jungle1"].Timespan;
                 else
                     BestTimeJungle1 = "-";
-                if (scores.ContainsKey("jungle2"))
-                    BestTimeJungle2 = scores["jungle2"].Timespan;
+                if (LastScores.ContainsKey("jungle2"))
+                    BestTimeJungle2 = LastScores["jungle2"].Timespan;
                 else
                     BestTimeJungle2 = "-";
             }
@@ -279,7 +321,11 @@ namespace SZGUIFeleves.ViewModels
 
             CurrentScene = scene;
 
-            GameLogic.SetScene(CurrentScene);
+            double bScore = 0;
+            if (LastScores.ContainsKey(CurrentScene))
+                bScore = LastScores[CurrentScene].Seconds;
+
+            GameLogic.SetScene(CurrentScene, bScore);
             GameState = GameStates.Game;
             GameLogic.CurrentState = GameState;
             GameLogic.Start();

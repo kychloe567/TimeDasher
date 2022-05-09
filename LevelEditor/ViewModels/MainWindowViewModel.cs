@@ -182,6 +182,7 @@ namespace LevelEditor.ViewModels
         public ICommand SelectionToolCommand { get; set; }
         public ICommand PlayerToolCommand { get; set; }
         public ICommand CheckpointToolCommand { get; set; }
+        public ICommand EndToolCommand { get; set; }
 
         private Tool currentTool;
         public Tool CurrentTool
@@ -256,6 +257,9 @@ namespace LevelEditor.ViewModels
             CheckpointToolCommand = new RelayCommand(
                 () => SetCurrentTool(Tool.Checkpoint));
 
+            EndToolCommand = new RelayCommand(
+                () => SetCurrentTool(Tool.End));
+
             ExportToGameCommand = new RelayCommand(
                 () => ExportToGame());
 
@@ -278,6 +282,8 @@ namespace LevelEditor.ViewModels
             if (ofd.ShowDialog() == true)
             {
                 Scene s = SceneManager.GetSceneByFullPath(ofd.FileName);
+                if(s.MovingBackground.Set != null)
+                    SelectedBackground = s.MovingBackground.Set;
                 logic.LoadScene(s);
             }
         }

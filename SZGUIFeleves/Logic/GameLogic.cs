@@ -75,6 +75,7 @@ namespace SZGUIFeleves.Logic
         private Emitter BloodEmitter { get; set; }
 
         public Scene CurrentScene { get; set; }
+        public double BestTime { get; set; }
         public Vec2d MousePosition { get; set; }
 
         public ButtonKey LastPressedDirection { get; set; }
@@ -260,8 +261,9 @@ namespace SZGUIFeleves.Logic
             }
         }
 
-        public void SetScene(string title)
+        public void SetScene(string title, double bestTime)
         {
+            BestTime = bestTime;
             CurrentScene = SceneManager.GetSceneByName(title);
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
@@ -320,12 +322,14 @@ namespace SZGUIFeleves.Logic
                 DeathSound.Volume = volume;
                 DeathSound.Play();
             }
+        }
 
-            //MediaPlayer.Open(new Uri("Sounds\\" + sound + ".wav", UriKind.RelativeOrAbsolute));
-            //MediaPlayer.Volume = volume;
-            //MediaPlayer.SpeedRatio = speed;
-            //MediaPlayer.Position = TimeSpan.FromSeconds(position);
-            //MediaPlayer.Play();
+        public void Mute()
+        {
+            if(BackgroundSound.Volume == 0)
+                BackgroundSound.Volume = 0.05f;
+            else
+                BackgroundSound.Volume = 0;
         }
 
         /// <summary>
@@ -353,11 +357,11 @@ namespace SZGUIFeleves.Logic
 
             // Uncomment to get FPS property -> To display averaged FPS
             #region
-            double currentFps = 1.0f / Elapsed;
-            RecentFPS.Add(currentFps);
-            if (RecentFPS.Count > 20)
-                RecentFPS.Remove(RecentFPS.First());
-            ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+            //double currentFps = 1.0f / Elapsed;
+            //RecentFPS.Add(currentFps);
+            //if (RecentFPS.Count > 20)
+            //    RecentFPS.Remove(RecentFPS.First());
+            //ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
             #endregion
 
             // Camera and objects sort
@@ -384,6 +388,22 @@ namespace SZGUIFeleves.Logic
                             LastCheckpoint.Texture = new BitmapImage(new Uri("Textures\\checkpoint.png", UriKind.RelativeOrAbsolute));
                         LastCheckpoint = cp;
                         LastCheckpoint.Texture = new BitmapImage(new Uri("Textures\\checkpointChecked.png", UriKind.RelativeOrAbsolute));
+                    }
+                }
+
+                if(obj is End end)
+                {
+                    if (end.Intersects(CurrentScene.Objects[CurrentScene.PlayerIndex]))
+                    {
+                        RunSound.Stop();
+                        JumpSound.Stop();
+                        foreach (ButtonKey key in ButtonFlags.Keys)
+                            ButtonFlags[key] = false;
+
+                        SceneTimer.Stop();
+                        MainLoopTimer.Stop();
+                        ChangeState.Invoke(GameStates.End);
+                        CurrentState = GameStates.End;
                     }
                 }
 
@@ -479,13 +499,13 @@ namespace SZGUIFeleves.Logic
 
             if (LastCheckpoint is null)
             {
-                SetScene(CurrentScene.Title);
+                SetScene(CurrentScene.Title, BestTime);
             }
             else
             {
                 Lives--;
                 if(Lives <= 0)
-                    SetScene(CurrentScene.Title);
+                    SetScene(CurrentScene.Title, BestTime);
                 else
                 {
                     CurrentScene.Objects[CurrentScene.PlayerIndex].Position = new Vec2d(LastCheckpoint.Position);

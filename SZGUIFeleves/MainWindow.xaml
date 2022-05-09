@@ -131,6 +131,15 @@
                     </Style>
                 </Button.Resources>
             </Button>
+
+            <Button Grid.Row="8" Grid.Column="2" Content="Mute" FontSize="25" Margin="0,0,5,5" Command="{Binding MuteButtonCommand}"
+                    Width="100" HorizontalAlignment="Right">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="20"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
         </Grid>
 
         <Grid Visibility="{Binding GameState, Converter={StaticResource GameStateToVisibility}, ConverterParameter=levelselection}">
@@ -382,6 +391,8 @@
                         <RowDefinition Height="40"/>
                         <RowDefinition Height="40"/>
                         <RowDefinition Height="10"/>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="10"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="{Binding CurrentScene}" HorizontalAlignment="Center" FontSize="40" Margin="0,10,0,0"
                            Foreground="White" VerticalAlignment="Top"/>
@@ -397,6 +408,59 @@
                     </Button>
                     <Button Content="Menu" FontSize="20" Margin="0,2" Command="{Binding MenuButtonCommand}"
                     Width="150" Height="36" HorizontalAlignment="Center" Grid.Row="3" Background="#121212"
+                            Foreground="White">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="10"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <Button Content="Mute" FontSize="18" Margin="0,0,10,0" Command="{Binding MuteButtonCommand}"
+                    Width="100" Height="30" HorizontalAlignment="Right" Grid.Row="5" Background="#121212"
+                            Foreground="White">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="10"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Visibility="{Binding GameState, Converter={StaticResource GameStateToVisibility}, ConverterParameter=end}">
+            <Border Width="300" Margin="100,100" Background="#c81e1e1e" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    CornerRadius="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{Binding CurrentScene}" HorizontalAlignment="Center" FontSize="40" Margin="0,10,0,0"
+                           Foreground="White" VerticalAlignment="Center"/>
+
+                    <TextBlock Text="Best Time" HorizontalAlignment="Center" FontSize="30" Margin="0,10,0,0"
+                           Foreground="White" VerticalAlignment="Bottom" Grid.Row="1"/>
+
+                    <TextBlock Text="{Binding BestScore}" HorizontalAlignment="Center" FontSize="40" Margin="0,10,0,0"
+                           Foreground="White" VerticalAlignment="Center" Grid.Row="2"/>
+
+                    <TextBlock Text="Current Time" HorizontalAlignment="Center" FontSize="30" Margin="0,10,0,0"
+                           Foreground="White" VerticalAlignment="Bottom" Grid.Row="3"/>
+                    
+                    <TextBlock Text="{Binding CurrentScore}" HorizontalAlignment="Center" FontSize="40" Margin="0,10,0,0"
+                           Foreground="White" VerticalAlignment="Center" Grid.Row="4"/>
+
+                    <Button Content="Menu" FontSize="20" Margin="0,2" Command="{Binding MenuButtonCommand}"
+                    Width="150" Height="36" HorizontalAlignment="Center" Grid.Row="7" Background="#121212"
                             Foreground="White">
                         <Button.Resources>
                             <Style TargetType="Border">

@@ -52,6 +52,8 @@ namespace SZGUIFeleves.Models
                 Objects.Add(sj.Player);
             }
 
+            sj.End.LoadTexture();
+            Objects.Add(sj.End);
             for (int i = 0; i < sj.Circles.Count(); i++)
             {
                 sj.Circles[i].LoadTexture();
@@ -86,6 +88,8 @@ namespace SZGUIFeleves.Models
             for (int i = 0; i < sj.Rectangles.Count(); i++)
             {
                 sj.Rectangles[i].LoadTexture();
+                if(sj.Rectangles[i].ObjectType != DrawableObject.ObjectTypes.Decoration)
+                    sj.Rectangles[i].Size = new Vec2d(65, 65);
                 Objects.Add(sj.Rectangles[i]);
                 if (sj.Rectangles[i].Position.y > lowestPoint)
                     lowestPoint = sj.Rectangles[i].Position.y;
@@ -146,6 +150,8 @@ namespace SZGUIFeleves.Models
                 Objects.Add(sj.Player);
             }
 
+            sj.End.LoadTexture();
+            Objects.Add(sj.End);
             for (int i = 0; i < sj.Circles.Count(); i++)
             {
                 sj.Circles[i].LoadTexture();
@@ -208,6 +214,8 @@ namespace SZGUIFeleves.Models
             {
                 if (obj is Player player)
                     sj.Player = player;
+                else if (obj is End e)
+                    sj.End = e;
                 else if (obj is Circle c)
                     sj.Circles.Add(c);
                 else if (obj is Line l)
@@ -237,6 +245,8 @@ namespace SZGUIFeleves.Models
             {
                 if (obj is Player player)
                     sj.Player = player;
+                else if (obj is End e)
+                    sj.End = e;
                 else if (obj is Circle c)
                     sj.Circles.Add(c);
                 else if (obj is Line l)

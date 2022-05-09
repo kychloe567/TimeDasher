@@ -59,6 +59,7 @@ namespace LevelEditor.Logic
         private Vec2d CurrentCameraPosition { get; set; }
         public List<DrawableObject> MovingBackground { get; set; }
         private List<string> MovingBackgroundPaths { get; set; }
+        private string CurrentBackgroundSet { get; set; }
         #endregion
 
         #region Editor Variables
@@ -90,6 +91,8 @@ namespace LevelEditor.Logic
         private Vec2d SelectedPlacedItemsMove { get; set; }
         private bool AllSelectedIsDecor { get; set; }
         private Checkpoint Checkpoint { get; set; }
+        private End End { get; set; }
+        private int PlacedEndIndex { get; set; }
         #endregion
 
         public EditorLogic(int WindowSizeWidth, int WindowSizeHeight)
@@ -151,8 +154,16 @@ namespace LevelEditor.Logic
 
             Checkpoint = new Checkpoint(new Vec2d(-200, -200), new Vec2d(64,80))
             {
-                Texture = new BitmapImage(new Uri("Textures\\checkpoint.png", UriKind.RelativeOrAbsolute))
+                Texture = new BitmapImage(new Uri("Textures\\checkpoint.png", UriKind.RelativeOrAbsolute)),
+                TexturePath = "Textures\\checkpoint.png"
             };
+
+            End = new End(new Vec2d(-200, -200), new Vec2d(64,64))
+            {
+                Texture = new BitmapImage(new Uri("Textures\\end.png", UriKind.RelativeOrAbsolute)),
+                TexturePath = "Textures\\end.png"
+            };
+            PlacedEndIndex = -1;
         }
 
         /// <summary>
@@ -446,6 +457,7 @@ namespace LevelEditor.Logic
 
         public void BackgroundChanged(string set)
         {
+            CurrentBackgroundSet = set;
             string objectsPath = "Textures\\" + set + "\\StaticBackground\\";
             MovingBackground = new List<DrawableObject>();
 
@@ -638,9 +650,17 @@ namespace LevelEditor.Logic
                         AllSelectedIsDecor = true;
                         for (int i = Objects.Count - 1; i >= 1; i--)
                         {
+                            //if (Objects[i].Texture is null)
+                            //    continue;
+
                             //Check for objects inside the selectionr rect
                             if (selectionRect.Intersects(Objects[i]))
                             {
+                                if (!(Objects[i].TexturePath is null) && Objects[i].TexturePath != "")
+                                    Objects[i].LoadTexture();
+                                else
+                                    continue;
+
                                 Objects[i].TempPosition = new Vec2d(Objects[i].Position);
                                 Objects[i].TempTexture = Objects[i].Texture.Clone();
                                 Objects[i].Texture = ImageColoring.SetColor(Objects[i].Texture, ImageColoring.ColorFilters.Green);
@@ -648,7 +668,8 @@ namespace LevelEditor.Logic
 
                                 // If there is even one not decor, the moving is grid based
                                 // If all objects are decor, the moving is pixel based
-                                if (Objects[i].ObjectType != DrawableObject.ObjectTypes.Decoration || Objects[i] is Checkpoint)
+                                if (Objects[i].ObjectType != DrawableObject.ObjectTypes.Decoration || 
+                                    Objects[i] is Checkpoint || Objects[i] is End)
                                     AllSelectedIsDecor = false;
                             }
                         }
@@ -711,7 +732,10 @@ namespace LevelEditor.Logic
                 {
                     if ((toPlace as Rectangle).IntersectsEquals(Objects[i]))
                     {
-                        if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background &&
+                        if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background && Objects[i] is Trap ||
+                            toPlace is Trap && Objects[i].ObjectType == DrawableObject.ObjectTypes.Background)
+                            continue;
+                        else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background &&
                            Objects[i].ObjectType == DrawableObject.ObjectTypes.Background)
                             already = true;
                         else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Foreground &&
@@ -740,7 +764,21 @@ namespace LevelEditor.Logic
             {
                 Checkpoint cp = Checkpoint.GetCopy();
                 cp.ObjectType = DrawableObject.ObjectTypes.Decoration;
+                cp.DrawPriority = DrawPriority.Top;
                 Objects.Add(cp);
+            }
+            else if(CurrentTool == Tool.End && key == ButtonKey.MouseLeft && !isDown)
+            {
+                End.ObjectType = DrawableObject.ObjectTypes.Decoration;
+                if (PlacedEndIndex == -1)
+                {
+                    End e = End.GetCopy();
+                    e.DrawPriority = DrawPriority.Top;
+                    Objects.Add(e);
+                    PlacedEndIndex = Objects.Count() - 1;
+                }
+                else
+                    Objects[PlacedEndIndex] = End.GetCopy();
             }
 
             ButtonFlags[key] = isDown;
@@ -932,6 +970,15 @@ namespace LevelEditor.Logic
                 if (MousePositionWorldSpace.x < 0) { Checkpoint.Position.x -= GridSize; }
                 if (MousePositionWorldSpace.y < 0) { Checkpoint.Position.y -= GridSize; }
             }
+            else if(!ButtonFlags[ButtonKey.MouseMiddle] && CurrentTool == Tool.End)
+            {
+                End.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                                                MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
+
+                // Y angle is offset by -1 gridunit
+                if (MousePositionWorldSpace.x < 0) { End.Position.x -= GridSize; }
+                if (MousePositionWorldSpace.y < 0) { End.Position.y -= GridSize; }
+            }
         }
 
         /// <summary>
@@ -974,6 +1021,8 @@ namespace LevelEditor.Logic
                 ObjectsToDisplayWorldSpace.Add(SelectedItem.Object);
             else if (CurrentTool == Tool.Checkpoint)
                 ObjectsToDisplayWorldSpace.Add(Checkpoint);
+            else if(CurrentTool == Tool.End)
+                ObjectsToDisplayWorldSpace.Add(End);
             // Passing selection rect to the display
             else if (CurrentTool == Tool.Selection && ButtonFlags[ButtonKey.MouseLeft])
             {
@@ -1084,6 +1133,7 @@ namespace LevelEditor.Logic
             {
                 mb = new MovingBackground()
                 {
+                    Set = CurrentBackgroundSet,
                     Background = MovingBackground[0].Texture,
                     BackgroundPath = MovingBackgroundPaths[0],
                     Far = MovingBackground[1].Texture,

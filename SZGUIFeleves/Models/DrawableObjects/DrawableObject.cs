@@ -176,6 +176,9 @@ namespace SZGUIFeleves.Models
 
         public void LoadTexture()
         {
+            if(Texture is null && !(TexturePath is null) && TexturePath != "")
+                Texture = new BitmapImage(new Uri(TexturePath, UriKind.RelativeOrAbsolute));
+
             if (StateMachine is null)
             {
                 if(TexturePath != null && File.Exists(TexturePath))

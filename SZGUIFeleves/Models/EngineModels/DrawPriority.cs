@@ -19,7 +19,7 @@ namespace SZGUIFeleves.Models
         }
 
         public PriorityType Type { get; set; }
-        private int CustomPriority { get; set; }
+        public int CustomPriority { get; set; }
 
 
         public static DrawPriority Top

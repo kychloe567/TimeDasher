@@ -10,6 +10,8 @@ namespace SZGUIFeleves.Models.EngineModels.MovingBackground
 {
     public class MovingBackground
     {
+        public string Set { get; set; }
+
         public string BackgroundPath { get; set; }
 
         public string FarPath { get; set; }
