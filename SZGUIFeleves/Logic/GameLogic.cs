@@ -73,6 +73,7 @@ namespace SZGUIFeleves.Logic
 
         private List<Emitter> Emitters { get; set; }
         private Emitter BloodEmitter { get; set; }
+        private Emitter CheckpointEmitter { get; set; }
 
         public Scene CurrentScene { get; set; }
         public double BestTime { get; set; }
@@ -175,6 +176,30 @@ namespace SZGUIFeleves.Logic
             };
             BloodEmitter = new Emitter(bloodParticleProperty);
             Emitters.Add(BloodEmitter);
+
+            ParticleProperty checkpointParticleProperty = new ParticleProperty()
+            {
+                Shape = new Circle(new Vec2d(), 2) { DrawPriority = DrawPriority.Top },
+                Position = new Vec2d(0,0),
+                SpeedStart = 100,
+                SpeedEnd = 200,
+                SpeedLimit = 250,
+                ColorStart = new Color(0, 255, 0, 255),
+                ColorEnd = new Color(0, 0, 255, 0),
+                RotationStart = 0,
+                RotationEnd = 0,
+                LifeTime = 1,
+                EmittingDelay = 0.2,
+                EmittingMultiplier = 100,
+                EmittingAngle = 0,
+                EmittingAngleVariation = 360,
+                EmittingPositionVariation = new Vec2d(0, 0),
+                EmittingSpeedVariation = 100,
+                Gravity = 0,
+                EmittingOnlyByUser = true
+            };
+            CheckpointEmitter = new Emitter(checkpointParticleProperty);
+            Emitters.Add(CheckpointEmitter);
 
             #region Sounds
             RunSound = new System.Windows.Media.MediaPlayer();
@@ -382,8 +407,10 @@ namespace SZGUIFeleves.Logic
 
                 if (obj is Checkpoint cp)
                 {
-                    if (cp.Intersects(CurrentScene.Objects[CurrentScene.PlayerIndex]))
+                    if (cp.Intersects(CurrentScene.Objects[CurrentScene.PlayerIndex]) && LastCheckpoint != cp)
                     {
+                        CheckpointEmitter.Emit(cp.GetMiddle());
+
                         if (!(LastCheckpoint is null))
                             LastCheckpoint.Texture = new BitmapImage(new Uri("Textures\\checkpoint.png", UriKind.RelativeOrAbsolute));
                         LastCheckpoint = cp;
