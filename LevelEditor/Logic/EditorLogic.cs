@@ -644,7 +644,7 @@ namespace LevelEditor.Logic
 
                                 // If there is even one not decor, the moving is grid based
                                 // If all objects are decor, the moving is pixel based
-                                if (Objects[i].ObjectType != DrawableObject.ObjectTypes.Decoration)
+                                if (Objects[i].ObjectType != DrawableObject.ObjectTypes.Decoration || Objects[i] is Checkpoint)
                                     AllSelectedIsDecor = false;
                             }
                         }
@@ -773,8 +773,12 @@ namespace LevelEditor.Logic
                 if(!AllSelectedIsDecor)
                 {
                     // Calculating the "center" object's grid location
-                    SelectedPlacedItemsCenter.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
-                                                          MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
+                    if (SelectedPlacedItemsCenter is Checkpoint)
+                        SelectedPlacedItemsCenter.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                                                          MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize) - 16);
+                    else
+                        SelectedPlacedItemsCenter.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                                                              MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
 
                     // Y angle is offset by -1 gridunit
                     if (MousePositionWorldSpace.x < 0) { SelectedPlacedItemsCenter.Position.x -= GridSize; }
@@ -829,10 +833,14 @@ namespace LevelEditor.Logic
             {
                 // If selected object is not decor
                 // Move it grid based
-                if (SelectedPlacedItem.ObjectType != DrawableObject.ObjectTypes.Decoration)
+                if (SelectedPlacedItem.ObjectType != DrawableObject.ObjectTypes.Decoration || SelectedPlacedItem is Checkpoint)
                 {
                     // Calculating selected object's grid location
-                    SelectedPlacedItem.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                    if (SelectedPlacedItem is Checkpoint)
+                        SelectedPlacedItem.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
+                                                      MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize) - 16);
+                    else
+                        SelectedPlacedItem.Position = new Vec2d(MousePositionWorldSpace.x - (MousePositionWorldSpace.x % GridSize),
                                                       MousePositionWorldSpace.y - (MousePositionWorldSpace.y % GridSize));
 
                     // Y angle is offset by -1 gridunit
