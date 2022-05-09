@@ -88,8 +88,6 @@ namespace SZGUIFeleves.Models
             for (int i = 0; i < sj.Rectangles.Count(); i++)
             {
                 sj.Rectangles[i].LoadTexture();
-                if(sj.Rectangles[i].ObjectType != DrawableObject.ObjectTypes.Decoration)
-                    sj.Rectangles[i].Size = new Vec2d(64,64);
                 Objects.Add(sj.Rectangles[i]);
                 if (sj.Rectangles[i].Position.y > lowestPoint)
                     lowestPoint = sj.Rectangles[i].Position.y;

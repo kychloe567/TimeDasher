@@ -391,21 +391,6 @@ namespace SZGUIFeleves.ViewModels
         {
             GameState = GameStates.Leaderboard;
 
-            //LeaderboardController.DeleteAll();
-            //Random rnd = new Random((int)DateTime.Now.Ticks);
-            //for (int i = 0; i < 50; i++)
-            //{
-            //    int r = rnd.Next(0, 100000)/100;
-            //    LeaderboardController.AddNew(new LeaderboardScore()
-            //    {
-            //        Name = "Teszt",
-            //        Date = DateTime.Now,
-            //        SceneTitle = "Teszt",
-            //        Seconds = r
-            //    });
-
-            //}
-
             var unordered = LeaderboardController.GetAll();
             foreach(KeyValuePair<string,List<LeaderboardScore>> ls in unordered)
             {

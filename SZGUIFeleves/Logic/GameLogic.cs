@@ -15,7 +15,7 @@ namespace SZGUIFeleves.Logic
     public delegate void DrawDelegate(int WindowSizeWidth, int WindowSizeHeight);
     public delegate void ChangeState(GameStates state);
 
-    public enum ButtonKey // TODO: More buttons to add if needed
+    public enum ButtonKey
     {
         W, A, S, D,
         Up, Down, Left, Right,
@@ -261,11 +261,6 @@ namespace SZGUIFeleves.Logic
         {
             ButtonFlags[key] = isDown;
 
-            if (key == ButtonKey.E)
-            {
-                CurrentScene.Objects[CurrentScene.PlayerIndex].Position = new Vec2d(100, 100);
-                (CurrentScene.Objects[CurrentScene.PlayerIndex] as Player).Velocity = new Vec2d(0,0);
-            }
             if(key == ButtonKey.Escape && !isDown)
             {
                 if(CurrentState == GameStates.Pause)
@@ -559,13 +554,32 @@ namespace SZGUIFeleves.Logic
             }
 
             // Up
-            if (ButtonFlags[ButtonKey.W] && up && CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
+            if ((ButtonFlags[ButtonKey.W] || ButtonFlags[ButtonKey.Space]) && up && CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
             {
+
+                Rectangle testRectangle = new Rectangle(new Vec2d(CurrentScene.Objects[CurrentScene.PlayerIndex].Position),
+                                                        new Vec2d((CurrentScene.Objects[CurrentScene.PlayerIndex] as Rectangle).Size));
+                testRectangle.Position.y -= testRectangle.Size.y;
+
+                bool hitCeiling = false;
+                foreach (DrawableObject d in CurrentScene.Objects)
+                {
+                    if (!(d is Rectangle) || d is Player || d.ObjectType != DrawableObject.ObjectTypes.Foreground)
+                        continue;
+
+                    if (testRectangle.Intersects(d as Rectangle))
+                        hitCeiling = true;
+                }
+
                 PlaySound("jump");
                 RunSound.Stop();
                 IsRunning = false;
 
-                IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -375));
+                if(hitCeiling)
+                    IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -200));
+                else
+                    IsGravitySet(CurrentScene.Objects[CurrentScene.PlayerIndex], true, new Vec2d(0, -375));
+
                 MovementLogic.Move(CurrentScene.Objects[CurrentScene.PlayerIndex], Elapsed);
                 CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = false;
 
@@ -577,10 +591,9 @@ namespace SZGUIFeleves.Logic
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("jumpingright", stopOn: 3);
                 else if (LastPressedDirection == ButtonKey.A)
                     CurrentScene.Objects[CurrentScene.PlayerIndex].StateMachine.SetState("jumpingleft", stopOn: 3);
-
             }
             // Reset the IsOnGround property if key 'W' isn't pressed to avoid infinite jumping.
-            if (!ButtonFlags[ButtonKey.W] && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
+            if ((!ButtonFlags[ButtonKey.W] && !ButtonFlags[ButtonKey.Space]) && !CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround)
             {
                 CurrentScene.Objects[CurrentScene.PlayerIndex].IsOnGround = true;
             }
@@ -710,9 +723,6 @@ namespace SZGUIFeleves.Logic
             bool leftWall = false;
             bool rightWall = false;
 
-            // TEMP TODO
-            //IsGravitySet(p, false, null);
-
             foreach (var item in CurrentScene.Objects)
             {
                 if (!p.Equals(item) && item is Rectangle r && p.Intersects(item) && item.ObjectType == DrawableObject.ObjectTypes.Foreground)
@@ -747,10 +757,11 @@ namespace SZGUIFeleves.Logic
                         // Player is UNDER item
                         if (p.Position.y < r.Position.y + r.Size.y)
                         {
-                            p.Position.y = r.Position.y + r.Size.y;
+                            p.Position.y = r.Position.y + r.Size.y+10;
                         }
                         //r.Color = Color.Yellow;
                         up = false;
+
 
                         if (p.IsGravity)
                         {
