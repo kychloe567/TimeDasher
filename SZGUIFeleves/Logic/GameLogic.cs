@@ -573,7 +573,7 @@ namespace SZGUIFeleves.Logic
                         hitCeiling = true;
                 }
 
-                PlaySound("jump");
+                PlaySound("jump", volume:0.08f);
                 RunSound.Stop();
                 IsRunning = false;
 
