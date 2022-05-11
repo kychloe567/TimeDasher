@@ -16,7 +16,7 @@ namespace SZGUIFeleves.Models
 
         public static Scene GetDefaultScene()
         {
-            return new Scene("default", new List<DrawableObject>(), 0, new List<DynamicPointLight>(), new MovingBackground());
+            return new Scene("default", new List<DrawableObject>(), 0, new List<DynamicPointLight>(), new MovingBackground(), new List<Rectangle>());
         }
 
         public static Scene GetSceneByName(string scene)
@@ -107,7 +107,7 @@ namespace SZGUIFeleves.Models
             }
 
             sj.MovingBackground.LoadTextures();
-            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground)
+            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground, sj.MergedForeground)
             {
                 LowestPoint = lowestPoint
             };
@@ -195,7 +195,7 @@ namespace SZGUIFeleves.Models
             }
 
             sj.MovingBackground.LoadTextures();
-            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground);
+            Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground, sj.MergedForeground);
 
             if (!(s.Objects[s.PlayerIndex].StateMachine is null))
             {
@@ -203,37 +203,6 @@ namespace SZGUIFeleves.Models
             }
 
             return s;
-        }
-
-        public static void SaveScene(Scene scene)
-        {
-            SceneJson sj = new SceneJson();
-            foreach(var obj in scene.Objects)
-            {
-                if (obj is Player player)
-                    sj.Player = player;
-                else if (obj is End e)
-                    sj.End = e;
-                else if (obj is Circle c)
-                    sj.Circles.Add(c);
-                else if (obj is Line l)
-                    sj.Lines.Add(l);
-                else if (obj is Polygon p)
-                    sj.Polygons.Add(p);
-                else if (obj is Trap trap)
-                    sj.Traps.Add(trap);
-                else if (obj is Checkpoint cp)
-                    sj.Checkpoints.Add(cp);
-                else if (obj is Rectangle r)
-                    sj.Rectangles.Add(r);
-                else if (obj is Text t)
-                    sj.Texts.Add(t);
-            }
-            sj.MovingBackground = scene.MovingBackground;
-            sj.Title = scene.Title;
-            sj.PointLights = scene.PointLights;
-
-            File.WriteAllText(ScenePath + scene.Title + ".json", JsonConvert.SerializeObject(sj));
         }
 
         public static void SaveScene(Scene scene, string path)
@@ -263,6 +232,7 @@ namespace SZGUIFeleves.Models
             sj.MovingBackground = scene.MovingBackground;
             sj.Title = scene.Title;
             sj.PointLights = scene.PointLights;
+            sj.MergedForeground = scene.MergedForeground;
 
             File.WriteAllText(path, JsonConvert.SerializeObject(sj));
         }

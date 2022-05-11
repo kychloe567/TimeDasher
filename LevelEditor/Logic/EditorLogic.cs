@@ -1128,6 +1128,15 @@ namespace LevelEditor.Logic
         /// <returns></returns>
         public Scene SaveScene(string title)
         {
+            List<Rectangle> rects = new List<Rectangle>();
+            foreach(DrawableObject d in Objects)
+            {
+                if (d is Rectangle r && !(d is Player) && d.ObjectType == DrawableObject.ObjectTypes.Foreground)
+                    rects.Add(r);
+            }
+
+            List<Rectangle> merged = MergeRectangles(rects);
+
             MovingBackground mb = new MovingBackground();
             if (MovingBackground.Count > 0)
             {
@@ -1145,7 +1154,187 @@ namespace LevelEditor.Logic
                 };
             }
 
-            return new Scene(title, Objects, -1, new List<DynamicPointLight>(), mb);
+            return new Scene(title, Objects, -1, new List<DynamicPointLight>(), mb, merged);
+        }
+
+        private List<Rectangle> MergeRectangles(List<Rectangle> rects)
+        {
+            int top = 1000000;
+            int left = 1000000;
+            int bottom = -1000000;
+            int right = -1000000;
+
+            foreach (Rectangle rect in rects)
+            {
+                if (rect.Position.x > right)
+                    right = (int)rect.Position.x;
+                if (rect.Position.x < left)
+                    left = (int)rect.Position.x;
+                if(rect.Position.y > bottom)
+                    bottom = (int)rect.Position.y;
+                if (rect.Position.y < top)
+                    top = (int)rect.Position.y;
+            }
+
+            Vec2d matrixSize = new Vec2d((right - left) / 64 + 1,
+                                         (bottom - top) / 64 + 1);
+
+            int[,] matrix = new int[(int)matrixSize.y, (int)matrixSize.x];
+            for (int y = 0; y < (int)matrixSize.y; y++)
+            {
+                for (int x = 0; x < (int)matrixSize.x; x++)
+                {
+                    matrix[y, x] = -1;
+                }
+            }
+
+            foreach (Rectangle rect in rects)
+            {
+                int x = ((int)rect.Position.x - left) / 64;
+                int y = ((int)rect.Position.y - top) / 64;
+                matrix[y, x] = 0;
+            }
+
+            int index = 1;
+            for (int y = 0; y < (int)matrixSize.y; y++)
+            {
+                bool same = true;
+                int firstSame = 0;
+                for (int x = 0; x < (int)matrixSize.x; x++)
+                {
+                    if (matrix[y, x] == -1)
+                        same = false;
+
+                    if (!same && matrix[y, x] != -1)
+                    {
+                        same = true;
+                        firstSame = x;
+                    }
+                    else if (!same && x != 0)
+                    {
+                        for (int i = x - 1; i >= firstSame; i--)
+                        {
+                            if (matrix[y, x - 1] == -1)
+                                break;
+
+                            matrix[y, i] = index;
+                        }
+
+                        if (matrix[y, x - 1] != -1)
+                            index++;
+                    }
+
+                    if (x == (int)matrixSize.x - 1 && same)
+                    {
+                        for (int i = x; i >= firstSame; i--)
+                            matrix[y, i] = index;
+
+                        index++;
+                    }
+                }
+            }
+
+            List<Rectangle> xMerged = new List<Rectangle>();
+            for (int i = 1; i < index; i++)
+            {
+                Rectangle r = new Rectangle();
+                int[] posAndSize = GetFirstIndexAndSize(ref matrix, i);
+                r.Position = new Vec2d(left + posAndSize[1]*64, top + posAndSize[0]*64);
+                r.Size = new Vec2d(posAndSize[2] * 64, 64);
+                r.TempIndex = i;
+                xMerged.Add(r);
+            }
+
+            List<Rectangle> merged = new List<Rectangle>();
+            int addedRects = 1;
+            while(addedRects != 0)
+            {
+                addedRects = 0;
+
+                List<int> tempIndexes = new List<int>();
+                for (int i = 0; i < xMerged.Count; i++)
+                {
+                    if (tempIndexes.Contains(xMerged[i].TempIndex))
+                        continue;
+
+                    bool added = false;
+                    for (int j = 0; j < xMerged.Count; j++)
+                    {
+                        if (i == j)
+                            continue;
+
+                        if (xMerged[i].Position.x == xMerged[j].Position.x &&
+                           xMerged[i].Bottom == xMerged[j].Position.y &&
+                           xMerged[i].Size.x == xMerged[j].Size.x &&
+                           !tempIndexes.Contains(xMerged[i].TempIndex) &&
+                           !tempIndexes.Contains(xMerged[j].TempIndex))
+                        {
+                            tempIndexes.Add(xMerged[i].TempIndex);
+                            tempIndexes.Add(xMerged[j].TempIndex);
+
+                            merged.Add(new Rectangle()
+                            {
+                                Position = new Vec2d(xMerged[i].Position),
+                                Size = new Vec2d(xMerged[i].Size.x, xMerged[i].Size.y + xMerged[j].Size.y),
+                                TempIndex = xMerged[i].TempIndex
+                            });
+                            added = true;
+                            addedRects++;
+                        }
+                    }
+
+                    if (!added)
+                    {
+                        merged.Add(new Rectangle()
+                        {
+                            Position = new Vec2d(xMerged[i].Position),
+                            Size = new Vec2d(xMerged[i].Size),
+                            TempIndex = xMerged[i].TempIndex
+                        });
+                    }
+                }
+
+                if(addedRects != 0)
+                {
+                    xMerged = new List<Rectangle>(merged);
+                    merged.Clear();
+                }
+            }
+
+            return merged;
+        }
+
+        private int[] GetFirstIndexAndSize(ref int[,] matrix, int i)
+        {
+            bool found = false;
+            int size = 0;
+            int[] pos = new int[3];
+
+            for (int y = 0; y < matrix.GetLength(0); y++)
+            {
+                for (int x = 0; x < matrix.GetLength(1); x++)
+                {
+                    if(matrix[y,x] == i)
+                    {
+                        if (!found)
+                        {
+                            pos[0] = y;
+                            pos[1] = x;
+                            size++;
+                            found = true;
+                        }
+                        else
+                        {
+                            size++;
+                        }
+                    }
+                }
+                if (found)
+                    break;
+            }
+
+            pos[2] = size;
+            return pos;
         }
     }
 }

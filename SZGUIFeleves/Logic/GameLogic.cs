@@ -95,7 +95,7 @@ namespace SZGUIFeleves.Logic
         #endregion
 
         #region Lighting Variables
-        private const int shadowPasses = 5;
+        private const int shadowPasses = 1;
         private const int shadowIntensity = 4;
         private const int lightBlendingAlpha = 150;
         private Color LightColor { get; set; }
@@ -288,6 +288,12 @@ namespace SZGUIFeleves.Logic
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
 
+            CurrentScene.PointLights.Add(new DynamicPointLight()
+            {
+                Position = CurrentScene.Objects[CurrentScene.PlayerIndex].Position,
+                Radius = 5
+            });
+
             LastCheckpoint = null;
             Lives = MaxLives;
             SetLivesUI();
@@ -377,11 +383,11 @@ namespace SZGUIFeleves.Logic
 
             // Uncomment to get FPS property -> To display averaged FPS
             #region
-            //double currentFps = 1.0f / Elapsed;
-            //RecentFPS.Add(currentFps);
-            //if (RecentFPS.Count > 20)
-            //    RecentFPS.Remove(RecentFPS.First());
-            //ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+            double currentFps = 1.0f / Elapsed;
+            RecentFPS.Add(currentFps);
+            if (RecentFPS.Count > 20)
+                RecentFPS.Remove(RecentFPS.First());
+            ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
             #endregion
 
             // Camera and objects sort
@@ -448,6 +454,14 @@ namespace SZGUIFeleves.Logic
                 #endregion 
             }
 
+            foreach(Rectangle r in CurrentScene.MergedForeground)
+            {
+                r.OutLineColor = Color.Red;
+                r.OutLineThickness = 1;
+                r.Color = new Color(0, 0, 0, 0);
+                ObjectsToDisplayWorldSpace.Add(r);
+            }
+
             MovingBackgrounds = CurrentScene.MovingBackground.UpdateBackground(WindowSize);
 
             Control(up, left, down, right);
@@ -455,6 +469,8 @@ namespace SZGUIFeleves.Logic
 
             if (CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y > CurrentScene.LowestPoint+100)
                 PlayerDies();
+
+            CurrentScene.PointLights[0].Position = CurrentScene.Objects[CurrentScene.PlayerIndex].Position;
 
             #region Emitter
             for (int i = Emitters.Count()-1; i >= 0; i--)
@@ -696,11 +712,13 @@ namespace SZGUIFeleves.Logic
             // Lighting
             foreach (DynamicPointLight dpl in CurrentScene.PointLights)
             {
+                List<DrawableObject> a = new List<DrawableObject>(CurrentScene.MergedForeground);
+
                 Vec2d originalPos = new Vec2d(dpl.Position);
                 for (int i = 0; i < shadowPasses; i++)
                 {
                     dpl.Position = originalPos + new Vec2d(i * shadowIntensity, i * shadowIntensity);
-                    var shadow = dpl.GetShadows(CurrentScene.Objects, WindowSize);
+                    var shadow = dpl.GetShadows(a, WindowSize);
                     if (shadow is null)
                         continue;
 
