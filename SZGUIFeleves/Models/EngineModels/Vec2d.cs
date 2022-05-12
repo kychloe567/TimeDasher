@@ -12,6 +12,7 @@ namespace SZGUIFeleves.Models
         public double x { get; set; }
         public double y { get; set; }
         public object Temp { get; set; }
+        public object Temp2 { get; set; }
 
         public Vec2d()
         {
@@ -33,8 +34,10 @@ namespace SZGUIFeleves.Models
 
         public Vec2d(Vec2d v)
         {
-            this.x = v.x;
-            this.y = v.y;
+            x = v.x;
+            y = v.y;
+            Temp = v.Temp;
+            Temp2 = v.Temp2;
         }
 
         public override string ToString()

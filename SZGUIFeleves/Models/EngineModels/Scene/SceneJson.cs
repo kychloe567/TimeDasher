@@ -25,6 +25,7 @@ namespace SZGUIFeleves.Models
         public List<Rectangle> MergedForeground { get; set; }
 
         public Player Player { get; set; }
+        public bool PlayerEmitsLight { get; set; }
 
         public SceneJson()
         {

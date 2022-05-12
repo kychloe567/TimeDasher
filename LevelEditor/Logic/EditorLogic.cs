@@ -455,38 +455,63 @@ namespace LevelEditor.Logic
             LoadSet(currentSet);
         }
 
-        public void BackgroundChanged(string set)
+        public void BackgroundChanged(string set, bool isItNight)
         {
             CurrentBackgroundSet = set;
             string objectsPath = "Textures\\" + set + "\\StaticBackground\\";
             MovingBackground = new List<DrawableObject>();
+            MovingBackgroundPaths = new List<string>();
 
-            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
-            {
-                Texture = new BitmapImage(new Uri(objectsPath + "background.png", UriKind.RelativeOrAbsolute))
-            });
+            string bgPath = objectsPath + "background.png";
             string path = new DirectoryInfo(objectsPath + "\\").GetFiles("background.png").First().FullName;
-            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
-
+            if (isItNight)
+            {
+                bgPath = objectsPath + "background_n.png";
+                path = new DirectoryInfo(objectsPath + "\\").GetFiles("background_n.png").First().FullName;
+            }
             MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
             {
-                Texture = new BitmapImage(new Uri(objectsPath + "far.png", UriKind.RelativeOrAbsolute))
+                Texture = new BitmapImage(new Uri(bgPath, UriKind.RelativeOrAbsolute))
             });
+            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
+
+            string farPath = objectsPath + "far.png";
             path = new DirectoryInfo(objectsPath + "\\").GetFiles("far.png").First().FullName;
-            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
-
+            if (isItNight)
+            {
+                farPath = objectsPath + "far_n.png";
+                path = new DirectoryInfo(objectsPath + "\\").GetFiles("far_n.png").First().FullName;
+            }
             MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
             {
-                Texture = new BitmapImage(new Uri(objectsPath + "middle.png", UriKind.RelativeOrAbsolute))
+                Texture = new BitmapImage(new Uri(farPath, UriKind.RelativeOrAbsolute))
             });
+            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
+
+            string middlePath = objectsPath + "middle.png";
             path = new DirectoryInfo(objectsPath + "\\").GetFiles("middle.png").First().FullName;
-            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
-
+            if (isItNight)
+            {
+                middlePath = objectsPath + "middle_n.png";
+                path = new DirectoryInfo(objectsPath + "\\").GetFiles("middle_n.png").First().FullName;
+            }
             MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
             {
-                Texture = new BitmapImage(new Uri(objectsPath + "close.png", UriKind.RelativeOrAbsolute))
+                Texture = new BitmapImage(new Uri(middlePath, UriKind.RelativeOrAbsolute))
             });
+            MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
+
+            string closePath = objectsPath + "close.png";
             path = new DirectoryInfo(objectsPath + "\\").GetFiles("close.png").First().FullName;
+            if (isItNight)
+            {
+                closePath = objectsPath + "close_n.png";
+                path = new DirectoryInfo(objectsPath + "\\").GetFiles("close_n.png").First().FullName;
+            }
+            MovingBackground.Add(new Rectangle(new Vec2d(), WindowSize)
+            {
+                Texture = new BitmapImage(new Uri(closePath, UriKind.RelativeOrAbsolute))
+            });
             MovingBackgroundPaths.Add(path.Substring(path.IndexOf("Textures")));
         }
 

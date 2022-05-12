@@ -46,7 +46,7 @@ namespace SZGUIFeleves.Renderer
             // Zoom not working yet
             //dc.PushTransform(new ScaleTransform(model.Camera.Zoom, model.Camera.Zoom));
 
-            DrawObjects(ref dc, model.ObjectsToDisplayWorldSpace);
+            DrawObjects(ref dc, model.ObjectsToDisplayWorldSpace, camera:model.Camera);
             dc.Pop();
 
             // Drawing the UI (or screen fixed objects)
@@ -56,8 +56,9 @@ namespace SZGUIFeleves.Renderer
             model.ObjectsToDisplayScreenSpace.Clear();
         }
 
-        private void DrawObjects(ref DrawingContext dc, List<DrawableObject> objects, bool isBackground = false, bool isUI = false)
+        private void DrawObjects(ref DrawingContext dc, List<DrawableObject> objects, bool isBackground = false, bool isUI = false, Camera camera = null)
         {
+            bool shadowAdded = false;
             foreach (DrawableObject obj in objects)
             {
                 // Creating the brush with the set Color or Texture
@@ -103,7 +104,49 @@ namespace SZGUIFeleves.Renderer
                     dc.PushTransform(new RotateTransform(obj.Rotation, middle.x, middle.y));
                 }
 
-                if (obj is Rectangle r)
+                if(obj is Shadow s)
+                {
+                    if (!s.IsVisible(model.Camera) && !isUI)
+                        continue;
+
+                    var geometry = new StreamGeometry();
+                    geometry.FillRule = FillRule.EvenOdd;
+                    using (StreamGeometryContext ctx = geometry.Open())
+                    {
+                        ctx.BeginFigure(new Point(s.Position.x, s.Position.y), obj.IsFilled, true);
+
+                        foreach (Vec2d point in s.Points)
+                            ctx.LineTo(new Point(point.x, point.y), true, true);
+                    }
+                    //geometry.Freeze();
+
+                    if (!shadowAdded)
+                    {
+                        StreamGeometry b = new StreamGeometry();
+                        b.FillRule = FillRule.EvenOdd;
+                        using (StreamGeometryContext ctx = b.Open())
+                        {
+                            ctx.BeginFigure(new Point(camera.CenteredPosition.x, camera.CenteredPosition.y), obj.IsFilled, true);
+                            ctx.LineTo(new Point(camera.CenteredPosition.x + WindowSize.x, camera.CenteredPosition.y), true, true);
+                            ctx.LineTo(new Point(camera.CenteredPosition.x + WindowSize.x, camera.CenteredPosition.y + WindowSize.y), true, true);
+                            ctx.LineTo(new Point(camera.CenteredPosition.x, camera.CenteredPosition.y + WindowSize.y), true, true);
+                        }
+
+                        CombinedGeometry cg = new CombinedGeometry();
+                        cg.GeometryCombineMode = GeometryCombineMode.Exclude;
+                        cg.Geometry1 = b;
+                        cg.Geometry2 = geometry;
+
+                        dc.DrawGeometry(new SolidColorBrush(System.Windows.Media.Color.FromArgb(200, 0, 0, 0)), pen, cg);
+                        shadowAdded = true;
+                    }
+
+                    if (obj.IsFilled)
+                        dc.DrawGeometry(brush, pen, geometry);
+                    else
+                        dc.DrawGeometry(null, pen, geometry);
+                }
+                else if (obj is Rectangle r)
                 {
                     if (!r.IsVisible(model.Camera) && !isBackground && !isUI)
                         continue;

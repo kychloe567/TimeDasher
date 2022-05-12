@@ -10,7 +10,6 @@ namespace SZGUIFeleves.Models
     public class DynamicPointLight
     {
         public Vec2d Position { get; set; }
-        public double Radius { get; set; }
 
         public DynamicPointLight()
         {
@@ -20,34 +19,32 @@ namespace SZGUIFeleves.Models
         public DynamicPointLight(Vec2d position)
         {
             Position = position;
-            Radius = 1;
         }
 
-        public DynamicPointLight(Vec2d position, double radius)
+        public Shadow GetShadows(List<DrawableObject> objects, Vec2d WindowSize, Camera camera)
         {
-            Position = position;
-            Radius = radius;
-        }
-
-        public Shadow GetShadows(List<DrawableObject> objects, Vec2d WindowSize)
-        {
+            Vec2d cPos = new Vec2d(camera.CenteredPosition);
             // Get all unique points and all segments
             List<Vec2d> uniquePoints = new List<Vec2d>()
             {
-                 new Vec2d(0,0),
-                 new Vec2d(0, WindowSize.y),
-                 new Vec2d(WindowSize.x, WindowSize.y),
-                 new Vec2d(WindowSize.x, 0)
+                 new Vec2d(cPos.x,cPos.y),
+                 new Vec2d(cPos.x, cPos.y + WindowSize.y),
+                 new Vec2d(cPos.x + WindowSize.x, cPos.y + WindowSize.y),
+                 new Vec2d(cPos.x + WindowSize.x, cPos.y)
             };
             List<Line> lineSegments = new List<Line>()
             {
-                new Line(new Vec2d(0, 0), new Vec2d(WindowSize.x, 0)),
-                new Line(new Vec2d(WindowSize.x, 0), new Vec2d(WindowSize.x, WindowSize.y)),
-                new Line(new Vec2d(WindowSize.x, WindowSize.y), new Vec2d(0, WindowSize.y)),
-                new Line(new Vec2d(0, WindowSize.y), new Vec2d(0, 0))
+                new Line(new Vec2d(cPos.x, cPos.y), new Vec2d(cPos.x + WindowSize.x, cPos.y)),
+                new Line(new Vec2d(cPos.x + WindowSize.x, cPos.y), new Vec2d(cPos.x + WindowSize.x, cPos.y + WindowSize.y)),
+                new Line(new Vec2d(cPos.x + WindowSize.x, cPos.y + WindowSize.y), new Vec2d(cPos.x, cPos.y + WindowSize.y)),
+                new Line(new Vec2d(cPos.x, cPos.y + WindowSize.y), new Vec2d(cPos.x, cPos.y))
             };
+
             foreach (DrawableObject obj in objects)
             {
+                if (!obj.IsVisible(camera))
+                    continue;
+
                 if(obj is Rectangle r)
                 {
                     if (IsInside(r))
@@ -160,10 +157,13 @@ namespace SZGUIFeleves.Models
 
             intersects.Sort((a, b) => ((double)b.Temp).CompareTo((double)a.Temp));
             Vec2d pos = intersects[0];
+
             intersects.RemoveAt(0);
 
-
-            Shadow shadow = new Shadow(pos, intersects);
+            Shadow shadow = new Shadow(pos, intersects)
+            {
+                DrawPriority = DrawPriority.Top
+            };
             return shadow;
         }
 

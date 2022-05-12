@@ -178,6 +178,24 @@ namespace LevelEditor.ViewModels
         #endregion
 
         #region EditorButtons
+        private bool playerEmitsLight;
+        public bool PlayerEmitsLight
+        {
+            get { return playerEmitsLight; }
+            set { playerEmitsLight = value; OnPropertyChanged(); }
+        }
+        private bool isItNight;
+        public bool IsItNight
+        {
+            get { return isItNight; }
+            set 
+            { 
+                isItNight = value;
+                if (!(SelectedBackground is null))
+                    logic.BackgroundChanged(SelectedBackground, isItNight);
+                OnPropertyChanged(); 
+            }
+        }
         public ICommand MoveToolCommand { get; set; }
         public ICommand SelectionToolCommand { get; set; }
         public ICommand PlayerToolCommand { get; set; }
@@ -205,7 +223,8 @@ namespace LevelEditor.ViewModels
             set
             {
                 selectedBackground = value;
-                logic.BackgroundChanged(selectedBackground);
+                if(!(selectedBackground is null))
+                    logic.BackgroundChanged(selectedBackground, IsItNight);
                 OnPropertyChanged();
             }
         }
@@ -298,7 +317,7 @@ namespace LevelEditor.ViewModels
             if (sfd.ShowDialog() == true)
             {
                 string title = Path.GetFileNameWithoutExtension(sfd.FileName);
-                SceneManager.SaveScene(logic.SaveScene(title), sfd.FileName);
+                SceneManager.SaveScene(logic.SaveScene(title), sfd.FileName, PlayerEmitsLight);
             }
         }
 
@@ -315,7 +334,7 @@ namespace LevelEditor.ViewModels
             if (sfd.ShowDialog() == true)
             {
                 string title = Path.GetFileNameWithoutExtension(sfd.FileName);
-                SceneManager.SaveScene(logic.SaveScene(title), sfd.FileName);
+                SceneManager.SaveScene(logic.SaveScene(title), sfd.FileName, PlayerEmitsLight);
             }
         }
 

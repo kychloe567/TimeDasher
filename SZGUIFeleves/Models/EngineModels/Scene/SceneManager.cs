@@ -112,6 +112,9 @@ namespace SZGUIFeleves.Models
                 LowestPoint = lowestPoint
             };
 
+            if (sj.PlayerEmitsLight)
+                s.PlayerLight = new DynamicPointLight(Objects[playerIndex].Position);
+
             if (!(s.Objects[s.PlayerIndex].StateMachine is null))
             {
                 s.Objects[s.PlayerIndex].StateMachine.SetState("idleright");
@@ -196,6 +199,8 @@ namespace SZGUIFeleves.Models
 
             sj.MovingBackground.LoadTextures();
             Scene s = new Scene(sj.Title, Objects, playerIndex, sj.PointLights, sj.MovingBackground, sj.MergedForeground);
+            if(sj.PlayerEmitsLight)
+                s.PlayerLight = new DynamicPointLight(Objects[playerIndex].Position);
 
             if (!(s.Objects[s.PlayerIndex].StateMachine is null))
             {
@@ -205,7 +210,7 @@ namespace SZGUIFeleves.Models
             return s;
         }
 
-        public static void SaveScene(Scene scene, string path)
+        public static void SaveScene(Scene scene, string path, bool playerEmitsLight = false)
         {
             SceneJson sj = new SceneJson();
             foreach(var obj in scene.Objects)
@@ -233,6 +238,7 @@ namespace SZGUIFeleves.Models
             sj.Title = scene.Title;
             sj.PointLights = scene.PointLights;
             sj.MergedForeground = scene.MergedForeground;
+            sj.PlayerEmitsLight = playerEmitsLight;
 
             File.WriteAllText(path, JsonConvert.SerializeObject(sj));
         }

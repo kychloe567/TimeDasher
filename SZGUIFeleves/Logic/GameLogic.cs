@@ -28,7 +28,7 @@ namespace SZGUIFeleves.Logic
     public class GameLogic : IGameModel, IGameControl
     {
         #region App Constants
-        private const int FPSTarget = 60;
+        private const int FPSTarget = 100;
         #endregion
 
         #region Draw Variables
@@ -84,6 +84,7 @@ namespace SZGUIFeleves.Logic
         public Stopwatch SceneTimer { get; set; }
 
         public Random rnd { get; set; }
+        public double TrapColliderMinus = 2.5f;
 
         #endregion
 
@@ -95,9 +96,9 @@ namespace SZGUIFeleves.Logic
         #endregion
 
         #region Lighting Variables
-        private const int shadowPasses = 1;
-        private const int shadowIntensity = 4;
-        private const int lightBlendingAlpha = 150;
+        private const int shadowPasses = 3;
+        private const int shadowIntensity = 10;
+        private const int lightBlendingAlpha = 20;
         private Color LightColor { get; set; }
         #endregion
 
@@ -140,7 +141,8 @@ namespace SZGUIFeleves.Logic
                 ButtonFlags.Add(b, false);
 
 
-            LightColor = new Color(255, 234, 176, lightBlendingAlpha);
+            //LightColor = new Color(255, 234, 176, lightBlendingAlpha);
+            LightColor = new Color(255, 255, 255, lightBlendingAlpha);
             Camera = new Camera(WindowSize)
             {
                 DeadZone = new Vec2d(5,5),
@@ -288,12 +290,6 @@ namespace SZGUIFeleves.Logic
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
 
-            CurrentScene.PointLights.Add(new DynamicPointLight()
-            {
-                Position = CurrentScene.Objects[CurrentScene.PlayerIndex].Position,
-                Radius = 5
-            });
-
             LastCheckpoint = null;
             Lives = MaxLives;
             SetLivesUI();
@@ -437,10 +433,20 @@ namespace SZGUIFeleves.Logic
 
                 if (obj is Trap t)
                 {
+                    t.Position.x += TrapColliderMinus;
+                    t.Position.y += TrapColliderMinus;
+                    t.Size.x -= TrapColliderMinus*2;
+                    t.Size.y -= TrapColliderMinus*2;
+
                     if(t.Intersects(CurrentScene.Objects[CurrentScene.PlayerIndex]))
                     {
                         PlayerDies();
                     }
+
+                    t.Position.x -= TrapColliderMinus;
+                    t.Position.y -= TrapColliderMinus;
+                    t.Size.x += TrapColliderMinus*2;
+                    t.Size.y += TrapColliderMinus*2;
                 }
 
                 #region StateMachine and IsAffectedByCamera
@@ -454,13 +460,13 @@ namespace SZGUIFeleves.Logic
                 #endregion 
             }
 
-            foreach(Rectangle r in CurrentScene.MergedForeground)
-            {
-                r.OutLineColor = Color.Red;
-                r.OutLineThickness = 1;
-                r.Color = new Color(0, 0, 0, 0);
-                ObjectsToDisplayWorldSpace.Add(r);
-            }
+            //foreach (Rectangle r in CurrentScene.MergedForeground)
+            //{
+            //    r.OutLineColor = Color.Red;
+            //    r.OutLineThickness = 1;
+            //    r.Color = new Color(0, 0, 0, 0);
+            //    ObjectsToDisplayWorldSpace.Add(r);
+            //}
 
             MovingBackgrounds = CurrentScene.MovingBackground.UpdateBackground(WindowSize);
 
@@ -470,7 +476,8 @@ namespace SZGUIFeleves.Logic
             if (CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y > CurrentScene.LowestPoint+100)
                 PlayerDies();
 
-            CurrentScene.PointLights[0].Position = CurrentScene.Objects[CurrentScene.PlayerIndex].Position;
+            if(!(CurrentScene.PlayerLight is null))
+                CurrentScene.PlayerLight.Position = CurrentScene.Objects[CurrentScene.PlayerIndex].Position;
 
             #region Emitter
             for (int i = Emitters.Count()-1; i >= 0; i--)
@@ -710,15 +717,15 @@ namespace SZGUIFeleves.Logic
             // Game Logic Update
 
             // Lighting
+            List<DrawableObject> mergedForeground = new List<DrawableObject>(CurrentScene.MergedForeground);
             foreach (DynamicPointLight dpl in CurrentScene.PointLights)
             {
-                List<DrawableObject> a = new List<DrawableObject>(CurrentScene.MergedForeground);
-
                 Vec2d originalPos = new Vec2d(dpl.Position);
                 for (int i = 0; i < shadowPasses; i++)
                 {
-                    dpl.Position = originalPos + new Vec2d(i * shadowIntensity, i * shadowIntensity);
-                    var shadow = dpl.GetShadows(a, WindowSize);
+                    dpl.Position = originalPos + new Vec2d(1,0) + new Vec2d(i * shadowIntensity, i * shadowIntensity);
+                    Shadow shadow = dpl.GetShadows(mergedForeground, WindowSize, Camera);
+
                     if (shadow is null)
                         continue;
 
@@ -726,6 +733,23 @@ namespace SZGUIFeleves.Logic
                     ObjectsToDisplayWorldSpace.Add(shadow);
                 }
                 dpl.Position = originalPos;
+            }
+
+            if (!(CurrentScene.PlayerLight is null))
+            {
+                Vec2d originalPos = new Vec2d(CurrentScene.PlayerLight.Position);
+                for (int i = 0; i < shadowPasses; i++)
+                {
+                    CurrentScene.PlayerLight.Position = originalPos + new Vec2d(1, 0) + new Vec2d(i * shadowIntensity, i * shadowIntensity);
+                    Shadow shadow = CurrentScene.PlayerLight.GetShadows(mergedForeground, WindowSize, Camera);
+
+                    if (shadow is null)
+                        continue;
+
+                    shadow.Color = LightColor;
+                    ObjectsToDisplayWorldSpace.Add(shadow);
+                }
+                CurrentScene.PlayerLight.Position = originalPos;
             }
         }
 
