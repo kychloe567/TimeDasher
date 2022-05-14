@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SZGUIFeleves.Helpers;
+using SZGUIFeleves.Models.DrawableObjects;
 
 namespace SZGUIFeleves.Models
 {
@@ -48,6 +49,9 @@ namespace SZGUIFeleves.Models
             };
             foreach (DrawableObject obj in objects)
             {
+                if (obj is Player)
+                    continue;
+
                 if(obj is Rectangle r)
                 {
                     if (IsInside(r))

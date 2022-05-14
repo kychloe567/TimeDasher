@@ -95,7 +95,7 @@ namespace SZGUIFeleves.Logic
         #endregion
 
         #region Lighting Variables
-        private const int shadowPasses = 5;
+        private const int shadowPasses = 1;
         private const int shadowIntensity = 4;
         private const int lightBlendingAlpha = 150;
         private Color LightColor { get; set; }
@@ -288,6 +288,13 @@ namespace SZGUIFeleves.Logic
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
 
+            //TEMP------------------------------------------------------
+            CurrentScene.PointLights = new List<DynamicPointLight>();
+            CurrentScene.PointLights.Add(new DynamicPointLight()
+            {
+                Radius = 5
+            });
+
             LastCheckpoint = null;
             Lives = MaxLives;
             SetLivesUI();
@@ -455,6 +462,8 @@ namespace SZGUIFeleves.Logic
 
             if (CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y > CurrentScene.LowestPoint+100)
                 PlayerDies();
+
+            CurrentScene.PointLights.First().Position = new Vec2d(CurrentScene.Objects[CurrentScene.PlayerIndex].Position);
 
             #region Emitter
             for (int i = Emitters.Count()-1; i >= 0; i--)
@@ -724,6 +733,8 @@ namespace SZGUIFeleves.Logic
             bool doesIntersect = false;
             bool leftWall = false;
             bool rightWall = false;
+
+            IsGravitySet(p, false, null);
 
             foreach (var item in CurrentScene.Objects)
             {
