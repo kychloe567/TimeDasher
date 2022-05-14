@@ -16,16 +16,22 @@ namespace SZGUIFeleves.Models
         public MovingBackground MovingBackground { get; set; }
 
         public int PlayerIndex { get; set; }
+        
         public List<DynamicPointLight> PointLights { get; set; }
-        public double LowestPoint { get; set; }
+        public DynamicPointLight PlayerLight { get; set; }
 
-        public Scene(string title, List<DrawableObject> objects, int playerIndex, List<DynamicPointLight> pointLights, MovingBackground movingBackground)
+        public double LowestPoint { get; set; }
+        public List<Rectangle> MergedForeground { get; set; }
+
+        public Scene(string title, List<DrawableObject> objects, int playerIndex, List<DynamicPointLight> pointLights, 
+                     MovingBackground movingBackground, List<Rectangle> merged)
         {
             Title = title;
             Objects = objects;
             PlayerIndex = playerIndex;
             PointLights = pointLights;
             MovingBackground = movingBackground;
+            MergedForeground = merged;
         }
     }
 }

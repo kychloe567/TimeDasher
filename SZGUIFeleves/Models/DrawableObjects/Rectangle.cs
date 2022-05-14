@@ -12,6 +12,7 @@ namespace SZGUIFeleves.Models
         public Vec2d Size { get; set; }
         public Vec2d CornerRadius { get; set; }
         public bool IsRounded { get; set; }
+        public int TempIndex { get; set; }
 
         public double Right
         {

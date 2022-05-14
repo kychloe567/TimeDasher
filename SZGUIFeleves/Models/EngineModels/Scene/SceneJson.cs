@@ -22,7 +22,10 @@ namespace SZGUIFeleves.Models
         public List<DynamicPointLight> PointLights { get; set; }
 
         public MovingBackground MovingBackground { get; set; }
+        public List<Rectangle> MergedForeground { get; set; }
+
         public Player Player { get; set; }
+        public bool PlayerEmitsLight { get; set; }
 
         public SceneJson()
         {
@@ -35,6 +38,7 @@ namespace SZGUIFeleves.Models
             Rectangles = new List<Rectangle>();
             Texts = new List<Text>();
             MovingBackground = new MovingBackground();
+            MergedForeground = new List<Rectangle>();
         }
     }
 }
