@@ -257,8 +257,7 @@ namespace SZGUIFeleves.ViewModels
 
                 CurrentScore = GameLogic.SceneTimer.Elapsed.ToString(@"mm\:ss\.fff");
 
-                if((bScore == -1 || bScore > GameLogic.SceneTimer.ElapsedMilliseconds/1000.0) && 
-                    !(Username is null) && Username != "")
+                if(!(Username is null) && Username != "")
                 {
                     LeaderboardController.AddNew(new LeaderboardScore()
                     {

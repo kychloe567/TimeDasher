@@ -290,13 +290,6 @@ namespace SZGUIFeleves.Logic
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
 
-            //TEMP------------------------------------------------------
-            CurrentScene.PointLights = new List<DynamicPointLight>();
-            CurrentScene.PointLights.Add(new DynamicPointLight()
-            {
-                Radius = 5
-            });
-
             LastCheckpoint = null;
             Lives = MaxLives;
             SetLivesUI();
@@ -773,8 +766,6 @@ namespace SZGUIFeleves.Logic
             bool doesIntersect = false;
             bool leftWall = false;
             bool rightWall = false;
-
-            IsGravitySet(p, false, null);
 
             foreach (var item in CurrentScene.Objects)
             {

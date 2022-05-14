@@ -40,12 +40,25 @@ namespace SZGUIFeleves.Controller
                 new LeaderboardScore() { Date = DateTime.Now, Name="Teszt", Seconds = 1}
             };
 
-            HttpResponseMessage response = client.PutAsJsonAsync("https://api.jsonbin.io/v3/b/" + binId, helperList).Result;
+            HttpResponseMessage response = new HttpResponseMessage();
+            try
+            {
+                response = client.PutAsJsonAsync("https://api.jsonbin.io/v3/b/" + binId, helperList).Result;
+            }
+            catch { return; }
         }
 
         public static Dictionary<string, List<LeaderboardScore>> GetAll()
         {
-            HttpResponseMessage response = client.GetAsync(binId).Result;
+            HttpResponseMessage response = new HttpResponseMessage();
+            try
+            {
+                response = client.GetAsync(binId).Result;
+            }
+            catch
+            {
+                return new Dictionary<string, List<LeaderboardScore>>();
+            }
 
             Dictionary<string, List<LeaderboardScore>> scores = new Dictionary<string, List<LeaderboardScore>>();
 
@@ -78,7 +91,15 @@ namespace SZGUIFeleves.Controller
 
         public static Dictionary<string, LeaderboardScore> GetAll(string username)
         {
-            HttpResponseMessage response = client.GetAsync(binId).Result;
+            HttpResponseMessage response = new HttpResponseMessage();
+            try
+            {
+                response = client.GetAsync(binId).Result;
+            }
+            catch
+            {
+                return new Dictionary<string, LeaderboardScore>();
+            }
 
             Dictionary<string, List<LeaderboardScore>> scores = new Dictionary<string, List<LeaderboardScore>>();
 
@@ -129,7 +150,12 @@ namespace SZGUIFeleves.Controller
             
             helperList.Add(itemToAdd);
 
-            HttpResponseMessage response = client.PutAsJsonAsync("https://api.jsonbin.io/v3/b/" + binId, helperList).Result;
+            HttpResponseMessage response = new HttpResponseMessage();
+            try
+            {
+                response = client.PutAsJsonAsync("https://api.jsonbin.io/v3/b/" + binId, helperList).Result;
+            }
+            catch { return; }
         }
     }
 }
