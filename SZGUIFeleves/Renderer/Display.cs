@@ -137,7 +137,7 @@ namespace SZGUIFeleves.Renderer
                         cg.Geometry1 = b;
                         cg.Geometry2 = geometry;
 
-                        dc.DrawGeometry(new SolidColorBrush(System.Windows.Media.Color.FromArgb(200, 0, 0, 0)), pen, cg);
+                        dc.DrawGeometry(new SolidColorBrush(System.Windows.Media.Color.FromArgb(220, 0, 0, 0)), pen, cg);
                         shadowAdded = true;
                     }
 
@@ -223,6 +223,23 @@ namespace SZGUIFeleves.Renderer
 
                 if (obj.Rotation != 0 && !(obj is Text))
                     dc.Pop();
+            }
+
+            if(!shadowAdded && model.IsThereShadow && !(camera is null))
+            {
+                StreamGeometry b = new StreamGeometry();
+                b.FillRule = FillRule.EvenOdd;
+                using (StreamGeometryContext ctx = b.Open())
+                {
+                    ctx.BeginFigure(new Point(camera.CenteredPosition.x, camera.CenteredPosition.y), true, true);
+                    ctx.LineTo(new Point(camera.CenteredPosition.x + WindowSize.x, camera.CenteredPosition.y), true, true);
+                    ctx.LineTo(new Point(camera.CenteredPosition.x + WindowSize.x, camera.CenteredPosition.y + WindowSize.y), true, true);
+                    ctx.LineTo(new Point(camera.CenteredPosition.x, camera.CenteredPosition.y + WindowSize.y), true, true);
+                }
+
+                Pen pen = new Pen(Brushes.Transparent, 0);
+
+                dc.DrawGeometry(new SolidColorBrush(System.Windows.Media.Color.FromArgb(220, 0, 0, 0)), pen, b);
             }
         }
     }

@@ -303,6 +303,8 @@ namespace LevelEditor.ViewModels
                 Scene s = SceneManager.GetSceneByFullPath(ofd.FileName);
                 if(s.MovingBackground.Set != null)
                     SelectedBackground = s.MovingBackground.Set;
+                IsItNight = s.MovingBackground.BackgroundPath.Contains("_n");
+                PlayerEmitsLight = !(s.PlayerLight is null);
                 logic.LoadScene(s);
             }
         }

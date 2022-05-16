@@ -98,8 +98,9 @@ namespace SZGUIFeleves.Logic
         #region Lighting Variables
         private const int shadowPasses = 3;
         private const int shadowIntensity = 10;
-        private const int lightBlendingAlpha = 20;
+        private const int lightBlendingAlpha = 10;
         private Color LightColor { get; set; }
+        public bool IsThereShadow { get; set; }
         #endregion
 
         #region Sounds and Music
@@ -142,7 +143,8 @@ namespace SZGUIFeleves.Logic
 
 
             //LightColor = new Color(255, 234, 176, lightBlendingAlpha);
-            LightColor = new Color(255, 255, 255, lightBlendingAlpha);
+            //LightColor = new Color(255, 255, 255, lightBlendingAlpha);
+            LightColor = new Color(255, 255, 112, lightBlendingAlpha);
             Camera = new Camera(WindowSize)
             {
                 DeadZone = new Vec2d(5,5),
@@ -290,6 +292,9 @@ namespace SZGUIFeleves.Logic
             if (CurrentScene is null)
                 CurrentScene = SceneManager.GetDefaultScene();
 
+            CurrentScene.Objects[CurrentScene.PlayerIndex].DrawPriority = DrawPriority.Top;
+            IsThereShadow = !(CurrentScene.PlayerLight is null);
+
             LastCheckpoint = null;
             Lives = MaxLives;
             SetLivesUI();
@@ -379,23 +384,18 @@ namespace SZGUIFeleves.Logic
 
             // Uncomment to get FPS property -> To display averaged FPS
             #region
-            double currentFps = 1.0f / Elapsed;
-            RecentFPS.Add(currentFps);
-            if (RecentFPS.Count > 20)
-                RecentFPS.Remove(RecentFPS.First());
-            ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+            //double currentFps = 1.0f / Elapsed;
+            //RecentFPS.Add(currentFps);
+            //if (RecentFPS.Count > 20)
+            //    RecentFPS.Remove(RecentFPS.First());
+            //ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
             #endregion
 
-            // Camera and objects sort
-            #region
+            Update();
             Camera.UpdatePosition(CurrentScene.Objects[CurrentScene.PlayerIndex].Position, Elapsed);
 
-            var ToDrawObjects = new List<DrawableObject>(CurrentScene.Objects);
-            ToDrawObjects.Sort(); // Sorting drawable objects by DrawPriority (not necessary if items added in order)
-            #endregion
 
-
-            foreach (var obj in ToDrawObjects)
+            foreach (var obj in CurrentScene.Objects)
             {
                 if (obj.IsPlayer && obj is Player p)
                 {
@@ -460,6 +460,7 @@ namespace SZGUIFeleves.Logic
                 #endregion 
             }
 
+
             //foreach (Rectangle r in CurrentScene.MergedForeground)
             //{
             //    r.OutLineColor = Color.Red;
@@ -471,7 +472,6 @@ namespace SZGUIFeleves.Logic
             MovingBackgrounds = CurrentScene.MovingBackground.UpdateBackground(WindowSize);
 
             Control(up, left, down, right);
-            Update();
 
             if (CurrentScene.Objects[CurrentScene.PlayerIndex].Position.y > CurrentScene.LowestPoint+100)
                 PlayerDies();
@@ -519,6 +519,7 @@ namespace SZGUIFeleves.Logic
             #endregion
 
 
+            ObjectsToDisplayWorldSpace.Sort();
             // Invoking the OnRender function in the Display class through event
             DrawEvent.Invoke((int)WindowSize.x, (int)WindowSize.y);
         }
@@ -730,6 +731,7 @@ namespace SZGUIFeleves.Logic
                         continue;
 
                     shadow.Color = LightColor;
+                    shadow.DrawPriority = DrawPriority.Custom(100);
                     ObjectsToDisplayWorldSpace.Add(shadow);
                 }
                 dpl.Position = originalPos;
@@ -747,6 +749,7 @@ namespace SZGUIFeleves.Logic
                         continue;
 
                     shadow.Color = LightColor;
+                    shadow.DrawPriority = DrawPriority.Custom(100);
                     ObjectsToDisplayWorldSpace.Add(shadow);
                 }
                 CurrentScene.PlayerLight.Position = originalPos;

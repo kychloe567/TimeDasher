@@ -22,23 +22,56 @@ namespace SZGUIFeleves.Models
             Position = position;
         }
 
+        private List<Vec2d> ObjectIsCutOff(Line l, Camera camera)
+        {
+            List<Line> lineSegments = new List<Line>()
+            {
+                new Line(new Vec2d(camera.CenteredPosition.x, camera.CenteredPosition.y), new Vec2d(camera.CenteredPosition.x + camera.WindowSize.x, camera.CenteredPosition.y)),
+                new Line(new Vec2d(camera.CenteredPosition.x + camera.WindowSize.x, camera.CenteredPosition.y), new Vec2d(camera.CenteredPosition.x + camera.WindowSize.x, camera.CenteredPosition.y + camera.WindowSize.y)),
+                new Line(new Vec2d(camera.CenteredPosition.x + camera.WindowSize.x, camera.CenteredPosition.y + camera.WindowSize.y), new Vec2d(camera.CenteredPosition.x, camera.CenteredPosition.y + camera.WindowSize.y)),
+                new Line(new Vec2d(camera.CenteredPosition.x, camera.CenteredPosition.y + camera.WindowSize.y), new Vec2d(camera.CenteredPosition.x, camera.CenteredPosition.y))
+            };
+
+            List<Vec2d> points = new List<Vec2d>();
+            foreach(Line cLine in lineSegments)
+            {
+                double tUp = (cLine.Position.x - l.Position.x) * (l.Position.y - l.Position2.y) - (cLine.Position.y - l.Position.y) * (l.Position.x - l.Position2.x);
+                double tDown = (cLine.Position.x - cLine.Position2.x) * (l.Position.y - l.Position2.y) - (cLine.Position.y - cLine.Position2.y) * (l.Position.x - l.Position2.x);
+                double t = tUp / tDown;
+
+                double uUp = (cLine.Position.x - l.Position.x) * (cLine.Position.y - cLine.Position2.y) - (cLine.Position.y - l.Position.y) * (cLine.Position.x - cLine.Position2.x);
+                double uDown = (cLine.Position.x - cLine.Position2.x) * (l.Position.y - l.Position2.y) - (cLine.Position.y - cLine.Position2.y) * (l.Position.x - l.Position2.x);
+                double u = uUp / uDown;
+
+                if (t < 0 || t > 1 || u < 0 || u > 1)
+                    continue;
+
+                points.Add(new Vec2d(cLine.Position.x + t*(cLine.Position2.x-cLine.Position.x), cLine.Position.y + t*(cLine.Position2.y-cLine.Position.y)));
+            }
+            if (points.Count == 0)
+                return null;
+
+            return points;
+        }
+
         public Shadow GetShadows(List<DrawableObject> objects, Vec2d WindowSize, Camera camera)
         {
             Vec2d cPos = new Vec2d(camera.CenteredPosition);
             // Get all unique points and all segments
+
             List<Vec2d> uniquePoints = new List<Vec2d>()
             {
-                 new Vec2d(cPos.x,cPos.y),
-                 new Vec2d(cPos.x, cPos.y + WindowSize.y),
-                 new Vec2d(cPos.x + WindowSize.x, cPos.y + WindowSize.y),
-                 new Vec2d(cPos.x + WindowSize.x, cPos.y)
+                 new Vec2d(cPos.x-10,cPos.y-10),
+                 new Vec2d(cPos.x-10, cPos.y + WindowSize.y + 10),
+                 new Vec2d(cPos.x + WindowSize.x + 10, cPos.y + WindowSize.y + 10),
+                 new Vec2d(cPos.x + WindowSize.x + 10, cPos.y - 10)
             };
             List<Line> lineSegments = new List<Line>()
             {
-                new Line(new Vec2d(cPos.x, cPos.y), new Vec2d(cPos.x + WindowSize.x, cPos.y)),
-                new Line(new Vec2d(cPos.x + WindowSize.x, cPos.y), new Vec2d(cPos.x + WindowSize.x, cPos.y + WindowSize.y)),
-                new Line(new Vec2d(cPos.x + WindowSize.x, cPos.y + WindowSize.y), new Vec2d(cPos.x, cPos.y + WindowSize.y)),
-                new Line(new Vec2d(cPos.x, cPos.y + WindowSize.y), new Vec2d(cPos.x, cPos.y))
+                new Line(new Vec2d(cPos.x-10, cPos.y-10), new Vec2d(cPos.x + WindowSize.x + 10, cPos.y -10)),
+                new Line(new Vec2d(cPos.x + WindowSize.x+10, cPos.y-10), new Vec2d(cPos.x + WindowSize.x+10, cPos.y + WindowSize.y+10)),
+                new Line(new Vec2d(cPos.x + WindowSize.x+10, cPos.y + WindowSize.y+10), new Vec2d(cPos.x-10, cPos.y + WindowSize.y+10)),
+                new Line(new Vec2d(cPos.x-10 ,cPos.y + WindowSize.y+10), new Vec2d(cPos.x-10, cPos.y-10))
             };
 
             foreach (DrawableObject obj in objects)
@@ -48,6 +81,7 @@ namespace SZGUIFeleves.Models
 
                 if (!obj.IsVisible(camera))
                     continue;
+
                 if (obj is Rectangle r)
                 {
                     if (IsInside(r))
@@ -62,10 +96,27 @@ namespace SZGUIFeleves.Models
                     if (!uniquePoints.Contains(r.Position + new Vec2d(r.Size.x, 0)))
                         uniquePoints.Add(r.Position + new Vec2d(r.Size.x, 0));
 
+
                     lineSegments.Add(new Line(r.Position, new Vec2d(r.Position.x + r.Size.x, r.Position.y)));
                     lineSegments.Add(new Line(new Vec2d(r.Position.x + r.Size.x, r.Position.y), new Vec2d(r.Position.x + r.Size.x, r.Position.y + r.Size.y)));
                     lineSegments.Add(new Line(new Vec2d(r.Position.x + r.Size.x, r.Position.y + r.Size.y), new Vec2d(r.Position.x, r.Position.y + r.Size.y)));
                     lineSegments.Add(new Line(new Vec2d(r.Position.x, r.Position.y + r.Size.y), new Vec2d(r.Position)));
+
+                    List<Vec2d> cutoff = ObjectIsCutOff(lineSegments[lineSegments.Count - 4], camera);
+                    if (!(cutoff is null))
+                        uniquePoints.AddRange(cutoff);
+
+                    cutoff = ObjectIsCutOff(lineSegments[lineSegments.Count - 3], camera);
+                    if (!(cutoff is null))
+                        uniquePoints.AddRange(cutoff);
+
+                    cutoff = ObjectIsCutOff(lineSegments[lineSegments.Count - 2], camera);
+                    if (!(cutoff is null))
+                        uniquePoints.AddRange(cutoff);
+
+                    cutoff = ObjectIsCutOff(lineSegments[lineSegments.Count - 1], camera);
+                    if (!(cutoff is null))
+                        uniquePoints.AddRange(cutoff);
                 }
                 else if(obj is Line l)
                 {

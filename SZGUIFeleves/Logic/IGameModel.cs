@@ -13,6 +13,7 @@ namespace SZGUIFeleves.Logic
         List<DrawableObject> ObjectsToDisplayScreenSpace { get; set; }
         List<DrawableObject> ObjectsToDisplayWorldSpace { get; set; }
         List<DrawableObject> MovingBackgrounds { get; set; }
+        bool IsThereShadow { get; set; }
         Camera Camera { get; set; }
     }
 }

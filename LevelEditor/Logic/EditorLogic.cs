@@ -753,6 +753,7 @@ namespace LevelEditor.Logic
                 // Check if the object the user is trying to place is not on an another object
                 // Decor on decor is allowed
                 bool already = false;
+                int index = -1;
                 for (int i = 0; i < Objects.Count; i++)
                 {
                     if ((toPlace as Rectangle).IntersectsEquals(Objects[i]))
@@ -762,7 +763,11 @@ namespace LevelEditor.Logic
                             continue;
                         else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Background &&
                            Objects[i].ObjectType == DrawableObject.ObjectTypes.Background)
+                        {
+                            index = i;
                             already = true;
+                            break;
+                        }
                         else if (toPlace.ObjectType == DrawableObject.ObjectTypes.Foreground &&
                                 Objects[i].ObjectType == DrawableObject.ObjectTypes.Foreground)
                             already = true;
@@ -773,6 +778,11 @@ namespace LevelEditor.Logic
                     }
                 }
 
+                if(already && index != -1)
+                {
+                    Objects.RemoveAt(index);
+                    already = false;
+                }
                 if (!already)
                 {
                     Objects.Add(toPlace);
