@@ -58,7 +58,11 @@ namespace SZGUIFeleves.Renderer
 
         private void DrawObjects(ref DrawingContext dc, List<DrawableObject> objects, bool isBackground = false, bool isUI = false, Camera camera = null)
         {
-            bool shadowAdded = false;
+            int shadows = 0;
+            List<CombinedGeometry> ShadowGeometries = new List<CombinedGeometry>();
+            List<EllipseGeometry> lights = new List<EllipseGeometry>();
+            Random rnd = new Random((int)DateTime.Now.Ticks);
+
             foreach (DrawableObject obj in objects)
             {
                 // Creating the brush with the set Color or Texture
@@ -104,7 +108,24 @@ namespace SZGUIFeleves.Renderer
                     dc.PushTransform(new RotateTransform(obj.Rotation, middle.x, middle.y));
                 }
 
-                if(obj is Shadow s)
+                if (obj is Checkpoint || obj is End)
+                {
+                    if (!obj.IsVisible(model.Camera))
+                        continue;
+
+                    Vec2d m = (obj as Rectangle).GetMiddle();
+                    lights.Add(new EllipseGeometry(new Point(m.x, m.y), 100, 100));
+
+                    Rect rect = new Rect((obj as Rectangle).Position.x, (obj as Rectangle).Position.y, (obj as Rectangle).Size.x, (obj as Rectangle).Size.y);
+                    if ((obj as Rectangle).ObjectType != DrawableObject.ObjectTypes.Decoration)
+                        rect.Size = new Size((obj as Rectangle).Size.x + 1, (obj as Rectangle).Size.y + 1);
+
+                    if (obj.IsFilled)
+                        dc.DrawRectangle(brush, pen, rect);
+                    else
+                        dc.DrawRectangle(null, pen, rect);
+                }
+                if (obj is Shadow s)
                 {
                     if (!s.IsVisible(model.Camera) && !isUI)
                         continue;
@@ -118,10 +139,15 @@ namespace SZGUIFeleves.Renderer
                         foreach (Vec2d point in s.Points)
                             ctx.LineTo(new Point(point.x, point.y), true, true);
                     }
-                    //geometry.Freeze();
 
-                    if (!shadowAdded)
+                    for (int i = 1; i < 3; i++)
                     {
+                        CombinedGeometry cg = new CombinedGeometry();
+                        cg.GeometryCombineMode = GeometryCombineMode.Intersect;
+                        cg.Geometry1 = geometry;
+                        Geometry player = new EllipseGeometry(new Point(model.PlayerPosition.x, model.PlayerPosition.y), 200+(shadows*i*10), 200+(shadows*i*10));
+                        cg.Geometry2 = player;
+
                         StreamGeometry b = new StreamGeometry();
                         b.FillRule = FillRule.EvenOdd;
                         using (StreamGeometryContext ctx = b.Open())
@@ -132,24 +158,47 @@ namespace SZGUIFeleves.Renderer
                             ctx.LineTo(new Point(camera.CenteredPosition.x, camera.CenteredPosition.y + WindowSize.y), true, true);
                         }
 
-                        CombinedGeometry cg = new CombinedGeometry();
-                        cg.GeometryCombineMode = GeometryCombineMode.Exclude;
-                        cg.Geometry1 = b;
-                        cg.Geometry2 = geometry;
+                        CombinedGeometry shadowGeometry = new CombinedGeometry();
+                        shadowGeometry.GeometryCombineMode = GeometryCombineMode.Exclude;
+                        shadowGeometry.Geometry1 = b;
+                        shadowGeometry.Geometry2 = cg;
+                        ShadowGeometries.Add(shadowGeometry);
 
-                        dc.DrawGeometry(new SolidColorBrush(System.Windows.Media.Color.FromArgb(220, 0, 0, 0)), pen, cg);
-                        shadowAdded = true;
                     }
+                    shadows++;
 
-                    if (obj.IsFilled)
-                        dc.DrawGeometry(brush, pen, geometry);
-                    else
-                        dc.DrawGeometry(null, pen, geometry);
+                    if (shadows == 1)
+                    {
+                        if (obj.IsFilled)
+                            dc.DrawGeometry(brush, pen, geometry);
+                        else
+                            dc.DrawGeometry(null, pen, geometry);
+                    }
                 }
                 else if (obj is Rectangle r)
                 {
                     if (!r.IsVisible(model.Camera) && !isBackground && !isUI)
                         continue;
+
+                    try
+                    {
+                        if (!(obj.TexturePath is null) && obj.ObjectType == DrawableObject.ObjectTypes.Decoration)
+                        {
+                            var tPath = obj.TexturePath.Split("\\");
+                            if (tPath[1] == "ChineseSet")
+                            {
+                                string n = tPath.Last().Replace(".png", "").Replace("(", "").Replace(")", "");
+                                int nInt = int.Parse(n);
+                                if (nInt >= 18 && nInt <= 25)
+                                {
+                                    Vec2d m = obj.GetMiddle();
+                                    int radius = rnd.Next(30, 33);
+                                    lights.Add(new EllipseGeometry(new Point(m.x, m.y), radius, radius));
+                                }
+                            }
+                        }
+                    }
+                    catch { }
 
                     Rect rect = new Rect(r.Position.x, r.Position.y, r.Size.x, r.Size.y);
                     if (r.ObjectType != DrawableObject.ObjectTypes.Decoration)
@@ -225,7 +274,29 @@ namespace SZGUIFeleves.Renderer
                     dc.Pop();
             }
 
-            if(!shadowAdded && model.IsThereShadow && !(camera is null))
+            Pen shadowPen = new Pen(Brushes.Transparent, 0);
+            if (shadows != 0)
+            {
+                for(int i = 0; i < ShadowGeometries.Count; i++)
+                {
+                    foreach (EllipseGeometry eg in lights)
+                    {
+                        CombinedGeometry cgWithLights = new CombinedGeometry();
+                        cgWithLights.GeometryCombineMode = GeometryCombineMode.Exclude;
+                        cgWithLights.Geometry1 = ShadowGeometries[i];
+                        cgWithLights.Geometry2 = eg;
+                        ShadowGeometries[i] = cgWithLights;
+                    }
+
+                    dc.DrawGeometry(new SolidColorBrush(System.Windows.Media.Color.FromArgb(75, 0, 0, 0)), shadowPen, ShadowGeometries[i]);
+                }
+
+                foreach(EllipseGeometry eg in lights)
+                {
+                    dc.DrawGeometry(new SolidColorBrush(System.Windows.Media.Color.FromArgb(10, 255, 255, 255)), shadowPen, eg);
+                }
+            }
+            if (shadows == 0 && model.IsThereShadow && !(camera is null))
             {
                 StreamGeometry b = new StreamGeometry();
                 b.FillRule = FillRule.EvenOdd;
@@ -237,9 +308,7 @@ namespace SZGUIFeleves.Renderer
                     ctx.LineTo(new Point(camera.CenteredPosition.x, camera.CenteredPosition.y + WindowSize.y), true, true);
                 }
 
-                Pen pen = new Pen(Brushes.Transparent, 0);
-
-                dc.DrawGeometry(new SolidColorBrush(System.Windows.Media.Color.FromArgb(220, 0, 0, 0)), pen, b);
+                dc.DrawGeometry(new SolidColorBrush(System.Windows.Media.Color.FromArgb(220, 0, 0, 0)), shadowPen, b);
             }
         }
     }

@@ -85,6 +85,7 @@ namespace SZGUIFeleves.Logic
 
         public Random rnd { get; set; }
         public double TrapColliderMinus = 2.5f;
+        public Vec2d PlayerPosition { get; set; }
 
         #endregion
 
@@ -98,7 +99,7 @@ namespace SZGUIFeleves.Logic
         #region Lighting Variables
         private const int shadowPasses = 3;
         private const int shadowIntensity = 10;
-        private const int lightBlendingAlpha = 10;
+        private const int lightBlendingAlpha = 40;
         private Color LightColor { get; set; }
         public bool IsThereShadow { get; set; }
         #endregion
@@ -144,7 +145,8 @@ namespace SZGUIFeleves.Logic
 
             //LightColor = new Color(255, 234, 176, lightBlendingAlpha);
             //LightColor = new Color(255, 255, 255, lightBlendingAlpha);
-            LightColor = new Color(255, 255, 112, lightBlendingAlpha);
+            //LightColor = new Color(255, 255, 112, lightBlendingAlpha);
+            LightColor = new Color(255, 255, 200, lightBlendingAlpha);
             Camera = new Camera(WindowSize)
             {
                 DeadZone = new Vec2d(5,5),
@@ -294,6 +296,7 @@ namespace SZGUIFeleves.Logic
 
             CurrentScene.Objects[CurrentScene.PlayerIndex].DrawPriority = DrawPriority.Top;
             IsThereShadow = !(CurrentScene.PlayerLight is null);
+            PlayerPosition = CurrentScene.Objects[CurrentScene.PlayerIndex].Position + (CurrentScene.Objects[CurrentScene.PlayerIndex] as Rectangle).Size / 2;
 
             LastCheckpoint = null;
             Lives = MaxLives;
@@ -384,11 +387,11 @@ namespace SZGUIFeleves.Logic
 
             // Uncomment to get FPS property -> To display averaged FPS
             #region
-            //double currentFps = 1.0f / Elapsed;
-            //RecentFPS.Add(currentFps);
-            //if (RecentFPS.Count > 20)
-            //    RecentFPS.Remove(RecentFPS.First());
-            //ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+            double currentFps = 1.0f / Elapsed;
+            RecentFPS.Add(currentFps);
+            if (RecentFPS.Count > 20)
+                RecentFPS.Remove(RecentFPS.First());
+            ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
             #endregion
 
             Update();
@@ -518,7 +521,7 @@ namespace SZGUIFeleves.Logic
             }
             #endregion
 
-
+            PlayerPosition = CurrentScene.Objects[CurrentScene.PlayerIndex].Position + (CurrentScene.Objects[CurrentScene.PlayerIndex] as Rectangle).Size/2;
             ObjectsToDisplayWorldSpace.Sort();
             // Invoking the OnRender function in the Display class through event
             DrawEvent.Invoke((int)WindowSize.x, (int)WindowSize.y);
