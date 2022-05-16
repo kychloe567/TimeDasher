@@ -14,13 +14,15 @@
         MouseDown="Window_MouseDown"
         MouseUp="Window_MouseUp"
         Loaded="Window_Loaded"
-        MinWidth="680" MinHeight="570"
+        MinWidth="1280" MinHeight="768"
         Title="Time-Dasher" Width="1280" Height="768">
     
     <Window.DataContext>
         <vms:MainWindowViewModel/>
     </Window.DataContext>
     <Window.Resources>
+        <FontFamily x:Key="font">/Fonts/#Koulen Regular</FontFamily>
+        
         <conv:GameStateToVisibility x:Key="GameStateToVisibility"/>
 
         <Style TargetType="{x:Type TabControl}">
@@ -65,6 +67,7 @@
         </Grid>
 
         <Grid Visibility="{Binding GameState, Converter={StaticResource GameStateToVisibility}, ConverterParameter=menu}">
+        <!--<Grid Visibility="Hidden">-->
             <Grid.Background>
                 <ImageBrush ImageSource="{Binding MenuBackground}" Opacity="0.5"/>
             </Grid.Background>
@@ -76,25 +79,25 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="2*"/>
+                <RowDefinition Height="3.5*"/>
                 <!-- Title 1 -->
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="0.4*"/>
+                <RowDefinition Height="2.7*"/>
+                <RowDefinition Height="2.3*"/>
+                <RowDefinition Height="2.3*"/>
+                <RowDefinition Height="2.3*"/>
+                <RowDefinition Height="2.3*"/>
+                <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="Time-Dasher" Grid.Row="1" Grid.Column="1" Foreground="White" HorizontalAlignment="Center"
-                       VerticalAlignment="Center" FontSize="55" FontFamily="Algerian"/>
+            <TextBlock Text="TIME-DASHER" Grid.Row="0" Grid.Column="1" Foreground="White" HorizontalAlignment="Center"
+                       VerticalAlignment="Top" FontSize="130" FontFamily="{StaticResource font}"/>
 
-            <StackPanel Grid.Row="3" Grid.Column="1">
-                <TextBlock Text="Name" HorizontalAlignment="Center" Foreground="White" FontWeight="Bold" FontSize="25"/>
+            <StackPanel Grid.Row="2" Grid.Column="1">
+                <TextBlock Text="Name" HorizontalAlignment="Center" Foreground="White" FontWeight="Bold" FontSize="35"
+                           FontFamily="{StaticResource font}" VerticalAlignment="Bottom"/>
                 <TextBox HorizontalAlignment="Stretch" Height="50" Text="{Binding Username}" FontSize="30" FontWeight="Black"
-                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="{StaticResource font}">
                     <TextBox.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="20"/>
@@ -103,28 +106,32 @@
                 </TextBox>
             </StackPanel>
 
-            <Button Grid.Row="4" Grid.Column="1" Content="START" FontSize="40" Margin="0,10" Command="{Binding StartButtonCommand}">
+            <Button Grid.Row="3" Grid.Column="1" Content="START" FontSize="50" Margin="0,5" Command="{Binding StartButtonCommand}"
+                    FontFamily="{StaticResource font}" VerticalContentAlignment="Center" Height="80">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Grid.Row="5" Grid.Column="1" Content="LEADERBOARD" FontSize="40" Margin="0,10" Command="{Binding LeaderboardButtonCommand}">
+            <Button Grid.Row="4" Grid.Column="1" Content="LEADERBOARDS" FontSize="50" Margin="0,5" Command="{Binding LeaderboardButtonCommand}"
+                    FontFamily="{StaticResource font}" VerticalContentAlignment="Center" Height="80">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Grid.Row="6" Grid.Column="1" Content="LEVEL EDITOR" FontSize="40" Margin="0,10" Command="{Binding LevelEditorButtonCommand}">
+            <Button Grid.Row="5" Grid.Column="1" Content="LEVEL EDITOR" FontSize="50" Margin="0,5" Command="{Binding LevelEditorButtonCommand}"
+                    FontFamily="{StaticResource font}" VerticalContentAlignment="Center" Height="80">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button Grid.Row="7" Grid.Column="1" Content="EXIT" FontSize="40" Margin="0,10" Command="{Binding ExitButtonCommand}">
+            <Button Grid.Row="6" Grid.Column="1" Content="EXIT" FontSize="50" Margin="0,5" Command="{Binding ExitButtonCommand}"
+                    FontFamily="{StaticResource font}" VerticalContentAlignment="Center" Height="80">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
@@ -132,8 +139,9 @@
                 </Button.Resources>
             </Button>
 
-            <Button Grid.Row="8" Grid.Column="2" Content="Mute" FontSize="25" Margin="0,0,5,5" Command="{Binding MuteButtonCommand}"
-                    Width="100" HorizontalAlignment="Right">
+            <Button Grid.Row="6" Grid.Column="2" Content="Mute" FontSize="25" Margin="0,0,5,5" Command="{Binding MuteButtonCommand}"
+                    Width="100" Height="40" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource font}"
+                    VerticalContentAlignment="Center">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>
@@ -152,7 +160,7 @@
 
             <Border Grid.Row="0" Background="#1e1e1e">
                 <Button Content="Start Custom Scene" FontSize="30" HorizontalAlignment="Right" VerticalAlignment="Center" 
-                        Padding="20,5" Margin="0,0,10,0" Command="{Binding StartCustomSceneCommand}">
+                        Padding="20,5" Margin="0,0,10,0" Command="{Binding StartCustomSceneCommand}" FontFamily="{StaticResource font}">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="10"/>
@@ -175,146 +183,218 @@
                     <Border.Background>
                         <ImageBrush ImageSource="{Binding StreetBackground}" Opacity="0.5"/>
                     </Border.Background>
-                    <StackPanel>
-                        <TextBlock Text="Streets" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold" FontFamily="Algerian" Foreground="White"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Best Time: " FontSize="32" FontFamily="Algerian" Foreground="White"/>
-                            <TextBlock Text="{Binding BestTimeStreet1}" FontSize="32" FontFamily="Algerian" Foreground="White"/>
-                        </StackPanel>
-                        <Button Content="Street" FontSize="40" Margin="0,10" Width="300" 
-                                Command="{Binding StartSceneCommand}" CommandParameter="street1"
-                                Background="Gray" BorderBrush="Black" BorderThickness="2" FontFamily="Algerian" Foreground="White">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="20"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Best Time: " FontSize="32" FontFamily="Algerian" Foreground="DarkSlateBlue"/>
-                            <TextBlock Text="{Binding BestTimeStreet2}" FontSize="32" FontFamily="Algerian" Foreground="DarkSlateBlue"/>
-                        </StackPanel>
-                        <Button Content="Street Night" FontSize="40" Margin="0,10" Width="300" 
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Streets" HorizontalAlignment="Center" FontSize="60" FontWeight="Bold" 
+                                   FontFamily="{StaticResource font}" Foreground="White"/>
+
+                        <Grid VerticalAlignment="Center" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="Best Time: " FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                                <TextBlock Text="{Binding BestTimeStreet1}" FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                            </StackPanel>
+                            <Button Content="Street" FontSize="40" Margin="0,10" Width="300" Grid.Row="1" Grid.Column="0"
+                                    Command="{Binding StartSceneCommand}" CommandParameter="street1"
+                                    Background="#503e52" BorderBrush="Black" BorderThickness="2" FontFamily="{StaticResource font}" Foreground="White">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="20"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1">
+                                <TextBlock Text="Best Time: " FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                                <TextBlock Text="{Binding BestTimeStreet2}" FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                            </StackPanel>
+                            <Button Content="Street Night" FontSize="40" Margin="0,10" Width="300" Grid.Row="1" Grid.Column="1"
                                 Command="{Binding StartSceneCommand}" CommandParameter="street2"
-                                Background="Gray" BorderBrush="Black" BorderThickness="2" FontFamily="Algerian" Foreground="DarkSlateBlue">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="20"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                    </StackPanel>
+                                Background="#503e52" BorderBrush="Black" BorderThickness="2" FontFamily="{StaticResource font}" Foreground="Black">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="20"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Border>
 
                 <Border Grid.Row="1" Grid.Column="0">
                     <Border.Background>
                         <ImageBrush ImageSource="{Binding AsiaBackground}" Opacity="0.5"/>
                     </Border.Background>
-                    <StackPanel>
-                        <TextBlock Text="Asia" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold" FontFamily="Algerian" Foreground="White"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Best Time: " FontSize="32" FontFamily="Algerian" Foreground="White"/>
-                            <TextBlock Text="{Binding BestTimeAsia1}" FontSize="32" FontFamily="Algerian" Foreground="White"/>
-                        </StackPanel>
-                        <Button Content="Asia" FontSize="40" Margin="0,10" Width="300"
-                                Command="{Binding StartSceneCommand}" CommandParameter="asia1"
-                                Background="Gray" BorderBrush="Black" BorderThickness="2" FontFamily="Algerian" Foreground="White">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="20"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Best Time: " FontSize="32" FontFamily="Algerian" Foreground="DarkSlateBlue"/>
-                            <TextBlock Text="{Binding BestTimeAsia2}" FontSize="32" FontFamily="Algerian" Foreground="DarkSlateBlue"/>
-                        </StackPanel>
-                        <Button Content="Asia Night" FontSize="40" Margin="0,10" Width="300"
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Asia" HorizontalAlignment="Center" FontSize="60" FontWeight="Bold" 
+                                   FontFamily="{StaticResource font}" Foreground="White"/>
+
+                        <Grid VerticalAlignment="Center" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="Best Time: " FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                                <TextBlock Text="{Binding BestTimeAsia1}" FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                            </StackPanel>
+                            <Button Content="Asia" FontSize="40" Margin="0,10" Width="300" Grid.Row="1" Grid.Column="0"
+                                    Command="{Binding StartSceneCommand}" CommandParameter="asia1"
+                                    Background="#503e52" BorderBrush="Black" BorderThickness="2" FontFamily="{StaticResource font}" Foreground="White">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="20"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1">
+                                <TextBlock Text="Best Time: " FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                                <TextBlock Text="{Binding BestTimeAsia2}" FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                            </StackPanel>
+                            <Button Content="Asia Night" FontSize="40" Margin="0,10" Width="300" Grid.Row="1" Grid.Column="1"
                                 Command="{Binding StartSceneCommand}" CommandParameter="asia2"
-                                Background="Gray" BorderBrush="Black" BorderThickness="2" FontFamily="Algerian" Foreground="DarkSlateBlue">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="20"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                    </StackPanel>
+                                Background="#503e52" BorderBrush="Black" BorderThickness="2" FontFamily="{StaticResource font}" Foreground="Black">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="20"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Border>
 
                 <Border Grid.Row="0" Grid.Column="1">
                     <Border.Background>
                         <ImageBrush ImageSource="{Binding MarketBackground}" Opacity="0.5"/>
                     </Border.Background>
-                    <StackPanel>
-                        <TextBlock Text="Market" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold" FontFamily="Algerian" Foreground="White"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Best Time: " FontSize="32" FontFamily="Algerian" Foreground="White"/>
-                            <TextBlock Text="{Binding BestTimeMarket1}" FontSize="32" FontFamily="Algerian" Foreground="White"/>
-                        </StackPanel>
-                        <Button Content="Market" FontSize="40" Margin="0,10" Width="300"
-                                Command="{Binding StartSceneCommand}" CommandParameter="market1"
-                                Background="Gray" BorderBrush="Black" BorderThickness="2" FontFamily="Algerian" Foreground="White">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="20"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Best Time: " FontSize="32" FontFamily="Algerian" Foreground="DarkSlateBlue"/>
-                            <TextBlock Text="{Binding BestTimeMarket2}" FontSize="32" FontFamily="Algerian" Foreground="DarkSlateBlue"/>
-                        </StackPanel>
-                        <Button Content="Market Night" FontSize="40" Margin="0,10" Width="300"
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Market" HorizontalAlignment="Center" FontSize="60" FontWeight="Bold" 
+                                   FontFamily="{StaticResource font}" Foreground="White"/>
+
+                        <Grid VerticalAlignment="Center" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="Best Time: " FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                                <TextBlock Text="{Binding BestTimeMarket1}" FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                            </StackPanel>
+                            <Button Content="Market" FontSize="40" Margin="0,10" Width="300" Grid.Row="1" Grid.Column="0"
+                                    Command="{Binding StartSceneCommand}" CommandParameter="market1"
+                                    Background="#503e52" BorderBrush="Black" BorderThickness="2" FontFamily="{StaticResource font}" Foreground="White">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="20"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1">
+                                <TextBlock Text="Best Time: " FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                                <TextBlock Text="{Binding BestTimeMarket2}" FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                            </StackPanel>
+                            <Button Content="Market Night" FontSize="40" Margin="0,10" Width="300" Grid.Row="1" Grid.Column="1"
                                 Command="{Binding StartSceneCommand}" CommandParameter="market2"
-                                Background="Gray" BorderBrush="Black" BorderThickness="2" FontFamily="Algerian" Foreground="DarkSlateBlue">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="20"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                    </StackPanel>
+                                Background="#503e52" BorderBrush="Black" BorderThickness="2" FontFamily="{StaticResource font}" Foreground="Black">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="20"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Border>
 
                 <Border Grid.Row="1" Grid.Column="1">
                     <Border.Background>
                         <ImageBrush ImageSource="{Binding JungleBackground}" Opacity="0.5"/>
                     </Border.Background>
-                    <StackPanel>
-                        <TextBlock Text="Jungle" HorizontalAlignment="Center" FontSize="40" FontWeight="Bold" FontFamily="Algerian" Foreground="White"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Best Time: " FontSize="32" FontFamily="Algerian" Foreground="White"/>
-                            <TextBlock Text="{Binding BestTimeJungle1}" FontSize="32" FontFamily="Algerian" Foreground="White"/>
-                        </StackPanel>
-                        <Button Content="Jungle" FontSize="40" Margin="0,10" Width="300"
-                                Command="{Binding StartSceneCommand}" CommandParameter="jungle1"
-                                Background="Gray" BorderBrush="Black" BorderThickness="2" FontFamily="Algerian" Foreground="White">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="20"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="Best Time: " FontSize="32" FontFamily="Algerian" Foreground="DarkSlateBlue"/>
-                            <TextBlock Text="{Binding BestTimeJungle2}" FontSize="32" FontFamily="Algerian" Foreground="DarkSlateBlue"/>
-                        </StackPanel>
-                        <Button Content="Jungle Night" FontSize="40" Margin="0,10" Width="300"
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Jungle" HorizontalAlignment="Center" FontSize="60" FontWeight="Bold" 
+                                   FontFamily="{StaticResource font}" Foreground="White"/>
+
+                        <Grid VerticalAlignment="Center" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="Best Time: " FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                                <TextBlock Text="{Binding BestTimeJungle1}" FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                            </StackPanel>
+                            <Button Content="Jungle" FontSize="40" Margin="0,10" Width="300" Grid.Row="1" Grid.Column="0"
+                                    Command="{Binding StartSceneCommand}" CommandParameter="jungle1"
+                                    Background="#503e52" BorderBrush="Black" BorderThickness="2" FontFamily="{StaticResource font}" Foreground="White">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="20"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1">
+                                <TextBlock Text="Best Time: " FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                                <TextBlock Text="{Binding BestTimeJungle2}" FontSize="32" FontFamily="{StaticResource font}" Foreground="White"/>
+                            </StackPanel>
+                            <Button Content="Jungle Night" FontSize="40" Margin="0,10" Width="300" Grid.Row="1" Grid.Column="1"
                                 Command="{Binding StartSceneCommand}" CommandParameter="jungle2"
-                                Background="Gray" BorderBrush="Black" BorderThickness="2" FontFamily="Algerian" Foreground="DarkSlateBlue">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="20"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                    </StackPanel>
+                                Background="#503e52" BorderBrush="Black" BorderThickness="2" FontFamily="{StaticResource font}" Foreground="Black">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="20"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Border>
             </Grid>
 
             <Border Background="#1e1e1e" Grid.Row="2" HorizontalAlignment="Stretch">
                 <Button Content="Back" FontSize="20" Margin="0,10" Command="{Binding BackToMenuCommand}"
-                    Width="150" HorizontalAlignment="Center">
+                    Width="150" HorizontalAlignment="Center" FontFamily="{StaticResource font}">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="20"/>
@@ -330,7 +410,11 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TabControl ItemsSource="{Binding LeaderBoard}" Background="#1e1e1e" SelectedIndex="{Binding SelectedLeaderboardTab}">
+            <TabControl ItemsSource="{Binding LeaderBoard}" SelectedIndex="{Binding SelectedLeaderboardTab}"
+                        FontFamily="{StaticResource font}">
+                <TabControl.Background>
+                    <ImageBrush ImageSource="{Binding LeaderboardBackground}" Opacity="0.5"/>
+                </TabControl.Background>
                 <TabControl.Resources>
                     <Style TargetType="{x:Type Grid}">
                         <Setter Property="Background" Value="#1e1e1e"/>
@@ -338,7 +422,7 @@
                 </TabControl.Resources>
                 <TabControl.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Path=Key}"/>
+                        <TextBlock Text="{Binding Path=Key}" FontFamily="{StaticResource font}" FontSize="25"/>
                     </DataTemplate>
                 </TabControl.ItemTemplate>
                 <TabControl.ContentTemplate>
@@ -350,7 +434,7 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock FontSize="50" FontWeight="Bold" HorizontalAlignment="Center"
-                                       Foreground="White">
+                                       Foreground="White" FontFamily="{StaticResource font}">
                                 <TextBlock.Text>
                                     <Binding Path="Key">
                                         <Binding.StringFormat>
@@ -360,8 +444,9 @@
                                 </TextBlock.Text>
                             </TextBlock>
 
-                            <ListView ItemsSource="{Binding Path=Value}" Grid.Row="1" Background="#1e1e1e"
+                            <ListView ItemsSource="{Binding Path=Value}" Background="Transparent" Grid.Row="1"
                                       HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="Focusable" Value="False"/>
@@ -371,7 +456,7 @@
                                     <DataTemplate>
                                         <Border CornerRadius="5" Background="LightBlue" Height="30" HorizontalAlignment="Stretch">
                                             <TextBlock Text="{Binding}" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                           FontSize="20"/>
+                                                           FontSize="30" FontFamily="{StaticResource font}"/>
                                         </Border>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
@@ -383,7 +468,7 @@
 
             <Border Background="#1e1e1e" Grid.Row="1" HorizontalAlignment="Stretch">
                 <Button Content="Back" FontSize="20" Margin="0,10" Command="{Binding BackButtonCommand}"
-                    Width="150" HorizontalAlignment="Center">
+                    Width="150" HorizontalAlignment="Center" FontFamily="{StaticResource font}">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="20"/>
@@ -393,35 +478,36 @@
             </Border>
         </Grid>
 
-        <Grid Visibility="{Binding GameState, Converter={StaticResource GameStateToVisibility}, ConverterParameter=pause}"
+        <Grid Visibility="{Binding GameState, Converter={StaticResource GameStateToVisibility}, ConverterParameter=pause}" 
               HorizontalAlignment="Center">
+        <!--<Grid Visibility="Visible" HorizontalAlignment="Center">-->
             <Border Width="300" Margin="100,100" Background="#c81e1e1e" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     CornerRadius="20">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="100"/>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="40"/>
-                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="52"/>
+                        <RowDefinition Height="52"/>
                         <RowDefinition Height="10"/>
-                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="45"/>
                         <RowDefinition Height="10"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="{Binding CurrentScene}" HorizontalAlignment="Center" FontSize="40" Margin="0,10,0,0"
-                           Foreground="White" VerticalAlignment="Top"/>
+                    <TextBlock Text="{Binding CurrentSceneStr}" HorizontalAlignment="Center" FontSize="40" Margin="0,10,0,0"
+                           Foreground="White" VerticalAlignment="Top" FontFamily="{StaticResource font}"/>
 
-                    <Button Content="Resume" FontSize="20" Margin="0,2" Command="{Binding ResumeButtonCommand}"
-                    Width="150" Height="36" HorizontalAlignment="Center" Grid.Row="2" Background="#121212"
-                            Foreground="White">
+                    <Button Content="Resume" FontSize="30" Margin="0,2" Command="{Binding ResumeButtonCommand}"
+                    Width="150" Height="48" HorizontalAlignment="Center" Grid.Row="2" Background="#121212"
+                            Foreground="White" FontFamily="{StaticResource font}">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="10"/>
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <Button Content="Menu" FontSize="20" Margin="0,2" Command="{Binding MenuButtonCommand}"
-                    Width="150" Height="36" HorizontalAlignment="Center" Grid.Row="3" Background="#121212"
-                            Foreground="White">
+                    <Button Content="Menu" FontSize="30" Margin="0,2" Command="{Binding MenuButtonCommand}"
+                    Width="150" Height="48" HorizontalAlignment="Center" Grid.Row="3" Background="#121212"
+                            Foreground="White" FontFamily="{StaticResource font}">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="10"/>
@@ -429,9 +515,9 @@
                         </Button.Resources>
                     </Button>
 
-                    <Button Content="Mute" FontSize="18" Margin="0,0,10,0" Command="{Binding MuteButtonCommand}"
-                    Width="100" Height="30" HorizontalAlignment="Right" Grid.Row="5" Background="#121212"
-                            Foreground="White">
+                    <Button Content="Mute" FontSize="25" Margin="0,0,10,0" Command="{Binding MuteButtonCommand}"
+                    Width="80" Height="40" HorizontalAlignment="Right" Grid.Row="5" Background="#121212"
+                            Foreground="White" FontFamily="{StaticResource font}">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="10"/>

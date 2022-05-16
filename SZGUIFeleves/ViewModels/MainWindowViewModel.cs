@@ -49,6 +49,17 @@ namespace SZGUIFeleves.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        private string currentSceneStr;
+        public string CurrentSceneStr
+        {
+            get { return currentSceneStr; }
+            set
+            {
+                currentSceneStr = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
 
         #region Buttons
@@ -166,6 +177,12 @@ namespace SZGUIFeleves.ViewModels
         #endregion
 
         #region Backgrounds
+        private string leaderboardBackground;
+        public string LeaderboardBackground
+        {
+            get { return leaderboardBackground; }
+            set { leaderboardBackground = value; OnPropertyChanged(); }
+        }
         private string menuBackground;
         public string MenuBackground
         {
@@ -209,6 +226,7 @@ namespace SZGUIFeleves.ViewModels
         {
             LeaderboardController.Run();
 
+            LeaderboardBackground = Path.GetFullPath("Textures\\leaderboardbackground.png");
             MenuBackground = Path.GetFullPath("Textures\\background.png");
             StreetBackground = Path.GetFullPath("Textures\\streetbackground.png");
             MarketBackground = Path.GetFullPath("Textures\\marketbackground.png");
@@ -359,6 +377,11 @@ namespace SZGUIFeleves.ViewModels
             }
 
             CurrentScene = scene;
+            CurrentSceneStr = scene;
+            if (CurrentSceneStr.Last() == '1')
+                CurrentSceneStr = CurrentSceneStr.Substring(0, CurrentSceneStr.Length - 1);
+            else if (CurrentSceneStr.Last() == '2')
+                CurrentSceneStr = CurrentSceneStr.Substring(0, CurrentSceneStr.Length - 1) + " Night";
 
             double bScore = 0;
             if (LastScores.ContainsKey(CurrentScene))
@@ -391,11 +414,17 @@ namespace SZGUIFeleves.ViewModels
             GameState = GameStates.Leaderboard;
 
             var unordered = LeaderboardController.GetAll();
+            Dictionary<string, List<LeaderboardScore>> unorderedCapital = new Dictionary<string, List<LeaderboardScore>>();
             foreach(KeyValuePair<string,List<LeaderboardScore>> ls in unordered)
             {
-                unordered[ls.Key] = unordered[ls.Key].OrderBy(x => x.Seconds).Take(15).ToList();
+                string key = string.Concat(ls.Key[0].ToString().ToUpper(), ls.Key.AsSpan(1));
+                if (key.Last() == '1')
+                    key = key.Substring(0, key.Length - 1);
+                else if (key.Last() == '2')
+                    key = key.Substring(0, key.Length - 1) + " Night";
+                unorderedCapital[key] = unordered[ls.Key].OrderBy(x => x.Seconds).Take(15).ToList();
             }
-            LeaderBoard = unordered;
+            LeaderBoard = unorderedCapital;
             if(LeaderBoard.Count > 0)
                 SelectedLeaderboardTab = 0;
         }

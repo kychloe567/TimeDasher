@@ -356,8 +356,11 @@ namespace SZGUIFeleves.Logic
 
         public void Mute()
         {
-            if(BackgroundSound.Volume == 0)
+            if (BackgroundSound.Volume == 0)
+            {
                 BackgroundSound.Volume = 0.05f;
+                BackgroundSound.Position = TimeSpan.Zero;
+            }
             else
                 BackgroundSound.Volume = 0;
         }
@@ -387,11 +390,11 @@ namespace SZGUIFeleves.Logic
 
             // Uncomment to get FPS property -> To display averaged FPS
             #region
-            double currentFps = 1.0f / Elapsed;
-            RecentFPS.Add(currentFps);
-            if (RecentFPS.Count > 20)
-                RecentFPS.Remove(RecentFPS.First());
-            ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
+            //double currentFps = 1.0f / Elapsed;
+            //RecentFPS.Add(currentFps);
+            //if (RecentFPS.Count > 20)
+            //    RecentFPS.Remove(RecentFPS.First());
+            //ObjectsToDisplayScreenSpace.Add(new Text(new Vec2d(10, 10), FPS.ToString(), 25, new Color(255, 255, 255)));
             #endregion
 
             Update();

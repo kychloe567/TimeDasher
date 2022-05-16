@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove=".ttf" />
+    <None Remove="Fonts\Koulen-Regular.ttf" />
     <None Remove="UITextures\heart.png" />
     <None Remove="UITextures\heartempty.png" />
   </ItemGroup>
@@ -29,6 +31,10 @@
     <Content Include="UITextures\heartempty.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Fonts\Koulen-Regular.ttf" />
   </ItemGroup>
 
 </Project>
